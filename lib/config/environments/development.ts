@@ -1,4 +1,4 @@
-import type { DevelopmentEnvConfig } from '../env'
+// Development-specific configuration overrides
 
 // Development-specific configuration overrides
 export const developmentConfig = {

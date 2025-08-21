@@ -1,0 +1,134 @@
+# StreamVault Code Owners
+# This file defines who should review specific parts of the codebase
+# Order matters - the last matching pattern takes precedence
+
+# Global fallback - all files require review from core team
+* @code-craka
+
+# === AUTHENTICATION & SECURITY ===
+# All authentication-related components require security team review
+/app/(auth)/ @code-craka
+/components/auth/ @code-craka
+/lib/auth/ @code-craka
+/middleware.ts @code-craka
+
+# Clerk integration and session management
+**/auth.ts @code-craka
+**/session.ts @code-craka
+**/middleware.ts @code-craka
+
+# Security configuration files
+/lib/config/validator.ts @code-craka
+/lib/config/startup.ts @code-craka
+**/security.ts @code-craka
+
+# === API ROUTES & BACKEND ===
+# All API routes require backend specialist review
+/app/api/ @code-craka
+
+# Payment and subscription endpoints require extra scrutiny
+/app/api/stripe/ @code-craka
+/app/api/payments/ @code-craka
+/app/api/subscriptions/ @code-craka
+
+# Streaming and upload endpoints
+/app/api/streaming/ @code-craka
+/app/api/upload/ @code-craka
+/app/api/transcode/ @code-craka
+
+# === PAYMENT INTEGRATION ===
+# All payment-related code requires senior developer review
+/lib/stripe/ @code-craka
+/components/payment/ @code-craka
+**/stripe.ts @code-craka
+**/payment.ts @code-craka
+**/subscription.ts @code-craka
+
+# === STREAMING INFRASTRUCTURE ===
+# Streaming components require media specialist review
+/components/player/ @code-craka
+/lib/streaming/ @code-craka
+/lib/storage/ @code-craka
+**/player.ts @code-craka
+**/streaming.ts @code-craka
+**/transcode.ts @code-craka
+
+# === DATABASE & STORAGE ===
+# Database schemas and models require data engineer review
+/lib/firebase/ @code-craka
+/lib/storage/ @code-craka
+**/schema.ts @code-craka
+**/models.ts @code-craka
+**/database.ts @code-craka
+
+# === INFRASTRUCTURE & DEPLOYMENT ===
+# Infrastructure changes require DevOps team review
+/.github/ @code-craka
+/docker* @code-craka
+/**/Dockerfile @code-craka
+/k8s/ @code-craka
+/terraform/ @code-craka
+/.env* @code-craka
+/next.config.js @code-craka
+/tailwind.config.js @code-craka
+
+# GitHub Actions workflows require DevOps approval
+/.github/workflows/ @code-craka
+/.github/copilot.json @code-craka
+/.github/rulesets/ @code-craka
+
+# === CONFIGURATION & ENVIRONMENT ===
+# Configuration files require infrastructure team review
+/lib/config/ @code-craka
+/types/config.ts @code-craka
+/env* @code-craka
+
+# === TESTING ===
+# Test infrastructure changes require QA team review
+/tests/ @code-craka
+/**/test/ @code-craka
+/**/*.test.ts @code-craka
+/**/*.test.tsx @code-craka
+/**/*.spec.ts @code-craka
+/jest.config.js @code-craka
+/playwright.config.ts @code-craka
+
+# === UI COMPONENTS ===
+# Core UI components require frontend lead review
+/components/ui/ @code-craka
+/app/globals.css @code-craka
+
+# Chat system requires real-time specialist review
+/components/chat/ @code-craka
+/lib/chat/ @code-craka
+
+# === DOCUMENTATION ===
+# Documentation changes can be reviewed by any maintainer
+/*.md @code-craka
+/docs/ @code-craka
+/.kiro/ @code-craka
+
+# === DEPENDENCIES ===
+# Package.json changes require architecture review
+/package.json @code-craka
+/pnpm-lock.yaml @code-craka
+/package-lock.json @code-craka
+
+# === CRITICAL SECURITY FILES ===
+# These files require multiple approvals due to security implications
+/lib/config/validator.ts @code-craka
+/middleware.ts @code-craka
+/.github/workflows/ @code-craka
+
+# === PERFORMANCE CRITICAL ===
+# Performance-critical components require optimization review
+/lib/monitoring/ @code-craka
+/lib/analytics/ @code-craka
+**/performance.ts @code-craka
+
+# === AI & CONTENT MODERATION ===
+# AI-related features require AI specialist review
+/lib/ai/ @code-craka
+/components/moderation/ @code-craka
+**/ai.ts @code-craka
+**/moderation.ts @code-craka

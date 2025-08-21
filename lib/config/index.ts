@@ -17,7 +17,9 @@ export class Config {
   // Server-side configuration getter
   public getServerConfig(): EnvConfig {
     if (typeof window !== 'undefined') {
-      throw new Error('getServerConfig() should only be called on the server side')
+      throw new Error(
+        'getServerConfig() should only be called on the server side'
+      )
     }
 
     if (!this.envConfig) {
@@ -46,13 +48,16 @@ export class Config {
   }
 
   // Feature flag utilities
-  public isFeatureEnabled(feature: keyof Pick<EnvConfig, 
-    'ENABLE_AI_FEATURES' | 
-    'ENABLE_WHITE_LABEL' | 
-    'ENABLE_ANALYTICS' | 
-    'ENABLE_PWA' | 
-    'ENABLE_OFFLINE_DOWNLOADS'
-  >): boolean {
+  public isFeatureEnabled(
+    feature: keyof Pick<
+      EnvConfig,
+      | 'ENABLE_AI_FEATURES'
+      | 'ENABLE_WHITE_LABEL'
+      | 'ENABLE_ANALYTICS'
+      | 'ENABLE_PWA'
+      | 'ENABLE_OFFLINE_DOWNLOADS'
+    >
+  ): boolean {
     if (typeof window !== 'undefined') {
       // Client-side feature flags should be handled differently
       // For now, return false for security

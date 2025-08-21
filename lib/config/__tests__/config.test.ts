@@ -15,7 +15,8 @@ const mockEnv = {
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_123',
   CLERK_SECRET_KEY: 'sk_test_123',
   FIREBASE_PROJECT_ID: 'test-firebase',
-  FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n',
+  FIREBASE_PRIVATE_KEY:
+    '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n',
   FIREBASE_CLIENT_EMAIL: 'firebase@test-firebase.iam.gserviceaccount.com',
   NEXT_PUBLIC_FIREBASE_API_KEY: 'test-api-key',
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'test-firebase.firebaseapp.com',
@@ -60,7 +61,7 @@ describe('Configuration System', () => {
 
     it('should fail validation with missing required variables', () => {
       delete process.env.NEXT_PUBLIC_APP_URL
-      
+
       const result = validateConfiguration()
       expect(result.success).toBe(false)
       expect(result.errors.length).toBeGreaterThan(0)
@@ -68,33 +69,41 @@ describe('Configuration System', () => {
 
     it('should fail validation with invalid URL format', () => {
       process.env.NEXT_PUBLIC_APP_URL = 'not-a-valid-url'
-      
+
       const result = validateConfiguration()
       expect(result.success).toBe(false)
-      expect(result.errors.some(error => error.includes('not a valid URL'))).toBe(true)
+      expect(
+        result.errors.some(error => error.includes('not a valid URL'))
+      ).toBe(true)
     })
 
     it('should fail validation with short JWT secret', () => {
       process.env.JWT_SECRET = 'short'
-      
+
       const result = validateConfiguration()
       expect(result.success).toBe(false)
-      expect(result.errors.some(error => error.includes('JWT_SECRET'))).toBe(true)
+      expect(result.errors.some(error => error.includes('JWT_SECRET'))).toBe(
+        true
+      )
     })
 
     it('should fail validation with wrong encryption key length', () => {
       process.env.ENCRYPTION_KEY = 'wrong-length'
-      
+
       const result = validateConfiguration()
       expect(result.success).toBe(false)
-      expect(result.errors.some(error => error.includes('ENCRYPTION_KEY'))).toBe(true)
+      expect(
+        result.errors.some(error => error.includes('ENCRYPTION_KEY'))
+      ).toBe(true)
     })
 
     it('should warn about placeholder values', () => {
       process.env.STRIPE_SECRET_KEY = 'sk_test_...'
-      
+
       const result = validateConfiguration()
-      expect(result.warnings.some(warning => warning.includes('placeholder'))).toBe(true)
+      expect(
+        result.warnings.some(warning => warning.includes('placeholder'))
+      ).toBe(true)
     })
   })
 
@@ -151,15 +160,15 @@ describe('Configuration System', () => {
 
     it('should provide service-specific configurations', () => {
       const config = Config.getInstance()
-      
+
       const storageConfig = config.getStorageConfig()
       expect(storageConfig.gcp.projectId).toBe('test-project')
       expect(storageConfig.gcp.bucketName).toBe('test-bucket')
-      
+
       const authConfig = config.getAuthConfig()
       expect(authConfig.clerk.secretKey).toBe('sk_test_123')
       expect(authConfig.jwt.secret).toBeDefined()
-      
+
       const paymentConfig = config.getPaymentConfig()
       expect(paymentConfig.stripe.secretKey).toBe('sk_test_123')
       expect(paymentConfig.stripe.prices.basic).toBe('price_basic_123')
@@ -170,7 +179,7 @@ describe('Configuration System', () => {
     it('should handle feature flags correctly', () => {
       process.env.ENABLE_AI_FEATURES = 'true'
       process.env.ENABLE_WHITE_LABEL = 'false'
-      
+
       const config = Config.getInstance()
       expect(config.isFeatureEnabled('ENABLE_AI_FEATURES')).toBe(true)
       expect(config.isFeatureEnabled('ENABLE_WHITE_LABEL')).toBe(false)
@@ -193,17 +202,25 @@ describe('Configuration System', () => {
 
     it('should require additional services in production', () => {
       delete process.env.DATABASE_URL
-      
+
       const result = validateConfiguration()
       expect(result.success).toBe(false)
-      expect(result.errors.some(error => error.includes('DATABASE_URL is required in production'))).toBe(true)
+      expect(
+        result.errors.some(error =>
+          error.includes('DATABASE_URL is required in production')
+        )
+      ).toBe(true)
     })
 
     it('should warn about debug mode in production', () => {
       process.env.NEXT_PUBLIC_DEBUG_MODE = 'true'
-      
+
       const result = validateConfiguration()
-      expect(result.errors.some(error => error.includes('Debug mode should be disabled in production'))).toBe(true)
+      expect(
+        result.errors.some(error =>
+          error.includes('Debug mode should be disabled in production')
+        )
+      ).toBe(true)
     })
   })
 })

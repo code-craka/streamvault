@@ -82,12 +82,12 @@ if (config.isDevelopment()) {
 ### Utility Functions
 
 ```typescript
-import { 
-  isDev, 
-  isProd, 
-  isFeatureEnabled, 
+import {
+  isDev,
+  isProd,
+  isFeatureEnabled,
   getAppUrl,
-  CONFIG_CONSTANTS 
+  CONFIG_CONSTANTS,
 } from '@/lib/utils/config'
 
 // Environment checks
@@ -153,6 +153,7 @@ WEBHOOK_SECRET=your-webhook-secret
 ### Environment-Specific Requirements
 
 **Production Additional Requirements:**
+
 ```bash
 DATABASE_URL=postgresql://...
 REDIS_URL=redis://...
@@ -164,6 +165,7 @@ ANALYTICS_ID=G-...
 ```
 
 **Staging Additional Requirements:**
+
 ```bash
 DATABASE_URL=postgresql://...
 REDIS_URL=redis://...

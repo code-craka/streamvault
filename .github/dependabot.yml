@@ -1,0 +1,175 @@
+version: 2
+updates:
+  # === NPM DEPENDENCIES ===
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+
+    # Security updates - high priority
+    open-pull-requests-limit: 10
+
+    # Grouping strategy for related packages
+    groups:
+      # Next.js ecosystem
+      nextjs:
+        patterns:
+          - 'next'
+          - '@next/*'
+          - 'eslint-config-next'
+
+      # React ecosystem
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - '@testing-library/react'
+
+      # TypeScript and linting
+      typescript:
+        patterns:
+          - 'typescript'
+          - '@typescript-eslint/*'
+          - '@types/*'
+
+      # Testing frameworks
+      testing:
+        patterns:
+          - 'jest'
+          - '@jest/*'
+          - '@testing-library/*'
+          - '@playwright/test'
+          - 'jest-environment-*'
+
+      # Styling and UI
+      styling:
+        patterns:
+          - 'tailwindcss'
+          - 'tailwindcss-*'
+          - '@radix-ui/*'
+          - 'class-variance-authority'
+          - 'tailwind-merge'
+          - 'clsx'
+
+      # Streaming and media
+      streaming:
+        patterns:
+          - 'hls.js'
+          - '@google-cloud/storage'
+
+      # Authentication
+      auth:
+        patterns:
+          - '@clerk/*'
+          - 'firebase'
+
+      # Payment processing
+      payments:
+        patterns:
+          - 'stripe'
+
+      # Development tools
+      devtools:
+        patterns:
+          - 'prettier'
+          - 'prettier-*'
+          - 'eslint'
+          - 'eslint-*'
+          - 'husky'
+          - '@commitlint/*'
+
+    # Auto-merge configuration for patches and minor security updates
+    assignees:
+      - 'code-craka'
+
+    reviewers:
+      - 'code-craka'
+
+    labels:
+      - 'dependencies'
+      - 'automated'
+
+    # Custom commit messages following conventional commits
+    commit-message:
+      prefix: 'fix'
+      prefix-development: 'chore'
+      include: 'scope'
+
+    # Pull request configuration
+    pull-request-branch-name:
+      separator: '/'
+
+    # Version requirements
+    versioning-strategy: increase
+
+    # Ignore specific packages that require manual updates
+    ignore:
+      # Pin Next.js to specific version for stability
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+
+      # Pin React 19 until ecosystem catches up
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+
+      # Manual TypeScript upgrades for compatibility
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+
+  # === GITHUB ACTIONS ===
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '10:00'
+      timezone: 'UTC'
+
+    labels:
+      - 'github-actions'
+      - 'infrastructure'
+      - 'automated'
+
+    assignees:
+      - 'code-craka'
+
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+
+    # Group all GitHub Actions updates together
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  # === DOCKER ===
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '09:00'
+      timezone: 'UTC'
+
+    labels:
+      - 'docker'
+      - 'infrastructure'
+      - 'automated'
+
+    assignees:
+      - 'code-craka'
+
+    commit-message:
+      prefix: 'build'
+      include: 'scope'
+# Security-only updates configuration
+# Dependabot will also automatically create security updates
+# outside of the scheduled updates for critical vulnerabilities

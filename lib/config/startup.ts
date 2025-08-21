@@ -31,9 +31,9 @@ export function initializeConfiguration(): void {
 }
 
 // Log configuration summary (safe for logging)
-function logConfigurationSummary(serverConfig: any): void {
+function logConfigurationSummary(serverConfig: Record<string, unknown>): void {
   const env = process.env.APP_ENV || process.env.NODE_ENV
-  
+
   console.log('\n📋 Configuration Summary:')
   console.log(`   Environment: ${env}`)
   console.log(`   App URL: ${serverConfig.NEXT_PUBLIC_APP_URL}`)
@@ -41,7 +41,7 @@ function logConfigurationSummary(serverConfig: any): void {
   console.log(`   GCS Bucket: ${serverConfig.GCS_BUCKET_NAME}`)
   console.log(`   Streaming Domain: ${serverConfig.STREAMING_DOMAIN}`)
   console.log(`   Log Level: ${serverConfig.LOG_LEVEL}`)
-  
+
   // Feature flags
   const features = []
   if (serverConfig.ENABLE_AI_FEATURES) features.push('AI')
@@ -49,11 +49,11 @@ function logConfigurationSummary(serverConfig: any): void {
   if (serverConfig.ENABLE_ANALYTICS) features.push('Analytics')
   if (serverConfig.ENABLE_PWA) features.push('PWA')
   if (serverConfig.ENABLE_OFFLINE_DOWNLOADS) features.push('Offline Downloads')
-  
+
   if (features.length > 0) {
     console.log(`   Enabled Features: ${features.join(', ')}`)
   }
-  
+
   // Optional services status
   const services = []
   if (serverConfig.DATABASE_URL) services.push('Database')
@@ -61,11 +61,11 @@ function logConfigurationSummary(serverConfig: any): void {
   if (serverConfig.SENTRY_DSN) services.push('Sentry')
   if (serverConfig.OPENAI_API_KEY) services.push('OpenAI')
   if (serverConfig.CLOUDFLARE_API_TOKEN) services.push('Cloudflare')
-  
+
   if (services.length > 0) {
     console.log(`   Connected Services: ${services.join(', ')}`)
   }
-  
+
   console.log('')
 }
 

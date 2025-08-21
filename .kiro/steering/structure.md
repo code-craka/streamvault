@@ -1,6 +1,7 @@
 # StreamVault Project Structure
 
 ## Root Directory Structure
+
 ```
 streamvault/
 ├── app/                          # Next.js 15 App Router (no src folder)
@@ -54,12 +55,14 @@ streamvault/
 ## App Router Organization
 
 ### Route Groups
+
 - `(auth)` - Authentication pages (sign-in, sign-up)
 - `(dashboard)` - Protected user dashboard areas
 - `(admin)` - Admin-only routes
 - `(api)` - API route organization
 
 ### Key App Routes
+
 ```
 app/
 ├── page.tsx                      # Homepage with content discovery
@@ -91,6 +94,7 @@ app/
 ## Component Organization
 
 ### UI Components (shadcn/ui)
+
 ```
 components/ui/
 ├── button.tsx
@@ -102,6 +106,7 @@ components/ui/
 ```
 
 ### Feature Components
+
 ```
 components/
 ├── auth/
@@ -136,6 +141,7 @@ components/
 ## Service Layer Organization
 
 ### Core Services
+
 ```
 lib/
 ├── auth/
@@ -171,6 +177,7 @@ lib/
 ## Type Definitions
 
 ### Core Types
+
 ```
 types/
 ├── auth.ts                      # User and authentication types
@@ -184,6 +191,7 @@ types/
 ## Testing Structure
 
 ### Test Organization
+
 ```
 tests/
 ├── __mocks__/                   # Mock implementations
@@ -207,6 +215,7 @@ tests/
 ## Configuration Files
 
 ### Root Level Configs
+
 - `package.json` - Dependencies and scripts
 - `tsconfig.json` - TypeScript configuration
 - `tailwind.config.js` - Tailwind CSS configuration
@@ -220,12 +229,14 @@ tests/
 ## Development Conventions
 
 ### File Naming
+
 - Components: PascalCase (`UserProfile.tsx`)
 - Utilities: camelCase (`apiClient.ts`)
 - Pages: lowercase (`page.tsx`, `layout.tsx`)
 - Types: PascalCase with descriptive names
 
 ### Import Organization
+
 1. React and Next.js imports
 2. Third-party library imports
 3. Internal component imports
@@ -233,6 +244,7 @@ tests/
 5. Type imports (with `type` keyword)
 
 ### Folder Conventions
+
 - Group related functionality together
 - Keep components close to where they're used
 - Separate concerns (UI, business logic, data)
