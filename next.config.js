@@ -1,3 +1,5 @@
+// Configuration will be initialized in middleware.ts instead
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['@google-cloud/storage'],

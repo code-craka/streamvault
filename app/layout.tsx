@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
+// Initialize configuration system on server-side
+import '@/lib/config/init'
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {

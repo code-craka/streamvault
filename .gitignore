@@ -63,3 +63,8 @@ temp/
 # Cache
 .cache/
 .parcel-cache/
+.gcp
+.gcp/service-account.json
+.gcp/firebase-adminsdk-fbsvc-cc86734eaf.json
+.env.staging
+.env.development

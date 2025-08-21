@@ -220,5 +220,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Support**: [Coming Soon]
 
 ---
+## Author
+Sayem Abdullah Rihan
 
-Built with ❤️ by the StreamVault Team
+Built with ❤️ by the TechSci Team
