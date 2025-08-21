@@ -55,6 +55,8 @@ logs
 *.json
 !package*.json
 !tsconfig*.json
+!.github/**/*.json
+!lighthouserc.json
 
 # Temporary files
 .tmp/
