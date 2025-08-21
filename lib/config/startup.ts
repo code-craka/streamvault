@@ -1,5 +1,6 @@
 import { validateConfigurationOnStartup } from './validator'
 import { config } from './index'
+import type { EnvConfig } from './env'
 
 // Configuration initialization flag
 let isInitialized = false
@@ -31,7 +32,7 @@ export function initializeConfiguration(): void {
 }
 
 // Log configuration summary (safe for logging)
-function logConfigurationSummary(serverConfig: any): void {
+function logConfigurationSummary(serverConfig: EnvConfig): void {
   const env = process.env.APP_ENV || process.env.NODE_ENV
   
   console.log('\n📋 Configuration Summary:')

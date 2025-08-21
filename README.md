@@ -132,6 +132,27 @@ The project uses Husky for git hooks:
 - **pre-commit**: Runs linting and type checking
 - **commit-msg**: Validates commit message format (conventional commits)
 
+### 🤖 Automatic Code Review
+
+This repository is configured with GitHub Copilot automatic code review:
+
+#### Features Enabled
+- **Automatic PR Reviews**: Copilot analyzes all pull requests and provides feedback
+- **Security Scanning**: Automatic detection of security vulnerabilities
+- **Code Quality**: Suggestions for improving code quality and performance
+- **Autofix**: Automatic fixes for common issues and security vulnerabilities
+
+#### How It Works
+1. **Pull Request Creation**: When you create a PR, Copilot automatically reviews the changes
+2. **CI Integration**: The CI pipeline includes security scans and code quality checks
+3. **Automated Fixes**: Copilot can automatically create PRs for security fixes
+4. **Status Checks**: All checks must pass before merging
+
+#### Configuration
+- Copilot settings: `.github/copilot.json`
+- Branch protection rules: `.github/rulesets/main-branch-protection.json`
+- Workflows: `.github/workflows/`
+
 ## 🏗️ Architecture
 
 ### Core Services

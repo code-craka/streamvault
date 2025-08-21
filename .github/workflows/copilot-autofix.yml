@@ -1,0 +1,131 @@
+name: Copilot Autofix
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run daily at 2 AM UTC to catch new security vulnerabilities
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+  actions: read
+
+jobs:
+  copilot-autofix:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run security audit
+        id: audit
+        run: |
+          pnpm audit --audit-level moderate --json > audit.json || true
+          echo "audit_result=$(cat audit.json)" >> $GITHUB_OUTPUT
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          languages: javascript
+          output: sarif-results
+          upload: false
+
+      - name: Enable Copilot Autofix
+        uses: github/copilot-autofix-action@v1
+        with:
+          # Enable autofix for security vulnerabilities
+          security_vulnerabilities: true
+          # Enable autofix for code quality issues
+          code_quality_issues: true
+          # Create pull requests for fixes
+          create_pull_request: true
+          # Target branch for fixes
+          target_branch: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  pr-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Analyze PR changes
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD --name-only > changed_files.txt
+          echo "Changed files:"
+          cat changed_files.txt
+
+      - name: Run focused linting on changed files
+        run: |
+          if [ -s changed_files.txt ]; then
+            # Filter for TypeScript/JavaScript files
+            grep -E '\.(ts|tsx|js|jsx)$' changed_files.txt > js_files.txt || true
+            if [ -s js_files.txt ]; then
+              pnpm eslint $(cat js_files.txt | tr '\n' ' ')
+            fi
+          fi
+
+      - name: Generate code review comments
+        uses: github/copilot-pr-review-action@v1
+        with:
+          # Focus review on changed files
+          focus_on_diff: true
+          # Include security suggestions
+          include_security_review: true
+          # Include performance suggestions
+          include_performance_review: true
+          # Include code quality suggestions
+          include_code_quality_review: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-approve-dependabot:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Auto-approve minor and patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

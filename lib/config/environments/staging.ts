@@ -1,5 +1,3 @@
-import type { StagingEnvConfig } from '../env'
-
 // Staging-specific configuration
 export const stagingConfig = {
   // Staging security (production-like but with some relaxations)

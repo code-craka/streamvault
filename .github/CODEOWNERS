@@ -1,0 +1,40 @@
+# StreamVault Code Owners
+# This file defines individuals or teams that are responsible
+# for code in the repository and will be automatically
+# requested for review when someone opens a pull request.
+
+# Global owners - will be requested for review on all PRs
+* @code-craka
+
+# Core application files
+/app/ @code-craka
+/components/ @code-craka
+/lib/ @code-craka
+/hooks/ @code-craka
+
+# Configuration and build files
+*.config.js @code-craka
+*.config.ts @code-craka
+package.json @code-craka
+tsconfig.json @code-craka
+next.config.js @code-craka
+
+# GitHub workflows and configuration
+/.github/ @code-craka
+
+# Security and environment files
+/.env* @code-craka
+/middleware.ts @code-craka
+
+# Documentation
+/README.md @code-craka
+/docs/ @code-craka
+/.kiro/ @code-craka
+
+# Testing
+/tests/ @code-craka
+jest.config.js @code-craka
+playwright.config.ts @code-craka
+
+# Types and schemas
+/types/ @code-craka

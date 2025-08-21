@@ -1,5 +1,3 @@
-import type { ProductionEnvConfig } from '../env'
-
 // Production-specific configuration
 export const productionConfig = {
   // Production security (strict)

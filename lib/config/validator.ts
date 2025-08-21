@@ -40,11 +40,11 @@ export function validateConfiguration(): ValidationResult {
     result.config = config
 
     // Environment-specific validations
-    const envConfig = getEnvironmentConfig()
+    getEnvironmentConfig() // Call the function but don't assign to unused variable
     const env = process.env.APP_ENV || process.env.NODE_ENV
 
     // Check for common configuration issues
-    validateCommonIssues(config, result, env)
+    validateCommonIssues(config, result)
 
     // Environment-specific validations
     if (env === 'production') {
@@ -70,7 +70,7 @@ export function validateConfiguration(): ValidationResult {
   }
 }
 
-function validateCommonIssues(config: EnvConfig, result: ValidationResult, env: string) {
+function validateCommonIssues(config: EnvConfig, result: ValidationResult) {
   // Check for placeholder values
   const placeholderPatterns = [
     'your-',

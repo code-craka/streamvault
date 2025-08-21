@@ -1,5 +1,3 @@
-import type { DevelopmentEnvConfig } from '../env'
-
 // Development-specific configuration overrides
 export const developmentConfig = {
   // Relaxed security for development
