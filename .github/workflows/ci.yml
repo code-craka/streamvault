@@ -114,12 +114,11 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: 'Build application'
-        run: pnpm build
+        run: |
+          cp .env.build .env.local
+          pnpm build
         env:
-          # Provide minimal required env vars for build
-          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
-          GCP_PROJECT_ID: 'test-project'
-          GCS_BUCKET_NAME: 'test-bucket'
+          CI: true
 
       - name: 'Analyze bundle size'
         run: |
@@ -156,11 +155,11 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: 'Build application for E2E'
-        run: pnpm build
+        run: |
+          cp .env.build .env.local
+          pnpm build
         env:
-          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
-          GCP_PROJECT_ID: 'test-project'
-          GCS_BUCKET_NAME: 'test-bucket'
+          CI: true
 
       - name: 'Run E2E tests'
         run: pnpm test:e2e
@@ -249,11 +248,11 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: 'Build for performance testing'
-        run: pnpm build
+        run: |
+          cp .env.build .env.local
+          pnpm build
         env:
-          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
-          GCP_PROJECT_ID: 'test-project'
-          GCS_BUCKET_NAME: 'test-bucket'
+          CI: true
 
       - name: 'Bundle size check'
         run: |

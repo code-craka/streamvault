@@ -287,6 +287,12 @@ function isValidEmail(email: string): boolean {
 
 // Configuration startup validator
 export function validateConfigurationOnStartup(): void {
+  // Skip validation in CI/build environments unless forced
+  if (process.env.CI === 'true' || process.env.SKIP_CONFIG_VALIDATION === 'true') {
+    console.log('🔧 Skipping configuration validation (CI/build environment)')
+    return
+  }
+  
   console.log('🔍 Validating configuration...')
 
   const result = validateConfiguration()
