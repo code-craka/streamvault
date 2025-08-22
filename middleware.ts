@@ -7,13 +7,13 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks(.*)',
-  '/api/health'
+  '/api/health',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
   // Create response with enhanced security headers
   const response = NextResponse.next()
-  
+
   // Security headers to prevent various attacks
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
@@ -35,7 +35,10 @@ export default clerkMiddleware(async (auth, req) => {
   // Rate limiting headers
   response.headers.set('X-RateLimit-Limit', '100')
   response.headers.set('X-RateLimit-Remaining', '99')
-  response.headers.set('X-RateLimit-Reset', new Date(Date.now() + 60000).toISOString())
+  response.headers.set(
+    'X-RateLimit-Reset',
+    new Date(Date.now() + 60000).toISOString()
+  )
 
   // If the route is not public, protect it with authentication
   if (!isPublicRoute(req)) {
@@ -43,7 +46,11 @@ export default clerkMiddleware(async (auth, req) => {
       await auth.protect()
     } catch (error) {
       // Log authentication failures for security monitoring
-      console.error('Authentication failed for protected route:', req.url, error)
+      console.error(
+        'Authentication failed for protected route:',
+        req.url,
+        error
+      )
       return NextResponse.redirect(new URL('/sign-in', req.url))
     }
   }
