@@ -6,7 +6,10 @@ A modern, aesthetic live streaming platform with subscription-based monetization
 
 - **Live Streaming**: Professional quality broadcasting with RTMP ingest and HLS delivery
 - **VOD Management**: Secure video-on-demand with signed URLs and content protection
+- **User Management**: Role-based access control (viewer/streamer/admin) with Clerk authentication
 - **Subscription Monetization**: Tiered plans (Basic $9.99, Premium $19.99, Pro $29.99)
+- **Protected Routes**: Middleware-based route protection with subscription tier validation
+- **User Profiles**: Comprehensive profile management with preferences and settings
 - **Real-time Engagement**: Advanced chat system with AI moderation and custom emotes
 - **AI Enhancement**: Automated content processing, thumbnails, and recommendations
 - **Enterprise Features**: White-label customization, comprehensive APIs, and multi-tenancy
@@ -35,16 +38,27 @@ streamvault/
 │   └── globals.css        # Global styles
 ├── components/            # Reusable React components
 │   ├── ui/                # shadcn/ui components
-│   ├── auth/              # Authentication components
+│   ├── auth/              # Authentication & authorization components
+│   │   ├── protected-route.tsx    # Route protection wrapper
+│   │   ├── access-denied.tsx      # Access denied pages
+│   │   └── user-profile.tsx       # User profile management
 │   ├── player/            # Video player components
 │   └── chat/              # Chat system components
 ├── lib/                   # Utility functions and services
 │   ├── auth/              # Authentication utilities
+│   │   ├── permissions.ts         # Role & permission validation
+│   │   ├── subscription.ts        # Subscription tier management
+│   │   └── middleware.ts          # API route protection
 │   ├── streaming/         # Streaming services
 │   ├── storage/           # GCS and file management
 │   └── stripe/            # Payment processing
 ├── types/                 # TypeScript type definitions
-└── hooks/                 # Custom React hooks
+│   ├── auth.ts            # User roles & permissions
+│   ├── subscription.ts    # Subscription tiers & billing
+│   └── config.ts          # Configuration types
+├── hooks/                 # Custom React hooks
+│   └── use-user.ts        # Enhanced user management hook
+└── middleware.ts          # Next.js middleware for auth
 ```
 
 ## 🚦 Getting Started
