@@ -40,11 +40,11 @@ export function validateConfiguration(): ValidationResult {
     result.config = config
 
     // Environment-specific validations
-    const envConfig = getEnvironmentConfig()
+    getEnvironmentConfig() // Get config to ensure it's properly loaded
     const env = process.env.APP_ENV || process.env.NODE_ENV
 
     // Check for common configuration issues
-    validateCommonIssues(config, result, env)
+    validateCommonIssues(config, result)
 
     // Environment-specific validations
     if (env === 'production') {
@@ -65,12 +65,14 @@ export function validateConfiguration(): ValidationResult {
 
     return result
   } catch (error) {
-    result.errors.push(error instanceof Error ? error.message : 'Unknown validation error')
+    result.errors.push(
+      error instanceof Error ? error.message : 'Unknown validation error'
+    )
     return result
   }
 }
 
-function validateCommonIssues(config: EnvConfig, result: ValidationResult, env: string) {
+function validateCommonIssues(config: EnvConfig, result: ValidationResult) {
   // Check for placeholder values
   const placeholderPatterns = [
     'your-',
@@ -85,7 +87,9 @@ function validateCommonIssues(config: EnvConfig, result: ValidationResult, env: 
     if (typeof value === 'string') {
       placeholderPatterns.forEach(pattern => {
         if (value.includes(pattern)) {
-          result.warnings.push(`${key} appears to contain placeholder value: ${pattern}`)
+          result.warnings.push(
+            `${key} appears to contain placeholder value: ${pattern}`
+          )
         }
       })
     }
@@ -123,7 +127,9 @@ function validateProductionConfig(config: EnvConfig, result: ValidationResult) {
   }
 
   if (config.LOG_LEVEL === 'debug') {
-    result.warnings.push('Debug logging is enabled in production, consider using "info" or "warn"')
+    result.warnings.push(
+      'Debug logging is enabled in production, consider using "info" or "warn"'
+    )
   }
 
   // Check for test/development keys in production
@@ -132,7 +138,9 @@ function validateProductionConfig(config: EnvConfig, result: ValidationResult) {
     if (typeof value === 'string' && key.includes('KEY')) {
       testKeyPatterns.forEach(pattern => {
         if (value.toLowerCase().includes(pattern)) {
-          result.warnings.push(`${key} appears to contain test/development credentials`)
+          result.warnings.push(
+            `${key} appears to contain test/development credentials`
+          )
         }
       })
     }
@@ -165,31 +173,43 @@ function validateStagingConfig(config: EnvConfig, result: ValidationResult) {
 
   // Warn about production-like settings
   if (config.NEXT_PUBLIC_DEBUG_MODE) {
-    result.warnings.push('Debug mode is enabled in staging, consider disabling for production-like testing')
+    result.warnings.push(
+      'Debug mode is enabled in staging, consider disabling for production-like testing'
+    )
   }
 }
 
-function validateDevelopmentConfig(config: EnvConfig, result: ValidationResult) {
+function validateDevelopmentConfig(
+  config: EnvConfig,
+  result: ValidationResult
+) {
   // Development-specific validations
-  if (config.NEXT_PUBLIC_APP_URL && !config.NEXT_PUBLIC_APP_URL.includes('localhost')) {
-    result.warnings.push('APP_URL should typically point to localhost in development')
+  if (
+    config.NEXT_PUBLIC_APP_URL &&
+    !config.NEXT_PUBLIC_APP_URL.includes('localhost')
+  ) {
+    result.warnings.push(
+      'APP_URL should typically point to localhost in development'
+    )
   }
 
   // Check for missing optional services (warnings only)
-  const optionalServices = [
-    'DATABASE_URL',
-    'REDIS_URL',
-    'OPENAI_API_KEY',
-  ]
+  const optionalServices = ['DATABASE_URL', 'REDIS_URL', 'OPENAI_API_KEY']
 
   optionalServices.forEach(service => {
     if (!config[service as keyof EnvConfig]) {
-      result.warnings.push(`${service} is not set - some features may not work in development`)
+      result.warnings.push(
+        `${service} is not set - some features may not work in development`
+      )
     }
   })
 }
 
-function validateSecurityConfig(config: EnvConfig, result: ValidationResult, env: string) {
+function validateSecurityConfig(
+  config: EnvConfig,
+  result: ValidationResult,
+  env: string
+) {
   // JWT secret strength
   if (config.JWT_SECRET.length < 32) {
     result.errors.push('JWT_SECRET must be at least 32 characters long')
@@ -221,11 +241,18 @@ function validateSecurityConfig(config: EnvConfig, result: ValidationResult, env
   }
 }
 
-function validatePerformanceConfig(config: EnvConfig, result: ValidationResult, env: string) {
+function validatePerformanceConfig(
+  config: EnvConfig,
+  result: ValidationResult,
+  env: string
+) {
   // File size limits
   const maxFileSize = config.MAX_FILE_SIZE
-  if (maxFileSize > 10 * 1024 * 1024 * 1024) { // 10GB
-    result.warnings.push('MAX_FILE_SIZE is very large, consider storage and bandwidth costs')
+  if (maxFileSize > 10 * 1024 * 1024 * 1024) {
+    // 10GB
+    result.warnings.push(
+      'MAX_FILE_SIZE is very large, consider storage and bandwidth costs'
+    )
   }
 
   // Rate limiting
@@ -237,7 +264,9 @@ function validatePerformanceConfig(config: EnvConfig, result: ValidationResult, 
   // Thumbnail sizes
   const thumbnailSizes = config.THUMBNAIL_SIZES.split(',')
   if (thumbnailSizes.length > 5) {
-    result.warnings.push('Many thumbnail sizes configured, consider performance impact')
+    result.warnings.push(
+      'Many thumbnail sizes configured, consider performance impact'
+    )
   }
 }
 
@@ -258,30 +287,38 @@ function isValidEmail(email: string): boolean {
 
 // Configuration startup validator
 export function validateConfigurationOnStartup(): void {
+  // Skip validation in CI/build environments unless forced
+  if (process.env.CI === 'true' || process.env.SKIP_CONFIG_VALIDATION === 'true') {
+    console.log('🔧 Skipping configuration validation (CI/build environment)')
+    return
+  }
+  
   console.log('🔍 Validating configuration...')
-  
+
   const result = validateConfiguration()
-  
+
   if (result.warnings.length > 0) {
     console.warn('⚠️  Configuration warnings:')
     result.warnings.forEach(warning => console.warn(`   - ${warning}`))
   }
-  
+
   if (result.errors.length > 0) {
     console.error('❌ Configuration errors:')
     result.errors.forEach(error => console.error(`   - ${error}`))
-    
-    console.error('\n💡 Please fix the configuration errors above before starting the application.')
+
+    console.error(
+      '\n💡 Please fix the configuration errors above before starting the application.'
+    )
     process.exit(1)
   }
-  
+
   console.log('✅ Configuration validation passed')
-  
+
   // Log environment info
   const env = process.env.APP_ENV || process.env.NODE_ENV
   const envConfig = getEnvironmentConfig()
   console.log(`🚀 Starting in ${env} mode`)
-  
+
   if (env === 'development' && envConfig.features.enableDebugMode) {
     console.log('🐛 Debug mode enabled')
   }

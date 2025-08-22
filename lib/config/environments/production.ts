@@ -1,4 +1,4 @@
-import type { ProductionEnvConfig } from '../env'
+// Production-specific configuration
 
 // Production-specific configuration
 export const productionConfig = {

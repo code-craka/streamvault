@@ -1,4 +1,4 @@
-import type { StagingEnvConfig } from '../env'
+// Staging-specific configuration
 
 // Staging-specific configuration
 export const stagingConfig = {

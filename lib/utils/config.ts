@@ -1,13 +1,13 @@
 // Utility functions for configuration access throughout the application
 
 import { config } from '@/lib/config'
-import type { 
-  DatabaseConfig, 
-  StorageConfig, 
-  StreamingConfig, 
-  AuthConfig, 
+import type {
+  DatabaseConfig,
+  StorageConfig,
+  StreamingConfig,
+  AuthConfig,
   PaymentConfig,
-  ClientConfig 
+  ClientConfig,
 } from '@/types/config'
 
 // Server-side configuration utilities
@@ -34,12 +34,13 @@ export function isStaging(): boolean {
 }
 
 // Feature flag utilities
-export function isFeatureEnabled(feature: 
-  'ENABLE_AI_FEATURES' | 
-  'ENABLE_WHITE_LABEL' | 
-  'ENABLE_ANALYTICS' | 
-  'ENABLE_PWA' | 
-  'ENABLE_OFFLINE_DOWNLOADS'
+export function isFeatureEnabled(
+  feature:
+    | 'ENABLE_AI_FEATURES'
+    | 'ENABLE_WHITE_LABEL'
+    | 'ENABLE_ANALYTICS'
+    | 'ENABLE_PWA'
+    | 'ENABLE_OFFLINE_DOWNLOADS'
 ): boolean {
   return config.isFeatureEnabled(feature)
 }
@@ -89,7 +90,10 @@ export function requireEnvVar(name: string): string {
   return value
 }
 
-export function getEnvVar(name: string, defaultValue?: string): string | undefined {
+export function getEnvVar(
+  name: string,
+  defaultValue?: string
+): string | undefined {
   return process.env[name] || defaultValue
 }
 
@@ -99,12 +103,17 @@ export function getBooleanEnvVar(name: string, defaultValue = false): boolean {
   return value.toLowerCase() === 'true'
 }
 
-export function getNumberEnvVar(name: string, defaultValue?: number): number | undefined {
+export function getNumberEnvVar(
+  name: string,
+  defaultValue?: number
+): number | undefined {
   const value = process.env[name]
   if (!value) return defaultValue
   const parsed = parseInt(value, 10)
   if (isNaN(parsed)) {
-    throw new Error(`Environment variable ${name} is not a valid number: ${value}`)
+    throw new Error(
+      `Environment variable ${name} is not a valid number: ${value}`
+    )
   }
   return parsed
 }
@@ -117,24 +126,24 @@ export const CONFIG_CONSTANTS = {
     PREMIUM: 'premium',
     PRO: 'pro',
   } as const,
-  
+
   // User roles
   USER_ROLES: {
     VIEWER: 'viewer',
     STREAMER: 'streamer',
     ADMIN: 'admin',
   } as const,
-  
+
   // Stream statuses
   STREAM_STATUSES: {
     INACTIVE: 'inactive',
     ACTIVE: 'active',
     ENDED: 'ended',
   } as const,
-  
+
   // File types
   ALLOWED_VIDEO_TYPES: ['mp4', 'mov', 'avi', 'mkv', 'webm'] as const,
-  
+
   // Video qualities
   VIDEO_QUALITIES: {
     '480p': '480p',
@@ -145,7 +154,11 @@ export const CONFIG_CONSTANTS = {
 } as const
 
 // Type exports for convenience
-export type SubscriptionTier = typeof CONFIG_CONSTANTS.SUBSCRIPTION_TIERS[keyof typeof CONFIG_CONSTANTS.SUBSCRIPTION_TIERS]
-export type UserRole = typeof CONFIG_CONSTANTS.USER_ROLES[keyof typeof CONFIG_CONSTANTS.USER_ROLES]
-export type StreamStatus = typeof CONFIG_CONSTANTS.STREAM_STATUSES[keyof typeof CONFIG_CONSTANTS.STREAM_STATUSES]
-export type VideoQuality = typeof CONFIG_CONSTANTS.VIDEO_QUALITIES[keyof typeof CONFIG_CONSTANTS.VIDEO_QUALITIES]
+export type SubscriptionTier =
+  (typeof CONFIG_CONSTANTS.SUBSCRIPTION_TIERS)[keyof typeof CONFIG_CONSTANTS.SUBSCRIPTION_TIERS]
+export type UserRole =
+  (typeof CONFIG_CONSTANTS.USER_ROLES)[keyof typeof CONFIG_CONSTANTS.USER_ROLES]
+export type StreamStatus =
+  (typeof CONFIG_CONSTANTS.STREAM_STATUSES)[keyof typeof CONFIG_CONSTANTS.STREAM_STATUSES]
+export type VideoQuality =
+  (typeof CONFIG_CONSTANTS.VIDEO_QUALITIES)[keyof typeof CONFIG_CONSTANTS.VIDEO_QUALITIES]

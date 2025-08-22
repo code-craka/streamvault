@@ -51,30 +51,34 @@ streamvault/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm 8+
 - Git
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/code-craka/streamvault.git
 cd streamvault
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 # Fill in your actual values in .env.local
 ```
 
 4. Start the development server:
+
 ```bash
 pnpm dev
 ```
@@ -84,6 +88,7 @@ pnpm dev
 ## 📝 Available Scripts
 
 ### Development
+
 ```bash
 pnpm dev          # Start development server
 pnpm build        # Build for production
@@ -94,6 +99,7 @@ pnpm type-check   # TypeScript type checking
 ```
 
 ### Testing
+
 ```bash
 pnpm test         # Run unit tests
 pnpm test:watch   # Run tests in watch mode
@@ -129,6 +135,7 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
 ### Git Hooks
 
 The project uses Husky for git hooks:
+
 - **pre-commit**: Runs linting and type checking
 - **commit-msg**: Validates commit message format (conventional commits)
 
@@ -154,16 +161,19 @@ The project uses Husky for git hooks:
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 pnpm test
 ```
 
 ### E2E Tests
+
 ```bash
 pnpm test:e2e
 ```
 
 ### Coverage Requirements
+
 - Minimum 80% code coverage
 - All critical paths must be tested
 - Integration tests for API endpoints
@@ -171,12 +181,14 @@ pnpm test:e2e
 ## 🚀 Deployment
 
 ### Production Build
+
 ```bash
 pnpm build
 pnpm start
 ```
 
 ### Environment Setup
+
 1. Configure production environment variables
 2. Set up Google Cloud Storage bucket
 3. Configure Stripe webhooks
@@ -199,7 +211,9 @@ pnpm start
 5. Open a Pull Request
 
 ### Commit Convention
+
 We use [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` New features
 - `fix:` Bug fixes
 - `docs:` Documentation changes
@@ -220,7 +234,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Support**: [Coming Soon]
 
 ---
+
 ## Author
+
 Sayem Abdullah Rihan
 
 Built with ❤️ by the TechSci Team

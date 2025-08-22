@@ -1,0 +1,154 @@
+{
+  "version": "1.0",
+  "copilot": {
+    "features": {
+      "code_review": {
+        "enabled": true,
+        "auto_comment": true,
+        "security_analysis": true,
+        "performance_analysis": true,
+        "best_practices": true
+      },
+      "pull_request_analysis": {
+        "enabled": true,
+        "detailed_feedback": true,
+        "suggestion_threshold": "medium",
+        "auto_fix": {
+          "security_vulnerabilities": true,
+          "code_style": true,
+          "dependency_updates": true
+        }
+      },
+      "security_scanning": {
+        "enabled": true,
+        "vulnerability_detection": true,
+        "secret_scanning": true,
+        "dependency_scanning": true,
+        "auto_remediation": true
+      }
+    },
+    "rules": {
+      "streamvault_specific": {
+        "authentication": {
+          "require_clerk_integration": true,
+          "enforce_jwt_validation": true,
+          "check_role_based_access": true
+        },
+        "streaming": {
+          "validate_hls_implementation": true,
+          "check_rtmp_security": true,
+          "enforce_cdn_usage": true,
+          "validate_transcoding_settings": true
+        },
+        "payments": {
+          "require_stripe_webhook_validation": true,
+          "enforce_pci_compliance": true,
+          "validate_subscription_logic": true
+        },
+        "performance": {
+          "enforce_core_web_vitals": true,
+          "check_bundle_size": true,
+          "validate_image_optimization": true,
+          "require_lazy_loading": true
+        },
+        "security": {
+          "enforce_https": true,
+          "validate_cors_settings": true,
+          "check_input_validation": true,
+          "require_rate_limiting": true
+        }
+      },
+      "code_quality": {
+        "typescript": {
+          "enforce_strict_mode": true,
+          "require_type_annotations": true,
+          "ban_any_type": true,
+          "enforce_consistent_naming": true
+        },
+        "react": {
+          "enforce_hooks_rules": true,
+          "require_prop_types": false,
+          "enforce_jsx_key": true,
+          "prefer_function_components": true
+        },
+        "nextjs": {
+          "enforce_app_router": true,
+          "require_metadata_api": true,
+          "validate_dynamic_imports": true,
+          "check_server_components": true
+        }
+      },
+      "testing": {
+        "coverage_threshold": 80,
+        "require_unit_tests": true,
+        "require_integration_tests": true,
+        "enforce_test_naming": true
+      }
+    },
+    "allowlist": {
+      "external_domains": [
+        "fonts.googleapis.com",
+        "fonts.gstatic.com",
+        "cdn.jsdelivr.net",
+        "unpkg.com",
+        "api.stripe.com",
+        "checkout.stripe.com",
+        "js.stripe.com",
+        "clerk.com",
+        "*.clerk.accounts.dev",
+        "firebase.googleapis.com",
+        "*.googleapis.com",
+        "storage.googleapis.com",
+        "cloudflare.com",
+        "*.cloudflare.com"
+      ],
+      "npm_packages": [
+        "@clerk/nextjs",
+        "@google-cloud/storage",
+        "@radix-ui/*",
+        "@tanstack/react-query",
+        "firebase",
+        "stripe",
+        "next",
+        "react",
+        "react-dom",
+        "tailwindcss",
+        "framer-motion",
+        "hls.js",
+        "lucide-react",
+        "zod",
+        "zustand"
+      ]
+    },
+    "notifications": {
+      "pr_comments": {
+        "enabled": true,
+        "include_suggestions": true,
+        "include_security_warnings": true,
+        "include_performance_tips": true
+      },
+      "status_checks": {
+        "enabled": true,
+        "fail_on_critical_issues": true,
+        "warn_on_suggestions": true
+      }
+    },
+    "integrations": {
+      "github_actions": {
+        "enabled": true,
+        "workflow_triggers": ["pull_request", "push"],
+        "auto_fix_commits": true
+      },
+      "codeql": {
+        "enabled": true,
+        "custom_queries": true,
+        "sarif_upload": true
+      },
+      "dependabot": {
+        "enabled": true,
+        "auto_merge_patches": true,
+        "security_updates_only": false
+      }
+    }
+  }
+}
