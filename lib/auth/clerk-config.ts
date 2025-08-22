@@ -50,7 +50,8 @@ export async function initializeNewUser(userId: string): Promise<void> {
     role: 'viewer',
     subscriptionTier: null,
     subscriptionStatus: null,
-    onboardingCompleted: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     preferences: {
       theme: 'dark',
       language: 'en',
@@ -62,9 +63,14 @@ export async function initializeNewUser(userId: string): Promise<void> {
         chatMention: true
       },
       privacy: {
-        profileVisible: true,
         showOnlineStatus: true,
-        allowDirectMessages: true
+        allowDirectMessages: true,
+        showViewingHistory: true
+      },
+      streaming: {
+        defaultQuality: '720p',
+        autoPlay: true,
+        chatEnabled: true
       }
     }
   }
@@ -80,8 +86,7 @@ export async function completeOnboarding(
   role: UserRole = 'viewer'
 ): Promise<void> {
   await updateUserMetadata(userId, {
-    role,
-    onboardingCompleted: true
+    role
   })
 }
 

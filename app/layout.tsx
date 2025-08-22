@@ -10,16 +10,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'StreamVault - Professional Live Streaming Platform',
-  description:
-    'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
-  keywords: [
-    'streaming',
-    'live',
-    'video',
-    'content',
-    'creator',
-    'monetization',
-  ],
+  description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+  keywords: ['streaming', 'live', 'video', 'content', 'creator', 'monetization'],
   authors: [{ name: 'StreamVault Team' }],
   creator: 'StreamVault',
   publisher: 'StreamVault',
@@ -28,13 +20,10 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  ),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
     title: 'StreamVault - Professional Live Streaming Platform',
-    description:
-      'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+    description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     siteName: 'StreamVault',
     locale: 'en_US',
@@ -43,8 +32,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'StreamVault - Professional Live Streaming Platform',
-    description:
-      'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+    description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
     creator: '@streamvault',
   },
   robots: {
@@ -70,27 +58,9 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
       signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-      afterSignInUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
-      afterSignUpUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
     >
       <html lang="en" suppressHydrationWarning>
-        <head>
-          {/* Preload Google Fonts with fallback handling for firewall environments */}
-          <link
-            rel="preconnect"
-            href="https://fonts.googleapis.com"
-            crossOrigin="anonymous"
-          />
-          <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossOrigin="anonymous"
-          />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
-            rel="stylesheet"
-          />
-        </head>
+        <head />
         <body className={`${inter.className} font-sans antialiased`}>
           <div id="root">
             {children}

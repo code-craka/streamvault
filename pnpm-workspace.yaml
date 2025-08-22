@@ -1,2 +1,9 @@
 packages:
-  - '.'
+  - .
+
+onlyBuiltDependencies:
+  - '@clerk/shared'
+  - '@tailwindcss/oxide'
+  - protobufjs
+  - sharp
+  - unrs-resolver

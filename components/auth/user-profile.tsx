@@ -1,212 +1,521 @@
 'use client'
 
-import { useUser } from '@clerk/nextjs'
-import { useState } from 'react'
-import { UserRole, SubscriptionTier } from '@/types/auth'
-import { 
-  getUserDisplayName, 
-  formatUserRole, 
-  formatSubscriptionTier,
-  isActiveSubscriber,
-  canAccessPremiumFeatures,
-  canAccessProFeatures
-} from '@/lib/auth/permissions'
+// User profile management component
 
-interface UserProfileProps {
-  showSubscriptionInfo?: boolean
-  showRoleInfo?: boolean
-  compact?: boolean
+import { useState, useEffect, useMemo } from 'react'
+import { useUser } from '@clerk/nextjs'
+import { User, Settings, Bell, Eye } from 'lucide-react'
+import type { UserPreferences, StreamVaultUser } from '@/types/auth'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { getSubscriptionTierDisplayName, getSubscriptionStatusText } from '@/lib/auth/subscription'
+
+export function UserProfile() {
+    const { user, isLoaded } = useUser()
+    const [isUpdating, setIsUpdating] = useState(false)
+
+    // Initialize preferences with defaults, then update with user's existing preferences
+    const defaultPreferences: UserPreferences = useMemo(() => ({
+        theme: 'system',
+        language: 'en',
+        notifications: {
+            email: true,
+            push: true,
+            streamStart: true,
+            newFollower: true,
+            chatMention: true,
+        },
+        privacy: {
+            showOnlineStatus: true,
+            allowDirectMessages: true,
+            showViewingHistory: false,
+        },
+        streaming: {
+            defaultQuality: '1080p',
+            autoPlay: true,
+            chatEnabled: true,
+        },
+    }), [])
+
+    const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences)
+
+    // Load user's existing preferences when component mounts
+    useEffect(() => {
+        if (user && user.unsafeMetadata?.preferences) {
+            setPreferences({
+                ...defaultPreferences,
+                ...user.unsafeMetadata.preferences,
+            })
+        }
+    }, [user, defaultPreferences])
+
+    if (!isLoaded) {
+        return <LoadingSpinner text="Loading profile..." />
+    }
+
+    if (!user) {
+        return <div>Please sign in to view your profile.</div>
+    }
+
+    const streamVaultUser = transformClerkUser(user)
+
+    const handleUpdatePreferences = async () => {
+        setIsUpdating(true)
+        try {
+            // For user preferences, we should use unsafeMetadata since it's user-controlled
+            // publicMetadata should only be updated from the backend for security
+            await user.update({
+                unsafeMetadata: {
+                    ...user.unsafeMetadata,
+                    preferences,
+                    updatedAt: new Date().toISOString(),
+                },
+            })
+        } catch (error) {
+            console.error('Failed to update preferences:', error)
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
+    return (
+        <div className="max-w-4xl mx-auto p-6 space-y-6">
+            {/* Profile Header */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center space-x-4">
+                        <Avatar className="h-20 w-20">
+                            <AvatarImage src={user.imageUrl} alt={user.firstName || 'User'} />
+                            <AvatarFallback>
+                                {user.firstName?.[0]}{user.lastName?.[0]}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                            <CardTitle className="text-2xl">
+                                {user.firstName} {user.lastName}
+                            </CardTitle>
+                            <CardDescription className="text-lg">
+                                @{user.username || user.emailAddresses[0]?.emailAddress}
+                            </CardDescription>
+                            <div className="flex items-center space-x-2 mt-2">
+                                <Badge variant="secondary">
+                                    {streamVaultUser.role}
+                                </Badge>
+                                <Badge variant={streamVaultUser.subscriptionStatus === 'active' ? 'default' : 'outline'}>
+                                    {getSubscriptionTierDisplayName(streamVaultUser.subscriptionTier)}
+                                </Badge>
+                                <Badge variant="outline">
+                                    {getSubscriptionStatusText(streamVaultUser.subscriptionStatus)}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
+            {/* Profile Tabs */}
+            <Tabs defaultValue="general" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="general" className="flex items-center space-x-2">
+                        <User className="h-4 w-4" />
+                        <span>General</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="notifications" className="flex items-center space-x-2">
+                        <Bell className="h-4 w-4" />
+                        <span>Notifications</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="privacy" className="flex items-center space-x-2">
+                        <Eye className="h-4 w-4" />
+                        <span>Privacy</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="streaming" className="flex items-center space-x-2">
+                        <Settings className="h-4 w-4" />
+                        <span>Streaming</span>
+                    </TabsTrigger>
+                </TabsList>
+
+                {/* General Settings */}
+                <TabsContent value="general">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>General Settings</CardTitle>
+                            <CardDescription>
+                                Manage your basic account settings and preferences.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="firstName">First Name</Label>
+                                    <Input
+                                        id="firstName"
+                                        value={user.firstName || ''}
+                                        onChange={(e) => user.update({ firstName: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="lastName">Last Name</Label>
+                                    <Input
+                                        id="lastName"
+                                        value={user.lastName || ''}
+                                        onChange={(e) => user.update({ lastName: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="username">Username</Label>
+                                <Input
+                                    id="username"
+                                    value={user.username || ''}
+                                    onChange={(e) => user.update({ username: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="theme">Theme</Label>
+                                <Select
+                                    value={preferences.theme}
+                                    onValueChange={(value: 'light' | 'dark' | 'system') =>
+                                        setPreferences(prev => ({ ...prev, theme: value }))
+                                    }
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="light">Light</SelectItem>
+                                        <SelectItem value="dark">Dark</SelectItem>
+                                        <SelectItem value="system">System</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="language">Language</Label>
+                                <Select
+                                    value={preferences.language}
+                                    onValueChange={(value) =>
+                                        setPreferences(prev => ({ ...prev, language: value }))
+                                    }
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="en">English</SelectItem>
+                                        <SelectItem value="es">Spanish</SelectItem>
+                                        <SelectItem value="fr">French</SelectItem>
+                                        <SelectItem value="de">German</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Notification Settings */}
+                <TabsContent value="notifications">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Notification Preferences</CardTitle>
+                            <CardDescription>
+                                Choose how you want to be notified about activity.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="email-notifications">Email Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive notifications via email
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="email-notifications"
+                                    checked={preferences.notifications.email}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            notifications: { ...prev.notifications, email: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="push-notifications">Push Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive push notifications in your browser
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="push-notifications"
+                                    checked={preferences.notifications.push}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            notifications: { ...prev.notifications, push: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="stream-start">Stream Start Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Get notified when followed streamers go live
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="stream-start"
+                                    checked={preferences.notifications.streamStart}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            notifications: { ...prev.notifications, streamStart: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="new-follower">New Follower Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Get notified when someone follows you
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="new-follower"
+                                    checked={preferences.notifications.newFollower}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            notifications: { ...prev.notifications, newFollower: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="chat-mention">Chat Mention Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Get notified when mentioned in chat
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="chat-mention"
+                                    checked={preferences.notifications.chatMention}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            notifications: { ...prev.notifications, chatMention: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Privacy Settings */}
+                <TabsContent value="privacy">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Privacy Settings</CardTitle>
+                            <CardDescription>
+                                Control your privacy and what others can see.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="show-online">Show Online Status</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Let others see when you&apos;re online
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="show-online"
+                                    checked={preferences.privacy.showOnlineStatus}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            privacy: { ...prev.privacy, showOnlineStatus: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="allow-dms">Allow Direct Messages</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Allow other users to send you direct messages
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="allow-dms"
+                                    checked={preferences.privacy.allowDirectMessages}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            privacy: { ...prev.privacy, allowDirectMessages: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="show-history">Show Viewing History</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Let others see what streams you&apos;ve watched
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="show-history"
+                                    checked={preferences.privacy.showViewingHistory}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            privacy: { ...prev.privacy, showViewingHistory: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Streaming Settings */}
+                <TabsContent value="streaming">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Streaming Preferences</CardTitle>
+                            <CardDescription>
+                                Configure your streaming and viewing preferences.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="default-quality">Default Video Quality</Label>
+                                <Select
+                                    value={preferences.streaming.defaultQuality}
+                                    onValueChange={(value: '480p' | '720p' | '1080p' | '4K') =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            streaming: { ...prev.streaming, defaultQuality: value }
+                                        }))
+                                    }
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="480p">480p</SelectItem>
+                                        <SelectItem value="720p">720p</SelectItem>
+                                        <SelectItem value="1080p">1080p</SelectItem>
+                                        <SelectItem value="4K">4K</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="auto-play">Auto-play Videos</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Automatically start playing videos when you visit a stream
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="auto-play"
+                                    checked={preferences.streaming.autoPlay}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            streaming: { ...prev.streaming, autoPlay: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="chat-enabled">Enable Chat</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Show chat when watching streams
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="chat-enabled"
+                                    checked={preferences.streaming.chatEnabled}
+                                    onCheckedChange={(checked) =>
+                                        setPreferences(prev => ({
+                                            ...prev,
+                                            streaming: { ...prev.streaming, chatEnabled: checked }
+                                        }))
+                                    }
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+
+            {/* Save Button */}
+            <div className="flex justify-end">
+                <Button
+                    onClick={handleUpdatePreferences}
+                    disabled={isUpdating}
+                >
+                    {isUpdating ? (
+                        <>
+                            <LoadingSpinner size="sm" className="mr-2" />
+                            Saving...
+                        </>
+                    ) : (
+                        'Save Changes'
+                    )}
+                </Button>
+            </div>
+        </div>
+    )
 }
 
-export function UserProfile({ 
-  showSubscriptionInfo = true, 
-  showRoleInfo = true,
-  compact = false 
-}: UserProfileProps) {
-  const { user, isLoaded } = useUser()
-  const [isEditing, setIsEditing] = useState(false)
+// Transform Clerk user to StreamVault user
+function transformClerkUser(clerkUser: any): StreamVaultUser {
+    const publicMetadata = clerkUser.publicMetadata || {}
+    const unsafeMetadata = clerkUser.unsafeMetadata || {}
 
-  if (!isLoaded) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-4 bg-gray-700 rounded w-32 mb-2"></div>
-        <div className="h-3 bg-gray-700 rounded w-24"></div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="text-gray-400">
-        Not authenticated
-      </div>
-    )
-  }
-
-  const displayName = getUserDisplayName(user)
-  const role = (user.publicMetadata?.role as UserRole) || 'viewer'
-  const subscriptionTier = (user.publicMetadata?.subscriptionTier as SubscriptionTier) || null
-  const subscriptionStatus = user.publicMetadata?.subscriptionStatus as string
-  const isSubscribed = isActiveSubscriber(user)
-  const hasPremium = canAccessPremiumFeatures(user)
-  const hasPro = canAccessProFeatures(user)
-
-  if (compact) {
-    return (
-      <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-          <span className="text-white text-sm font-semibold">
-            {displayName.charAt(0).toUpperCase()}
-          </span>
-        </div>
-        <div>
-          <p className="text-white font-medium text-sm">{displayName}</p>
-          <p className="text-gray-400 text-xs">
-            {formatUserRole(role)}
-            {subscriptionTier && ` • ${formatSubscriptionTier(subscriptionTier)}`}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-xl font-bold">
-              {displayName.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-white">{displayName}</h3>
-            <p className="text-gray-400">{user.emailAddresses[0]?.emailAddress}</p>
-            {user.username && (
-              <p className="text-gray-500 text-sm">@{user.username}</p>
-            )}
-          </div>
-        </div>
-        
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
-        >
-          {isEditing ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {showRoleInfo && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Role
-            </label>
-            <div className="flex items-center space-x-2">
-              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                role === 'admin' ? 'bg-red-900 text-red-200' :
-                role === 'streamer' ? 'bg-purple-900 text-purple-200' :
-                'bg-gray-700 text-gray-300'
-              }`}>
-                {formatUserRole(role)}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {showSubscriptionInfo && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Subscription
-            </label>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  hasPro ? 'bg-yellow-900 text-yellow-200' :
-                  hasPremium ? 'bg-blue-900 text-blue-200' :
-                  'bg-gray-700 text-gray-300'
-                }`}>
-                  {formatSubscriptionTier(subscriptionTier)}
-                </span>
-                
-                {isSubscribed && (
-                  <span className="flex items-center text-green-400 text-xs">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                    Active
-                  </span>
-                )}
-              </div>
-              
-              {subscriptionStatus && subscriptionStatus !== 'active' && (
-                <p className="text-yellow-400 text-xs">
-                  Status: {subscriptionStatus}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Account Details
-          </label>
-          <div className="text-sm text-gray-400 space-y-1">
-            <p>User ID: {user.id}</p>
-            <p>Created: {new Date(user.createdAt!).toLocaleDateString()}</p>
-            <p>Last Updated: {new Date(user.updatedAt!).toLocaleDateString()}</p>
-          </div>
-        </div>
-
-        {/* Feature Access Indicators */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Feature Access
-          </label>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                role === 'streamer' || role === 'admin' ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">Live Streaming</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                hasPremium ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">HD Quality</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                hasPremium ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">Offline Downloads</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                hasPro ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">4K Streaming</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                role === 'admin' ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">Admin Access</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                hasPro ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className="text-gray-300">API Access</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    return {
+        id: clerkUser.id,
+        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+        username: clerkUser.username,
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+        imageUrl: clerkUser.imageUrl,
+        // Role and subscription data should come from publicMetadata (backend controlled)
+        role: publicMetadata.role || 'viewer',
+        subscriptionTier: publicMetadata.subscriptionTier || null,
+        subscriptionStatus: publicMetadata.subscriptionStatus || null,
+        subscriptionId: publicMetadata.subscriptionId,
+        customerId: publicMetadata.customerId,
+        // User preferences come from unsafeMetadata (user controlled)
+        preferences: unsafeMetadata.preferences,
+        createdAt: new Date(clerkUser.createdAt),
+        updatedAt: new Date(clerkUser.updatedAt),
+    }
 }

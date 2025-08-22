@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser } from '@/hooks/use-user'
 import { SubscriptionTier } from '@/types/auth'
+import { SUBSCRIPTION_PLANS } from '@/types/subscription'
 import { SubscriptionBadge } from './role-badge'
 import { 
   getUserSubscriptionTier, 
@@ -75,27 +76,6 @@ const SUBSCRIPTION_FEATURES: SubscriptionFeature[] = [
   }
 ]
 
-const SUBSCRIPTION_PLANS = {
-  basic: {
-    name: 'Basic',
-    price: 9.99,
-    description: 'Perfect for casual viewers',
-    popular: false
-  },
-  premium: {
-    name: 'Premium',
-    price: 19.99,
-    description: 'Great for regular users',
-    popular: true
-  },
-  pro: {
-    name: 'Pro',
-    price: 29.99,
-    description: 'For power users and creators',
-    popular: false
-  }
-}
-
 export function SubscriptionManager() {
   const { user } = useUser()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier>('premium')
@@ -132,14 +112,14 @@ export function SubscriptionManager() {
           <h3 className="text-xl font-semibold text-white">Current Subscription</h3>
           <SubscriptionBadge 
             tier={currentTier} 
-            status={user.publicMetadata?.subscriptionStatus as string}
+            status={user.subscriptionStatus || undefined}
           />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-white">
-              ${SUBSCRIPTION_PLANS[currentTier].price}
+              ${currentTier ? SUBSCRIPTION_PLANS[currentTier].price : SUBSCRIPTION_PLANS.basic.price}
             </div>
             <div className="text-gray-400 text-sm">per month</div>
           </div>
