@@ -29,7 +29,7 @@
   - _Requirements: Infrastructure setup, security requirements_
 
 - [ ] 3. Basic Authentication Setup with Clerk
-  - [ ] 3.1 Install and configure Clerk SDK
+  - [-] 3.1 Install and configure Clerk SDK
     - Install @clerk/nextjs and configure basic setup
     - Create Clerk application and configure OAuth providers (Google, GitHub, Discord)
     - Set up basic middleware for route protection
