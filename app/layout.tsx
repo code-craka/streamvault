@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 
 // Initialize configuration system on server-side
@@ -53,12 +54,20 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <div id="root">
-          {children}
-        </div>
-      </body>
-    </html>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+      afterSignInUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
+      afterSignUpUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
+    >
+      <html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
+          <div id="root">
+            {children}
+          </div>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

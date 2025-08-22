@@ -28,8 +28,8 @@
   - Set up development, staging, and production environment configurations
   - _Requirements: Infrastructure setup, security requirements_
 
-- [ ] 3. Basic Authentication Setup with Clerk
-  - [ ] 3.1 Install and configure Clerk SDK
+- [x] 3. Basic Authentication Setup with Clerk
+  - [x] 3.1 Install and configure Clerk SDK
     - Install @clerk/nextjs and configure basic setup
     - Create Clerk application and configure OAuth providers (Google, GitHub, Discord)
     - Set up basic middleware for route protection
@@ -37,7 +37,7 @@
     - Test basic authentication flow
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 3.2 Implement user role and subscription management
+  - [x] 3.2 Implement user role and subscription management
     - Create TypeScript interfaces for user metadata and roles
     - Implement user role validation utilities (viewer/streamer/admin)
     - Set up subscription tier checking functions
