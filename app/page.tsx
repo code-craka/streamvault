@@ -1,3 +1,6 @@
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import Link from 'next/link'
+
 export default function HomePage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -14,13 +17,33 @@ export default function HomePage() {
                         and enterprise-grade features. Stream, engage, and monetize your content
                         with cutting-edge technology.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
-                            Start Streaming
-                        </button>
-                        <button className="px-8 py-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-900 text-white font-semibold rounded-lg transition-colors">
-                            Learn More
-                        </button>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <SignedOut>
+                            <SignInButton mode="modal">
+                                <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                                    Get Started
+                                </button>
+                            </SignInButton>
+                            <Link href="/sign-up">
+                                <button className="px-8 py-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-900 text-white font-semibold rounded-lg transition-colors">
+                                    Sign Up
+                                </button>
+                            </Link>
+                        </SignedOut>
+                        <SignedIn>
+                            <Link href="/dashboard">
+                                <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                                    Go to Dashboard
+                                </button>
+                            </Link>
+                            <UserButton 
+                                appearance={{
+                                    elements: {
+                                        avatarBox: 'w-10 h-10'
+                                    }
+                                }}
+                            />
+                        </SignedIn>
                     </div>
                 </div>
 
