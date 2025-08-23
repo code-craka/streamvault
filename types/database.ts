@@ -172,10 +172,14 @@ export const COLLECTIONS = {
 
 // Subcollection paths
 export const SUBCOLLECTIONS = {
-  STREAM_MESSAGES: (streamId: string) => `${COLLECTIONS.STREAMS}/${streamId}/messages`,
-  STREAM_ANALYTICS: (streamId: string) => `${COLLECTIONS.STREAMS}/${streamId}/analytics`,
-  USER_NOTIFICATIONS: (userId: string) => `${COLLECTIONS.USERS}/${userId}/notifications`,
-  USER_SUBSCRIPTIONS: (userId: string) => `${COLLECTIONS.USERS}/${userId}/subscriptions`,
+  STREAM_MESSAGES: (streamId: string) =>
+    `${COLLECTIONS.STREAMS}/${streamId}/messages`,
+  STREAM_ANALYTICS: (streamId: string) =>
+    `${COLLECTIONS.STREAMS}/${streamId}/analytics`,
+  USER_NOTIFICATIONS: (userId: string) =>
+    `${COLLECTIONS.USERS}/${userId}/notifications`,
+  USER_SUBSCRIPTIONS: (userId: string) =>
+    `${COLLECTIONS.USERS}/${userId}/subscriptions`,
   VOD_COMMENTS: (vodId: string) => `${COLLECTIONS.VODS}/${vodId}/comments`,
 } as const
 
@@ -189,7 +193,17 @@ export interface QueryOptions {
   }[]
   where?: {
     field: string
-    operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not-in' | 'array-contains' | 'array-contains-any'
+    operator:
+      | '=='
+      | '!='
+      | '<'
+      | '<='
+      | '>'
+      | '>='
+      | 'in'
+      | 'not-in'
+      | 'array-contains'
+      | 'array-contains-any'
     value: any
   }[]
 }

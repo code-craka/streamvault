@@ -59,108 +59,125 @@ export function UserManagement({ users, onUserUpdate }: UserManagementProps) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700">
-      <div className="px-6 py-4 border-b border-gray-700">
+    <div className="rounded-lg border border-gray-700 bg-gray-800">
+      <div className="border-b border-gray-700 px-6 py-4">
         <h3 className="text-lg font-semibold text-white">User Management</h3>
-        <p className="text-gray-400 text-sm">Manage user roles and permissions</p>
+        <p className="text-sm text-gray-400">
+          Manage user roles and permissions
+        </p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
                 Subscription
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
-            {users.map((user) => {
-              const displayName = user.firstName && user.lastName 
-                ? `${user.firstName} ${user.lastName}`
-                : user.username || 'Anonymous'
-              
+            {users.map(user => {
+              const displayName =
+                user.firstName && user.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user.username || 'Anonymous'
+
               return (
                 <tr key={user.id} className="hover:bg-gray-700/50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold">
-                          {(user.firstName || user.username || user.email).charAt(0).toUpperCase()}
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
+                        <span className="text-sm font-semibold text-white">
+                          {(user.firstName || user.username || user.email)
+                            .charAt(0)
+                            .toUpperCase()}
                         </span>
                       </div>
                       <div className="ml-3">
                         <div className="text-sm font-medium text-white">
                           {displayName}
                         </div>
-                        <div className="text-sm text-gray-400">{user.email}</div>
+                        <div className="text-sm text-gray-400">
+                          {user.email}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
+
+                  <td className="whitespace-nowrap px-6 py-4">
                     <select
                       value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
+                      onChange={e =>
+                        handleRoleChange(user.id, e.target.value as UserRole)
+                      }
                       disabled={loading === user.id}
-                      className="bg-gray-700 border border-gray-600 text-white text-sm rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="rounded border border-gray-600 bg-gray-700 px-2 py-1 text-sm text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="viewer">Viewer</option>
                       <option value="streamer">Streamer</option>
                       <option value="admin">Admin</option>
                     </select>
                   </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <SubscriptionBadge 
-                      tier={user.subscriptionTier} 
+
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <SubscriptionBadge
+                      tier={user.subscriptionTier}
                       status={user.subscriptionStatus || undefined}
                     />
                   </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
+
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center space-x-2">
                       {user.banned ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
                           Banned
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                           Active
                         </span>
                       )}
                     </div>
                   </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+
+                  <td className="whitespace-nowrap px-6 py-4 text-sm">
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleBanToggle(user.id, user.banned)}
                         disabled={loading === user.id}
-                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
                           user.banned
-                            ? 'bg-green-600 hover:bg-green-700 text-white'
-                            : 'bg-red-600 hover:bg-red-700 text-white'
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-red-600 text-white hover:bg-red-700'
                         } disabled:opacity-50`}
                       >
-                        {loading === user.id ? '...' : user.banned ? 'Unban' : 'Ban'}
+                        {loading === user.id
+                          ? '...'
+                          : user.banned
+                            ? 'Unban'
+                            : 'Ban'}
                       </button>
-                      
+
                       <button
-                        onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
-                        className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-medium transition-colors"
+                        onClick={() =>
+                          setSelectedUser(
+                            selectedUser === user.id ? null : user.id
+                          )
+                        }
+                        className="rounded bg-gray-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-gray-700"
                       >
                         Details
                       </button>

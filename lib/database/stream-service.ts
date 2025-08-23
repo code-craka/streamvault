@@ -2,8 +2,16 @@ import { BaseService } from './base-service'
 import { COLLECTIONS } from '@/types/database'
 import type { Stream } from '@/types/streaming'
 import type { DatabaseResult, QueryOptions } from '@/types/database'
-import type { CreateStreamInput, UpdateStreamInput, StreamQueryInput } from '@/lib/validations/streaming'
-import { generateStreamKey, generateRTMPUrl, generateHLSUrl } from '@/lib/utils/stream-utils'
+import type {
+  CreateStreamInput,
+  UpdateStreamInput,
+  StreamQueryInput,
+} from '@/lib/validations/streaming'
+import {
+  generateStreamKey,
+  generateRTMPUrl,
+  generateHLSUrl,
+} from '@/lib/utils/stream-utils'
 
 export class StreamService extends BaseService<Stream> {
   constructor() {
@@ -13,7 +21,10 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Create a new stream
    */
-  async createStream(userId: string, streamData: CreateStreamInput): Promise<DatabaseResult<Stream>> {
+  async createStream(
+    userId: string,
+    streamData: CreateStreamInput
+  ): Promise<DatabaseResult<Stream>> {
     const streamKey = generateStreamKey()
     const rtmpUrl = generateRTMPUrl(streamKey)
     const hlsUrl = generateHLSUrl(streamKey)
@@ -36,7 +47,10 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Update stream
    */
-  async updateStream(id: string, streamData: UpdateStreamInput): Promise<DatabaseResult<Stream>> {
+  async updateStream(
+    id: string,
+    streamData: UpdateStreamInput
+  ): Promise<DatabaseResult<Stream>> {
     const { id: _, ...updateData } = streamData
     return this.update(id, updateData)
   }
@@ -44,14 +58,19 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Get streams by user
    */
-  async getStreamsByUser(userId: string, options: QueryOptions = {}): Promise<DatabaseResult<Stream[]>> {
+  async getStreamsByUser(
+    userId: string,
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<Stream[]>> {
     return this.getByField('userId', userId, options)
   }
 
   /**
    * Get live streams
    */
-  async getLiveStreams(options: QueryOptions = {}): Promise<DatabaseResult<Stream[]>> {
+  async getLiveStreams(
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<Stream[]>> {
     const queryOptions: QueryOptions = {
       ...options,
       where: [
@@ -83,7 +102,9 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Get stream by stream key
    */
-  async getStreamByKey(streamKey: string): Promise<DatabaseResult<Stream | null>> {
+  async getStreamByKey(
+    streamKey: string
+  ): Promise<DatabaseResult<Stream | null>> {
     const result = await this.getByField('streamKey', streamKey)
     if (!result.success) {
       return {
@@ -130,7 +151,10 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Update viewer count
    */
-  async updateViewerCount(id: string, viewerCount: number): Promise<DatabaseResult<Stream>> {
+  async updateViewerCount(
+    id: string,
+    viewerCount: number
+  ): Promise<DatabaseResult<Stream>> {
     const stream = await this.getById(id)
     if (!stream.success || !stream.data) {
       return stream
@@ -147,7 +171,9 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Search streams
    */
-  async searchStreams(queryInput: StreamQueryInput): Promise<DatabaseResult<Stream[]>> {
+  async searchStreams(
+    queryInput: StreamQueryInput
+  ): Promise<DatabaseResult<Stream[]>> {
     const queryOptions: QueryOptions = {
       limit: queryInput.limit,
       offset: queryInput.offset,
@@ -211,7 +237,10 @@ export class StreamService extends BaseService<Stream> {
   /**
    * Get streams by category
    */
-  async getStreamsByCategory(category: string, options: QueryOptions = {}): Promise<DatabaseResult<Stream[]>> {
+  async getStreamsByCategory(
+    category: string,
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<Stream[]>> {
     return this.getByField('category', category, options)
   }
 
@@ -265,11 +294,16 @@ export class StreamService extends BaseService<Stream> {
       maxViewers: stream.data.maxViewers,
       startedAt: stream.data.startedAt,
       endedAt: stream.data.endedAt,
-      duration: stream.data.startedAt && stream.data.endedAt 
-        ? Math.floor((stream.data.endedAt.getTime() - stream.data.startedAt.getTime()) / 1000)
-        : stream.data.startedAt 
-        ? Math.floor((Date.now() - stream.data.startedAt.getTime()) / 1000)
-        : 0,
+      duration:
+        stream.data.startedAt && stream.data.endedAt
+          ? Math.floor(
+              (stream.data.endedAt.getTime() -
+                stream.data.startedAt.getTime()) /
+                1000
+            )
+          : stream.data.startedAt
+            ? Math.floor((Date.now() - stream.data.startedAt.getTime()) / 1000)
+            : 0,
       createdAt: stream.data.createdAt,
     }
 

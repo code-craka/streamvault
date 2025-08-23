@@ -5,13 +5,17 @@
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import type { 
-  UserRole, 
-  SubscriptionTier, 
+import type {
+  UserRole,
+  SubscriptionTier,
   RouteProtectionConfig,
-  StreamVaultUser 
+  StreamVaultUser,
 } from '@/types/auth'
-import { hasRole, hasSubscriptionTier, hasPermission } from '@/lib/auth/permissions'
+import {
+  hasRole,
+  hasSubscriptionTier,
+  hasPermission,
+} from '@/lib/auth/permissions'
 import { isSubscriptionActive } from '@/lib/auth/subscription'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { AccessDenied } from '@/components/auth/access-denied'
@@ -22,10 +26,10 @@ interface ProtectedRouteProps {
   fallback?: React.ReactNode
 }
 
-export function ProtectedRoute({ 
-  children, 
-  config, 
-  fallback 
+export function ProtectedRoute({
+  children,
+  config,
+  fallback,
 }: ProtectedRouteProps) {
   const { user, isLoaded } = useUser()
   const router = useRouter()
@@ -52,7 +56,7 @@ export function ProtectedRoute({
     if (user) {
       const streamVaultUser = transformClerkUser(user)
       const hasAccess = checkAccess(streamVaultUser, config)
-      
+
       if (hasAccess.granted) {
         setAccessGranted(true)
       } else {
@@ -70,7 +74,7 @@ export function ProtectedRoute({
   // Show access denied if no access
   if (!accessGranted) {
     return (
-      <AccessDenied 
+      <AccessDenied
         message={errorMessage}
         requiredRole={config.requiredRole}
         requiredSubscription={config.requiredSubscription}
@@ -85,7 +89,7 @@ export function ProtectedRoute({
 // Transform Clerk user to StreamVault user
 function transformClerkUser(clerkUser: any): StreamVaultUser {
   const metadata = clerkUser.publicMetadata || {}
-  
+
   return {
     id: clerkUser.id,
     email: clerkUser.emailAddresses[0]?.emailAddress || '',
@@ -106,14 +110,14 @@ function transformClerkUser(clerkUser: any): StreamVaultUser {
 
 // Check if user has access based on configuration
 function checkAccess(
-  user: StreamVaultUser, 
+  user: StreamVaultUser,
   config: RouteProtectionConfig
 ): { granted: boolean; reason: string } {
   // Check role requirement
   if (config.requiredRole && !hasRole(user.role, config.requiredRole)) {
     return {
       granted: false,
-      reason: `This page requires ${config.requiredRole} role or higher. Your current role is ${user.role}.`
+      reason: `This page requires ${config.requiredRole} role or higher. Your current role is ${user.role}.`,
     }
   }
 
@@ -122,14 +126,17 @@ function checkAccess(
     if (!isSubscriptionActive(user.subscriptionStatus)) {
       return {
         granted: false,
-        reason: 'This page requires an active subscription. Please upgrade your account.'
+        reason:
+          'This page requires an active subscription. Please upgrade your account.',
       }
     }
-    
-    if (!hasSubscriptionTier(user.subscriptionTier, config.requiredSubscription)) {
+
+    if (
+      !hasSubscriptionTier(user.subscriptionTier, config.requiredSubscription)
+    ) {
       return {
         granted: false,
-        reason: `This page requires ${config.requiredSubscription} subscription or higher. Your current subscription is ${user.subscriptionTier || 'none'}.`
+        reason: `This page requires ${config.requiredSubscription} subscription or higher. Your current subscription is ${user.subscriptionTier || 'none'}.`,
       }
     }
   }
@@ -137,10 +144,17 @@ function checkAccess(
   // Check specific permissions
   if (config.permissions) {
     for (const permission of config.permissions) {
-      if (!hasPermission(user, permission.resource as any, permission.action as any, permission.conditions)) {
+      if (
+        !hasPermission(
+          user,
+          permission.resource as any,
+          permission.action as any,
+          permission.conditions
+        )
+      ) {
         return {
           granted: false,
-          reason: `You don't have permission to ${permission.action} ${permission.resource}.`
+          reason: `You don't have permission to ${permission.action} ${permission.resource}.`,
         }
       }
     }
@@ -191,7 +205,7 @@ export function useAccess(config: RouteProtectionConfig) {
     if (user) {
       const streamVaultUser = transformClerkUser(user)
       const accessResult = checkAccess(streamVaultUser, config)
-      
+
       setHasAccess(accessResult.granted)
       setErrorMessage(accessResult.reason)
     }
@@ -203,6 +217,6 @@ export function useAccess(config: RouteProtectionConfig) {
     hasAccess,
     isChecking,
     errorMessage,
-    user: user ? transformClerkUser(user) : null
+    user: user ? transformClerkUser(user) : null,
   }
 }

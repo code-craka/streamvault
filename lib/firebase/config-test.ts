@@ -40,17 +40,21 @@ export function testFirebaseConfig(): {
   return {
     client: clientInitialized,
     admin: adminInitialized,
-    clientApp: clientApp ? {
-      name: clientApp.name,
-      options: {
-        projectId: clientApp.options.projectId,
-        apiKey: clientApp.options.apiKey ? '***' : undefined,
-      }
-    } : null,
-    adminApp: adminApp ? {
-      name: adminApp.name,
-      projectId: adminApp.options.projectId,
-    } : null,
+    clientApp: clientApp
+      ? {
+          name: clientApp.name,
+          options: {
+            projectId: clientApp.options.projectId,
+            apiKey: clientApp.options.apiKey ? '***' : undefined,
+          },
+        }
+      : null,
+    adminApp: adminApp
+      ? {
+          name: adminApp.name,
+          projectId: adminApp.options.projectId,
+        }
+      : null,
     error: error || undefined,
   }
 }
@@ -82,7 +86,8 @@ export function testEnvironmentConfig(): {
   // Check service account file
   const fs = require('fs')
   const path = require('path')
-  const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || 
+  const serviceAccountPath =
+    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
     path.join(process.cwd(), '.gcp', 'service-account.json')
 
   let serviceAccountExists = false

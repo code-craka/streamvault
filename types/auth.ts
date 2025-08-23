@@ -4,7 +4,14 @@ export type UserRole = 'viewer' | 'streamer' | 'admin'
 
 export type SubscriptionTier = 'basic' | 'premium' | 'pro'
 
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'unpaid'
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'past_due'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'trialing'
+  | 'unpaid'
 
 // User metadata stored in Clerk publicMetadata
 export interface UserMetadata {
@@ -17,8 +24,6 @@ export interface UserMetadata {
   updatedAt: string
   preferences?: UserPreferences
 }
-
-
 
 // User preferences and settings
 export interface UserPreferences {
@@ -119,22 +124,22 @@ export interface Permission {
   conditions?: Record<string, any>
 }
 
-export type PermissionAction = 
-  | 'create' 
-  | 'read' 
-  | 'update' 
-  | 'delete' 
-  | 'stream' 
-  | 'moderate' 
+export type PermissionAction =
+  | 'create'
+  | 'read'
+  | 'update'
+  | 'delete'
+  | 'stream'
+  | 'moderate'
   | 'admin'
 
-export type PermissionResource = 
-  | 'stream' 
-  | 'video' 
-  | 'chat' 
-  | 'user' 
-  | 'subscription' 
-  | 'analytics' 
+export type PermissionResource =
+  | 'stream'
+  | 'video'
+  | 'chat'
+  | 'user'
+  | 'subscription'
+  | 'analytics'
   | 'settings'
 
 // Role-based permissions
@@ -192,7 +197,11 @@ export interface AuthContext {
   isSignedIn: boolean
   hasRole: (role: UserRole) => boolean
   hasSubscription: (tier: SubscriptionTier) => boolean
-  hasPermission: (resource: PermissionResource, action: PermissionAction, conditions?: Record<string, any>) => boolean
+  hasPermission: (
+    resource: PermissionResource,
+    action: PermissionAction,
+    conditions?: Record<string, any>
+  ) => boolean
   updateUserMetadata: (metadata: Partial<UserMetadata>) => Promise<void>
   signOut: () => Promise<void>
 }

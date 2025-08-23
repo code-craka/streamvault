@@ -3,22 +3,22 @@ export { BaseService } from './base-service'
 export { UserService } from './user-service'
 export { StreamService } from './stream-service'
 export { VODService } from './vod-service'
-export { 
-  ChatService, 
-  ChatRoomService, 
-  CustomEmoteService, 
-  SuperChatService 
+export {
+  ChatService,
+  ChatRoomService,
+  CustomEmoteService,
+  SuperChatService,
 } from './chat-service'
 
 // Import service classes
 import { UserService } from './user-service'
 import { StreamService } from './stream-service'
 import { VODService } from './vod-service'
-import { 
-  ChatService, 
-  ChatRoomService, 
-  CustomEmoteService, 
-  SuperChatService 
+import {
+  ChatService,
+  ChatRoomService,
+  CustomEmoteService,
+  SuperChatService,
 } from './chat-service'
 
 // Service instances

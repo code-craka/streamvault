@@ -3,7 +3,11 @@ import { z } from 'zod'
 // Base validation schemas
 export const userRoleSchema = z.enum(['viewer', 'streamer', 'admin'])
 export const subscriptionTierSchema = z.enum(['basic', 'premium', 'pro'])
-export const subscriptionStatusSchema = z.enum(['active', 'canceled', 'past_due'])
+export const subscriptionStatusSchema = z.enum([
+  'active',
+  'canceled',
+  'past_due',
+])
 export const themeSchema = z.enum(['light', 'dark', 'auto'])
 
 // User preferences validation schemas
@@ -71,7 +75,11 @@ export const userAnalyticsSchema = z.object({
 // User validation schemas
 export const createUserSchema = z.object({
   email: z.string().email(),
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/),
   firstName: z.string().min(1).max(50).optional(),
   lastName: z.string().min(1).max(50).optional(),
   avatar: z.string().url().optional(),
@@ -79,7 +87,12 @@ export const createUserSchema = z.object({
 })
 
 export const updateUserSchema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/).optional(),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/)
+    .optional(),
   firstName: z.string().min(1).max(50).optional(),
   lastName: z.string().min(1).max(50).optional(),
   avatar: z.string().url().optional(),
@@ -108,7 +121,11 @@ export const userSchema = z.object({
 
 // User profile validation schemas
 export const updateProfileSchema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/),
   firstName: z.string().min(1).max(50).optional(),
   lastName: z.string().min(1).max(50).optional(),
   avatar: z.string().url().optional(),
@@ -140,17 +157,26 @@ export const updateSubscriptionSchema = z.object({
 // User activity validation schemas
 export const userActivitySchema = z.object({
   userId: z.string(),
-  activityType: z.enum(['stream_view', 'vod_view', 'chat_message', 'follow', 'subscription', 'donation']),
+  activityType: z.enum([
+    'stream_view',
+    'vod_view',
+    'chat_message',
+    'follow',
+    'subscription',
+    'donation',
+  ]),
   resourceId: z.string(), // streamId, vodId, etc.
   metadata: z.record(z.any()).optional(),
   timestamp: z.date(),
   sessionId: z.string().optional(),
-  deviceInfo: z.object({
-    userAgent: z.string(),
-    platform: z.string(),
-    browser: z.string(),
-    isMobile: z.boolean(),
-  }).optional(),
+  deviceInfo: z
+    .object({
+      userAgent: z.string(),
+      platform: z.string(),
+      browser: z.string(),
+      isMobile: z.boolean(),
+    })
+    .optional(),
 })
 
 // User follow/following validation schemas
@@ -174,7 +200,9 @@ export const userQuerySchema = z.object({
   isActive: z.boolean().optional(),
   limit: z.number().min(1).max(100).default(20),
   offset: z.number().min(0).default(0),
-  orderBy: z.enum(['createdAt', 'updatedAt', 'username', 'lastLoginAt']).default('createdAt'),
+  orderBy: z
+    .enum(['createdAt', 'updatedAt', 'username', 'lastLoginAt'])
+    .default('createdAt'),
   orderDirection: z.enum(['asc', 'desc']).default('desc'),
 })
 
@@ -211,7 +239,13 @@ export const unbanUserSchema = z.object({
 // User notification validation schemas
 export const createNotificationSchema = z.object({
   userId: z.string(),
-  type: z.enum(['stream_live', 'new_follower', 'subscription_update', 'system_announcement', 'content_update']),
+  type: z.enum([
+    'stream_live',
+    'new_follower',
+    'subscription_update',
+    'system_announcement',
+    'content_update',
+  ]),
   title: z.string(),
   message: z.string(),
   actionUrl: z.string().url().optional(),
@@ -222,7 +256,13 @@ export const createNotificationSchema = z.object({
 export const notificationSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  type: z.enum(['stream_live', 'new_follower', 'subscription_update', 'system_announcement', 'content_update']),
+  type: z.enum([
+    'stream_live',
+    'new_follower',
+    'subscription_update',
+    'system_announcement',
+    'content_update',
+  ]),
   title: z.string(),
   message: z.string(),
   actionUrl: z.string().url().optional(),

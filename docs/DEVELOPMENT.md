@@ -3,6 +3,7 @@
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ (LTS recommended)
 - pnpm 8+ (package manager)
 - Git
@@ -11,35 +12,40 @@
 ### Initial Setup
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/code-craka/streamvault.git
 cd streamvault
 ```
 
 2. **Install dependencies**
+
 ```bash
 pnpm install
 ```
 
 3. **Set up environment variables**
+
 ```bash
 cp .env.example .env.local
 # Edit .env.local with your development credentials
 ```
 
 4. **Start development server**
+
 ```bash
 pnpm dev
 ```
 
 5. **Open in browser**
-Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Project Architecture
 
 ### Technology Stack
 
 #### Frontend
+
 - **Next.js 15.0.1**: React framework with App Router
 - **React 19**: UI library with Server Components
 - **TypeScript**: Type-safe JavaScript
@@ -48,6 +54,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - **Framer Motion**: Animation library
 
 #### Backend
+
 - **Next.js API Routes**: Serverless functions
 - **Clerk**: Authentication and user management
 - **Firebase Firestore**: Real-time database
@@ -55,6 +62,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - **Stripe**: Payment processing
 
 #### Development Tools
+
 - **ESLint**: Code linting
 - **Prettier**: Code formatting
 - **Husky**: Git hooks
@@ -103,6 +111,7 @@ streamvault/
 ### 1. Feature Development
 
 #### Branch Strategy
+
 ```bash
 # Create feature branch
 git checkout -b feature/user-authentication
@@ -111,6 +120,7 @@ git checkout -b docs/api-documentation
 ```
 
 #### Commit Convention
+
 We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
@@ -136,6 +146,7 @@ git commit -m "chore: update dependencies"
 ### 2. Code Quality
 
 #### Linting and Formatting
+
 ```bash
 # Run linter
 pnpm lint
@@ -151,7 +162,9 @@ pnpm type-check
 ```
 
 #### Pre-commit Hooks
+
 Husky automatically runs these checks before commits:
+
 - ESLint validation
 - TypeScript type checking
 - Prettier formatting
@@ -160,6 +173,7 @@ Husky automatically runs these checks before commits:
 ### 3. Testing
 
 #### Unit Tests
+
 ```bash
 # Run all tests
 pnpm test
@@ -175,6 +189,7 @@ pnpm test auth.test.ts
 ```
 
 #### E2E Tests
+
 ```bash
 # Run E2E tests
 pnpm test:e2e
@@ -189,6 +204,7 @@ pnpm test:e2e tests/e2e/auth.spec.ts
 #### Writing Tests
 
 **Unit Test Example:**
+
 ```typescript
 // tests/unit/lib/auth/permissions.test.ts
 import { hasRole, hasSubscriptionTier } from '@/lib/auth/permissions'
@@ -218,18 +234,21 @@ describe('Permission Utilities', () => {
 ```
 
 **E2E Test Example:**
+
 ```typescript
 // tests/e2e/auth.spec.ts
 import { test, expect } from '@playwright/test'
 
 test.describe('Authentication Flow', () => {
-  test('should allow user to sign in and access dashboard', async ({ page }) => {
+  test('should allow user to sign in and access dashboard', async ({
+    page,
+  }) => {
     await page.goto('/sign-in')
-    
+
     await page.fill('[name="identifier"]', 'test@example.com')
     await page.fill('[name="password"]', 'password123')
     await page.click('[type="submit"]')
-    
+
     await expect(page).toHaveURL('/dashboard')
     await expect(page.locator('h1')).toContainText('Dashboard')
   })
@@ -254,10 +273,10 @@ interface ExampleComponentProps {
   className?: string
 }
 
-export function ExampleComponent({ 
-  title, 
-  onAction, 
-  className 
+export function ExampleComponent({
+  title,
+  onAction,
+  className
 }: ExampleComponentProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -276,7 +295,7 @@ export function ExampleComponent({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button 
+        <Button
           onClick={handleAction}
           disabled={isLoading}
         >
@@ -300,6 +319,7 @@ export function ExampleComponent({
 ### 3. Styling Guidelines
 
 #### Tailwind CSS Classes
+
 ```typescript
 // Preferred: Use Tailwind utility classes
 <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm">
@@ -309,6 +329,7 @@ export function ExampleComponent({
 ```
 
 #### Component Variants
+
 ```typescript
 // Use class-variance-authority for component variants
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -319,7 +340,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        destructive:
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -354,12 +376,9 @@ const createExampleSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Implementation here
@@ -376,12 +395,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -421,7 +437,15 @@ export async function POST(request: NextRequest) {
 ```typescript
 // lib/database/example.ts
 import { db } from '@/lib/firebase/config'
-import { collection, doc, getDoc, setDoc, query, where, getDocs } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore'
 
 export interface Example {
   id: string
@@ -431,17 +455,19 @@ export interface Example {
   updatedAt: Date
 }
 
-export async function createExample(data: Omit<Example, 'id' | 'createdAt' | 'updatedAt'>) {
+export async function createExample(
+  data: Omit<Example, 'id' | 'createdAt' | 'updatedAt'>
+) {
   const docRef = doc(collection(db, 'examples'))
   const now = new Date()
-  
+
   const example: Example = {
     ...data,
     id: docRef.id,
     createdAt: now,
     updatedAt: now,
   }
-  
+
   await setDoc(docRef, example)
   return example
 }
@@ -449,20 +475,17 @@ export async function createExample(data: Omit<Example, 'id' | 'createdAt' | 'up
 export async function getExampleById(id: string): Promise<Example | null> {
   const docRef = doc(db, 'examples', id)
   const docSnap = await getDoc(docRef)
-  
+
   if (!docSnap.exists()) {
     return null
   }
-  
+
   return docSnap.data() as Example
 }
 
 export async function getExamplesByUser(userId: string): Promise<Example[]> {
-  const q = query(
-    collection(db, 'examples'),
-    where('userId', '==', userId)
-  )
-  
+  const q = query(collection(db, 'examples'), where('userId', '==', userId))
+
   const querySnapshot = await getDocs(q)
   return querySnapshot.docs.map(doc => doc.data() as Example)
 }
@@ -515,6 +538,7 @@ export const env = envSchema.parse(process.env)
 ### 1. Development Tools
 
 #### VS Code Extensions
+
 - TypeScript and JavaScript Language Features
 - ESLint
 - Prettier
@@ -523,6 +547,7 @@ export const env = envSchema.parse(process.env)
 - Bracket Pair Colorizer
 
 #### Browser DevTools
+
 - React Developer Tools
 - Redux DevTools (if using Redux)
 - Lighthouse for performance auditing
@@ -530,6 +555,7 @@ export const env = envSchema.parse(process.env)
 ### 2. Debugging Techniques
 
 #### Client-Side Debugging
+
 ```typescript
 // Use React DevTools and browser console
 console.log('Debug info:', { user, preferences })
@@ -553,6 +579,7 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
 ```
 
 #### Server-Side Debugging
+
 ```typescript
 // API route debugging
 console.log('Request received:', {
@@ -647,6 +674,7 @@ touch tests/e2e/new-page.spec.ts
 ### Common Issues
 
 #### 1. TypeScript Errors
+
 ```bash
 # Clear TypeScript cache
 rm -rf .next
@@ -657,6 +685,7 @@ Cmd/Ctrl + Shift + P -> "TypeScript: Restart TS Server"
 ```
 
 #### 2. Build Errors
+
 ```bash
 # Clear all caches
 rm -rf .next node_modules
@@ -665,6 +694,7 @@ pnpm build
 ```
 
 #### 3. Environment Variable Issues
+
 ```bash
 # Verify environment variables are loaded
 pnpm env:check
@@ -674,6 +704,7 @@ grep -r "process.env" --include="*.ts" --include="*.tsx" .
 ```
 
 #### 4. Database Connection Issues
+
 - Verify Firebase configuration
 - Check Firestore security rules
 - Validate service account permissions
@@ -690,16 +721,19 @@ grep -r "process.env" --include="*.ts" --include="*.tsx" .
 ### Pull Request Process
 
 1. **Create Feature Branch**
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 2. **Make Changes**
+
 - Follow coding standards
 - Add tests for new functionality
 - Update documentation if needed
 
 3. **Test Changes**
+
 ```bash
 pnpm test
 pnpm test:e2e
@@ -708,12 +742,14 @@ pnpm type-check
 ```
 
 4. **Commit Changes**
+
 ```bash
 git add .
 git commit -m "feat: add your feature description"
 ```
 
 5. **Push and Create PR**
+
 ```bash
 git push origin feature/your-feature-name
 # Create pull request on GitHub
@@ -733,6 +769,7 @@ git push origin feature/your-feature-name
 ## Resources
 
 ### Documentation
+
 - [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://react.dev)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs)
@@ -742,6 +779,7 @@ git push origin feature/your-feature-name
 - [Stripe Documentation](https://stripe.com/docs)
 
 ### Tools
+
 - [VS Code](https://code.visualstudio.com/)
 - [React DevTools](https://react.dev/learn/react-developer-tools)
 - [Firebase Console](https://console.firebase.google.com)
@@ -749,6 +787,7 @@ git push origin feature/your-feature-name
 - [Clerk Dashboard](https://dashboard.clerk.com)
 
 ### Learning Resources
+
 - [React Patterns](https://reactpatterns.com/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
 - [Next.js Learn](https://nextjs.org/learn)

@@ -2,7 +2,11 @@ import { BaseService } from './base-service'
 import { COLLECTIONS } from '@/types/database'
 import type { VOD } from '@/types/streaming'
 import type { DatabaseResult, QueryOptions } from '@/types/database'
-import type { CreateVODInput, UpdateVODInput, VODQueryInput } from '@/lib/validations/streaming'
+import type {
+  CreateVODInput,
+  UpdateVODInput,
+  VODQueryInput,
+} from '@/lib/validations/streaming'
 
 export class VODService extends BaseService<VOD> {
   constructor() {
@@ -12,12 +16,15 @@ export class VODService extends BaseService<VOD> {
   /**
    * Create a new VOD
    */
-  async createVOD(userId: string, vodData: CreateVODInput & {
-    duration: number
-    fileSize: number
-    gcsPath: string
-    metadata: any
-  }): Promise<DatabaseResult<VOD>> {
+  async createVOD(
+    userId: string,
+    vodData: CreateVODInput & {
+      duration: number
+      fileSize: number
+      gcsPath: string
+      metadata: any
+    }
+  ): Promise<DatabaseResult<VOD>> {
     const vodToCreate = {
       ...vodData,
       userId,
@@ -43,7 +50,10 @@ export class VODService extends BaseService<VOD> {
   /**
    * Update VOD
    */
-  async updateVOD(id: string, vodData: UpdateVODInput): Promise<DatabaseResult<VOD>> {
+  async updateVOD(
+    id: string,
+    vodData: UpdateVODInput
+  ): Promise<DatabaseResult<VOD>> {
     const { id: _, ...updateData } = vodData
     return this.update(id, updateData)
   }
@@ -51,14 +61,19 @@ export class VODService extends BaseService<VOD> {
   /**
    * Get VODs by user
    */
-  async getVODsByUser(userId: string, options: QueryOptions = {}): Promise<DatabaseResult<VOD[]>> {
+  async getVODsByUser(
+    userId: string,
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<VOD[]>> {
     return this.getByField('userId', userId, options)
   }
 
   /**
    * Get public VODs
    */
-  async getPublicVODs(options: QueryOptions = {}): Promise<DatabaseResult<VOD[]>> {
+  async getPublicVODs(
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<VOD[]>> {
     const queryOptions: QueryOptions = {
       ...options,
       where: [
@@ -66,9 +81,7 @@ export class VODService extends BaseService<VOD> {
         { field: 'visibility', operator: '==', value: 'public' },
         { field: 'status', operator: '==', value: 'ready' },
       ],
-      orderBy: [
-        { field: 'publishedAt', direction: 'desc' },
-      ],
+      orderBy: [{ field: 'publishedAt', direction: 'desc' }],
     }
 
     const result = await this.query(queryOptions)
@@ -157,10 +170,12 @@ export class VODService extends BaseService<VOD> {
     // Apply text search filter (Firestore doesn't support full-text search)
     if (queryInput.search) {
       const searchTerm = queryInput.search.toLowerCase()
-      vods = vods.filter(vod =>
-        vod.title.toLowerCase().includes(searchTerm) ||
-        (vod.description && vod.description.toLowerCase().includes(searchTerm)) ||
-        vod.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+      vods = vods.filter(
+        vod =>
+          vod.title.toLowerCase().includes(searchTerm) ||
+          (vod.description &&
+            vod.description.toLowerCase().includes(searchTerm)) ||
+          vod.tags.some(tag => tag.toLowerCase().includes(searchTerm))
       )
     }
 
@@ -173,7 +188,10 @@ export class VODService extends BaseService<VOD> {
   /**
    * Get VODs by category
    */
-  async getVODsByCategory(category: string, options: QueryOptions = {}): Promise<DatabaseResult<VOD[]>> {
+  async getVODsByCategory(
+    category: string,
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<VOD[]>> {
     const queryOptions: QueryOptions = {
       ...options,
       where: [
@@ -226,7 +244,10 @@ export class VODService extends BaseService<VOD> {
   /**
    * Increment view count
    */
-  async incrementViewCount(id: string, userId?: string): Promise<DatabaseResult<VOD>> {
+  async incrementViewCount(
+    id: string,
+    userId?: string
+  ): Promise<DatabaseResult<VOD>> {
     const vod = await this.getById(id)
     if (!vod.success || !vod.data) {
       return vod
@@ -234,10 +255,12 @@ export class VODService extends BaseService<VOD> {
 
     const newViewCount = vod.data.viewCount + 1
     const newTotalViews = vod.data.analytics.totalViews + 1
-    
+
     // For unique views, we'd need to track viewed users separately
     // This is a simplified implementation
-    const newUniqueViews = userId ? vod.data.analytics.uniqueViews + 1 : vod.data.analytics.uniqueViews
+    const newUniqueViews = userId
+      ? vod.data.analytics.uniqueViews + 1
+      : vod.data.analytics.uniqueViews
 
     return this.update(id, {
       viewCount: newViewCount,
@@ -249,9 +272,12 @@ export class VODService extends BaseService<VOD> {
   /**
    * Update VOD analytics
    */
-  async updateAnalytics(id: string, analyticsData: Partial<VOD['analytics']>): Promise<DatabaseResult<VOD>> {
+  async updateAnalytics(
+    id: string,
+    analyticsData: Partial<VOD['analytics']>
+  ): Promise<DatabaseResult<VOD>> {
     const updateData: any = {}
-    
+
     Object.entries(analyticsData).forEach(([key, value]) => {
       updateData[`analytics.${key}`] = value
     })
@@ -272,7 +298,9 @@ export class VODService extends BaseService<VOD> {
   /**
    * Get VOD from stream
    */
-  async getVODByStreamId(streamId: string): Promise<DatabaseResult<VOD | null>> {
+  async getVODByStreamId(
+    streamId: string
+  ): Promise<DatabaseResult<VOD | null>> {
     const result = await this.getByField('streamId', streamId)
     if (!result.success) {
       return {

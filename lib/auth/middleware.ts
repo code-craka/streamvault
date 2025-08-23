@@ -2,11 +2,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import type { 
-  UserRole, 
-  SubscriptionTier, 
+import type {
+  UserRole,
+  SubscriptionTier,
   RouteProtectionConfig,
-  StreamVaultUser 
+  StreamVaultUser,
 } from '@/types/auth'
 import { hasRole, hasSubscriptionTier, hasPermission } from './permissions'
 import { isSubscriptionActive } from './subscription'
@@ -38,13 +38,13 @@ export async function withAuth(
     if (userId && sessionClaims) {
       const user = await getUserFromClaims(userId, sessionClaims)
       const accessResult = checkRouteAccess(user, config)
-      
+
       if (!accessResult.granted) {
         return NextResponse.json(
-          { 
+          {
             error: accessResult.reason,
             requiredRole: config.requiredRole,
-            requiredSubscription: config.requiredSubscription
+            requiredSubscription: config.requiredSubscription,
           },
           { status: 403 }
         )
@@ -57,7 +57,7 @@ export async function withAuth(
       if (user.subscriptionTier) {
         response.headers.set('x-user-subscription', user.subscriptionTier)
       }
-      
+
       return response
     }
 
@@ -132,7 +132,7 @@ function checkRouteAccess(
   if (config.requiredRole && !hasRole(user.role, config.requiredRole)) {
     return {
       granted: false,
-      reason: `Requires ${config.requiredRole} role or higher`
+      reason: `Requires ${config.requiredRole} role or higher`,
     }
   }
 
@@ -141,14 +141,16 @@ function checkRouteAccess(
     if (!isSubscriptionActive(user.subscriptionStatus)) {
       return {
         granted: false,
-        reason: 'Requires active subscription'
+        reason: 'Requires active subscription',
       }
     }
-    
-    if (!hasSubscriptionTier(user.subscriptionTier, config.requiredSubscription)) {
+
+    if (
+      !hasSubscriptionTier(user.subscriptionTier, config.requiredSubscription)
+    ) {
       return {
         granted: false,
-        reason: `Requires ${config.requiredSubscription} subscription or higher`
+        reason: `Requires ${config.requiredSubscription} subscription or higher`,
       }
     }
   }
@@ -156,10 +158,17 @@ function checkRouteAccess(
   // Check specific permissions
   if (config.permissions) {
     for (const permission of config.permissions) {
-      if (!hasPermission(user, permission.resource as any, permission.action as any, permission.conditions)) {
+      if (
+        !hasPermission(
+          user,
+          permission.resource as any,
+          permission.action as any,
+          permission.conditions
+        )
+      ) {
         return {
           granted: false,
-          reason: `Missing permission: ${permission.action} ${permission.resource}`
+          reason: `Missing permission: ${permission.action} ${permission.resource}`,
         }
       }
     }
@@ -171,11 +180,14 @@ function checkRouteAccess(
 /**
  * Get user from Clerk session claims
  */
-async function getUserFromClaims(userId: string, sessionClaims: any): Promise<StreamVaultUser> {
+async function getUserFromClaims(
+  userId: string,
+  sessionClaims: any
+): Promise<StreamVaultUser> {
   // In a real implementation, you might fetch additional user data from your database
   // For now, we'll use the metadata from Clerk
   const metadata = sessionClaims.metadata || {}
-  
+
   return {
     id: userId,
     email: sessionClaims.email || '',
@@ -203,7 +215,7 @@ export function withApiAuth(
 ) {
   return async (req: NextRequest) => {
     const authResult = await withAuth(req, config)
-    
+
     // If auth failed, return the error response
     if (authResult.status !== 200) {
       return authResult
@@ -212,13 +224,12 @@ export function withApiAuth(
     // Get user from headers set by middleware
     const userId = authResult.headers.get('x-user-id')
     const userRole = authResult.headers.get('x-user-role') as UserRole
-    const userSubscription = authResult.headers.get('x-user-subscription') as SubscriptionTier | null
+    const userSubscription = authResult.headers.get(
+      'x-user-subscription'
+    ) as SubscriptionTier | null
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 401 })
     }
 
     // Create user object (in real app, fetch from database)
@@ -243,7 +254,10 @@ export function withApiAuth(
 /**
  * Rate limiting by user role
  */
-export function getRateLimitByRole(role: UserRole): { requests: number; window: number } {
+export function getRateLimitByRole(role: UserRole): {
+  requests: number
+  window: number
+} {
   switch (role) {
     case 'admin':
       return { requests: 1000, window: 60 } // 1000 requests per minute
@@ -258,7 +272,10 @@ export function getRateLimitByRole(role: UserRole): { requests: number; window: 
 /**
  * Rate limiting by subscription tier
  */
-export function getRateLimitBySubscription(tier: SubscriptionTier | null): { requests: number; window: number } {
+export function getRateLimitBySubscription(tier: SubscriptionTier | null): {
+  requests: number
+  window: number
+} {
   switch (tier) {
     case 'pro':
       return { requests: 1000, window: 60 }
@@ -294,21 +311,24 @@ export function canAccessResource(
 /**
  * Audit log middleware for tracking access
  */
-export function withAuditLog(
-  action: string,
-  resource: string
-) {
+export function withAuditLog(action: string, resource: string) {
   return async (req: NextRequest, user: StreamVaultUser) => {
     // Log the access attempt
-    console.log(`Audit: User ${user.id} (${user.role}) attempted ${action} on ${resource}`, {
-      userId: user.id,
-      userRole: user.role,
-      action,
-      resource,
-      timestamp: new Date().toISOString(),
-      ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
-      userAgent: req.headers.get('user-agent'),
-    })
+    console.log(
+      `Audit: User ${user.id} (${user.role}) attempted ${action} on ${resource}`,
+      {
+        userId: user.id,
+        userRole: user.role,
+        action,
+        resource,
+        timestamp: new Date().toISOString(),
+        ip:
+          req.headers.get('x-forwarded-for') ||
+          req.headers.get('x-real-ip') ||
+          'unknown',
+        userAgent: req.headers.get('user-agent'),
+      }
+    )
 
     // In a real implementation, you would save this to a database
     // await saveAuditLog({ ... })

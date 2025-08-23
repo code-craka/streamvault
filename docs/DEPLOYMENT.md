@@ -6,7 +6,7 @@ This guide covers deploying StreamVault to production environments with proper c
 
 ## Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Docker (optional)
 - Google Cloud Platform account
 - Stripe account
@@ -19,12 +19,14 @@ This guide covers deploying StreamVault to production environments with proper c
 ### 1. Google Cloud Platform
 
 #### Create Project
+
 ```bash
 gcloud projects create streamvault-prod --name="StreamVault Production"
 gcloud config set project streamvault-prod
 ```
 
 #### Enable APIs
+
 ```bash
 gcloud services enable storage-api.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
@@ -32,12 +34,14 @@ gcloud services enable run.googleapis.com
 ```
 
 #### Create Storage Bucket
+
 ```bash
 gsutil mb -p streamvault-prod -c STANDARD -l us-central1 gs://streamvault-videos-prod
 gsutil iam ch allUsers:objectViewer gs://streamvault-videos-prod
 ```
 
 #### Create Service Account
+
 ```bash
 gcloud iam service-accounts create streamvault-prod \
   --display-name="StreamVault Production Service Account"
@@ -53,6 +57,7 @@ gcloud iam service-accounts keys create ./service-account-prod.json \
 ### 2. Firebase Setup
 
 #### Create Project
+
 1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Create new project: `streamvault-prod`
 3. Enable Firestore Database
@@ -66,21 +71,21 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // Streams are publicly readable, writable by owner
     match /streams/{streamId} {
       allow read: if true;
-      allow write: if request.auth != null && 
-        (request.auth.uid == resource.data.streamerId || 
+      allow write: if request.auth != null &&
+        (request.auth.uid == resource.data.streamerId ||
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
-    
+
     // Chat messages are readable by all, writable by authenticated users
     match /chat/{streamId}/messages/{messageId} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && 
-        (request.auth.uid == resource.data.userId || 
+      allow update, delete: if request.auth != null &&
+        (request.auth.uid == resource.data.userId ||
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'moderator']);
     }
   }
@@ -90,15 +95,17 @@ service cloud.firestore {
 ### 3. Clerk Configuration
 
 #### Production Instance
+
 1. Create production instance in [Clerk Dashboard](https://dashboard.clerk.com)
 2. Configure OAuth providers:
    - Google OAuth
-   - GitHub OAuth  
+   - GitHub OAuth
    - Discord OAuth
 3. Set up webhooks endpoint: `https://your-domain.com/api/webhooks/clerk`
 4. Configure JWT template for custom claims
 
 #### JWT Template
+
 ```json
 {
   "metadata": "{{user.public_metadata}}",
@@ -110,17 +117,19 @@ service cloud.firestore {
 ### 4. Stripe Configuration
 
 #### Production Setup
+
 1. Activate Stripe account
 2. Create products and prices:
+
    ```bash
    # Basic Plan
    stripe products create --name="StreamVault Basic" --description="Basic streaming features"
    stripe prices create --product=prod_xxx --unit-amount=999 --currency=usd --recurring[interval]=month
-   
-   # Premium Plan  
+
+   # Premium Plan
    stripe products create --name="StreamVault Premium" --description="Enhanced streaming with HD"
    stripe prices create --product=prod_yyy --unit-amount=1999 --currency=usd --recurring[interval]=month
-   
+
    # Pro Plan
    stripe products create --name="StreamVault Pro" --description="Professional streaming with 4K"
    stripe prices create --product=prod_zzz --unit-amount=2999 --currency=usd --recurring[interval]=month
@@ -135,16 +144,19 @@ service cloud.firestore {
 ### Option 1: Vercel (Recommended)
 
 #### 1. Install Vercel CLI
+
 ```bash
 npm i -g vercel
 ```
 
 #### 2. Deploy
+
 ```bash
 vercel --prod
 ```
 
 #### 3. Configure Environment Variables
+
 ```bash
 vercel env add NEXT_PUBLIC_APP_URL production
 vercel env add GCP_PROJECT_ID production
@@ -153,6 +165,7 @@ vercel env add CLERK_SECRET_KEY production
 ```
 
 #### 4. Configure Custom Domain
+
 ```bash
 vercel domains add your-domain.com
 vercel alias your-deployment-url.vercel.app your-domain.com
@@ -161,6 +174,7 @@ vercel alias your-deployment-url.vercel.app your-domain.com
 ### Option 2: Google Cloud Run
 
 #### 1. Create Dockerfile
+
 ```dockerfile
 FROM node:18-alpine AS base
 WORKDIR /app
@@ -183,6 +197,7 @@ CMD ["npm", "start"]
 ```
 
 #### 2. Build and Deploy
+
 ```bash
 # Build image
 gcloud builds submit --tag gcr.io/streamvault-prod/streamvault
@@ -202,25 +217,26 @@ gcloud run deploy streamvault \
 ### Option 3: Docker + Self-Hosted
 
 #### 1. Docker Compose
+
 ```yaml
 version: '3.8'
 services:
   streamvault:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=https://your-domain.com
     env_file:
       - .env.production
     restart: unless-stopped
-    
+
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
@@ -230,6 +246,7 @@ services:
 ```
 
 #### 2. Nginx Configuration
+
 ```nginx
 server {
     listen 80;
@@ -240,10 +257,10 @@ server {
 server {
     listen 443 ssl http2;
     server_name your-domain.com;
-    
+
     ssl_certificate /etc/nginx/ssl/cert.pem;
     ssl_certificate_key /etc/nginx/ssl/key.pem;
-    
+
     location / {
         proxy_pass http://streamvault:3000;
         proxy_http_version 1.1;
@@ -261,6 +278,7 @@ server {
 ## Environment Variables
 
 ### Production Environment (.env.production)
+
 ```env
 # Core Configuration
 NODE_ENV=production
@@ -320,6 +338,7 @@ ANALYTICS_ID=G-XXXXXXXXXX
 ## SSL/TLS Configuration
 
 ### Let's Encrypt (Free)
+
 ```bash
 # Install certbot
 sudo apt-get install certbot python3-certbot-nginx
@@ -333,6 +352,7 @@ sudo crontab -e
 ```
 
 ### Cloudflare (Recommended)
+
 1. Add domain to Cloudflare
 2. Update nameservers
 3. Enable "Full (strict)" SSL mode
@@ -342,13 +362,14 @@ sudo crontab -e
 ## CDN Configuration
 
 ### Cloudflare Settings
+
 ```javascript
 // Page Rules
 // Rule 1: Cache everything
 // URL: cdn.streamvault.app/*
 // Settings: Cache Level = Cache Everything, Edge Cache TTL = 1 month
 
-// Rule 2: API no cache  
+// Rule 2: API no cache
 // URL: streamvault.app/api/*
 // Settings: Cache Level = Bypass
 
@@ -360,6 +381,7 @@ sudo crontab -e
 ## Monitoring & Logging
 
 ### 1. Application Monitoring
+
 ```typescript
 // lib/monitoring.ts
 import * as Sentry from '@sentry/nextjs'
@@ -374,6 +396,7 @@ export { Sentry }
 ```
 
 ### 2. Performance Monitoring
+
 ```typescript
 // lib/analytics.ts
 import { Analytics } from '@vercel/analytics/react'
@@ -383,6 +406,7 @@ export { Analytics, SpeedInsights }
 ```
 
 ### 3. Health Checks
+
 ```typescript
 // app/api/health/route.ts
 export async function GET() {
@@ -392,9 +416,9 @@ export async function GET() {
     auth: await checkClerk(),
     payments: await checkStripe(),
   }
-  
+
   const healthy = Object.values(checks).every(check => check.status === 'ok')
-  
+
   return Response.json(
     { status: healthy ? 'healthy' : 'unhealthy', checks },
     { status: healthy ? 200 : 503 }
@@ -405,6 +429,7 @@ export async function GET() {
 ## Security Checklist
 
 ### Pre-Deployment
+
 - [ ] All environment variables are set correctly
 - [ ] JWT secrets are cryptographically secure (32+ characters)
 - [ ] Database security rules are configured
@@ -416,6 +441,7 @@ export async function GET() {
 - [ ] CSRF protection is configured
 
 ### Post-Deployment
+
 - [ ] SSL certificate is valid and auto-renewing
 - [ ] Security headers are set correctly
 - [ ] Webhook endpoints are secured
@@ -427,6 +453,7 @@ export async function GET() {
 ## Performance Optimization
 
 ### 1. Next.js Configuration
+
 ```javascript
 // next.config.js
 /** @type {import('next').NextConfig} */
@@ -451,12 +478,14 @@ module.exports = nextConfig
 ```
 
 ### 2. Database Optimization
+
 - Index frequently queried fields
 - Use Firestore composite indexes
 - Implement pagination for large datasets
 - Cache frequently accessed data
 
 ### 3. CDN Optimization
+
 - Enable Brotli compression
 - Set appropriate cache headers
 - Use WebP/AVIF image formats
@@ -465,6 +494,7 @@ module.exports = nextConfig
 ## Backup & Recovery
 
 ### 1. Database Backup
+
 ```bash
 # Firestore export
 gcloud firestore export gs://streamvault-backups/$(date +%Y%m%d)
@@ -478,12 +508,14 @@ gcloud scheduler jobs create app-engine backup-firestore \
 ```
 
 ### 2. File Backup
+
 ```bash
 # GCS bucket backup
 gsutil -m rsync -r -d gs://streamvault-videos-prod gs://streamvault-backups/files
 ```
 
 ### 3. Recovery Procedures
+
 1. **Database Recovery**: Import from Firestore backup
 2. **File Recovery**: Restore from GCS backup
 3. **Application Recovery**: Redeploy from Git repository
@@ -494,6 +526,7 @@ gsutil -m rsync -r -d gs://streamvault-videos-prod gs://streamvault-backups/file
 ### Common Issues
 
 #### 1. Build Failures
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -507,18 +540,21 @@ npm run env:check
 ```
 
 #### 2. Authentication Issues
+
 - Verify Clerk webhook endpoints
 - Check JWT template configuration
 - Validate environment variables
 - Test OAuth provider settings
 
 #### 3. Database Connection Issues
+
 - Verify Firebase service account permissions
 - Check Firestore security rules
 - Validate network connectivity
 - Review API quotas and limits
 
 #### 4. Storage Issues
+
 - Verify GCS bucket permissions
 - Check signed URL generation
 - Validate service account credentials
@@ -527,6 +563,7 @@ npm run env:check
 ### Logs and Debugging
 
 #### Application Logs
+
 ```bash
 # Vercel logs
 vercel logs --follow
@@ -539,6 +576,7 @@ docker logs -f streamvault
 ```
 
 #### Performance Debugging
+
 ```bash
 # Lighthouse CI
 npm run lighthouse
@@ -553,6 +591,7 @@ npm run profile
 ## Maintenance
 
 ### Regular Tasks
+
 - [ ] Update dependencies monthly
 - [ ] Review security logs weekly
 - [ ] Monitor performance metrics daily
@@ -561,6 +600,7 @@ npm run profile
 - [ ] Database cleanup monthly
 
 ### Update Procedures
+
 1. Test updates in staging environment
 2. Create database backup
 3. Deploy during low-traffic hours
@@ -570,6 +610,7 @@ npm run profile
 ## Support
 
 For deployment support:
+
 - **Documentation**: https://docs.streamvault.app/deployment
 - **Email**: devops@streamvault.app
 - **Status**: https://status.streamvault.app

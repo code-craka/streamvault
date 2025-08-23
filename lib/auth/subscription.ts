@@ -1,22 +1,28 @@
 // Subscription tier checking and management utilities
 
-import type { 
-  SubscriptionTier, 
+import type {
+  SubscriptionTier,
   SubscriptionStatus,
-  StreamVaultUser 
+  StreamVaultUser,
 } from '@/types/auth'
-import type { 
-  SubscriptionTierConfig, 
+import type {
+  SubscriptionTierConfig,
   SubscriptionLimits,
   FeatureAccess,
-  UsageMetrics 
+  UsageMetrics,
 } from '@/types/subscription'
-import { SUBSCRIPTION_TIERS, getSubscriptionTierConfig, hasFeatureAccess } from '@/types/subscription'
+import {
+  SUBSCRIPTION_TIERS,
+  getSubscriptionTierConfig,
+  hasFeatureAccess,
+} from '@/types/subscription'
 
 /**
  * Check if subscription is active
  */
-export function isSubscriptionActive(status: SubscriptionStatus | null): boolean {
+export function isSubscriptionActive(
+  status: SubscriptionStatus | null
+): boolean {
   if (!status) return false
   return ['active', 'trialing'].includes(status)
 }
@@ -31,14 +37,18 @@ export function isInTrialPeriod(status: SubscriptionStatus | null): boolean {
 /**
  * Check if subscription is past due
  */
-export function isSubscriptionPastDue(status: SubscriptionStatus | null): boolean {
+export function isSubscriptionPastDue(
+  status: SubscriptionStatus | null
+): boolean {
   return status === 'past_due'
 }
 
 /**
  * Check if subscription is canceled
  */
-export function isSubscriptionCanceled(status: SubscriptionStatus | null): boolean {
+export function isSubscriptionCanceled(
+  status: SubscriptionStatus | null
+): boolean {
   return status === 'canceled'
 }
 
@@ -52,7 +62,9 @@ export function getTierConfig(tier: SubscriptionTier): SubscriptionTierConfig {
 /**
  * Get subscription limits for a tier
  */
-export function getTierLimits(tier: SubscriptionTier | null): SubscriptionLimits {
+export function getTierLimits(
+  tier: SubscriptionTier | null
+): SubscriptionLimits {
   if (!tier) {
     return SUBSCRIPTION_TIERS.basic.limits
   }
@@ -69,10 +81,10 @@ export function canUpgradeTo(
   if (!currentTier) {
     return true // Can always upgrade from no subscription
   }
-  
+
   const currentLevel = getSubscriptionLevel(currentTier)
   const targetLevel = getSubscriptionLevel(targetTier)
-  
+
   return targetLevel > currentLevel
 }
 
@@ -86,10 +98,10 @@ export function canDowngradeTo(
   if (!currentTier) {
     return false // Can't downgrade from no subscription
   }
-  
+
   const currentLevel = getSubscriptionLevel(currentTier)
   const targetLevel = getSubscriptionLevel(targetTier)
-  
+
   return targetLevel < currentLevel
 }
 
@@ -104,9 +116,11 @@ function getSubscriptionLevel(tier: SubscriptionTier): number {
 /**
  * Get next upgrade tier
  */
-export function getNextUpgradeTier(currentTier: SubscriptionTier | null): SubscriptionTier | null {
+export function getNextUpgradeTier(
+  currentTier: SubscriptionTier | null
+): SubscriptionTier | null {
   if (!currentTier) return 'basic'
-  
+
   switch (currentTier) {
     case 'basic':
       return 'premium'
@@ -120,7 +134,9 @@ export function getNextUpgradeTier(currentTier: SubscriptionTier | null): Subscr
 /**
  * Get previous downgrade tier
  */
-export function getPreviousDowngradeTier(currentTier: SubscriptionTier): SubscriptionTier | null {
+export function getPreviousDowngradeTier(
+  currentTier: SubscriptionTier
+): SubscriptionTier | null {
   switch (currentTier) {
     case 'basic':
       return null // Can't downgrade from basic
@@ -141,36 +157,36 @@ export function checkFeatureAccess(
   featureName?: keyof SubscriptionLimits
 ): FeatureAccess {
   const hasAccess = hasFeatureAccess(userTier, requiredTier)
-  
+
   if (hasAccess) {
     // Check usage limits if provided
     if (featureName && currentUsage !== undefined) {
       const limits = getTierLimits(userTier)
       const limit = limits[featureName] as number
-      
+
       if (limit !== -1 && currentUsage >= limit) {
         return {
           hasAccess: false,
           reason: `Usage limit reached (${currentUsage}/${limit})`,
           upgradeRequired: getNextUpgradeTier(userTier) || undefined,
-          usageRemaining: 0
+          usageRemaining: 0,
         }
       }
-      
+
       return {
         hasAccess: true,
-        usageRemaining: limit === -1 ? -1 : limit - currentUsage
+        usageRemaining: limit === -1 ? -1 : limit - currentUsage,
       }
     }
-    
+
     return { hasAccess: true }
   }
-  
+
   return {
     hasAccess: false,
     reason: `Requires ${requiredTier} subscription or higher`,
     upgradeRequired: requiredTier,
-    trialAvailable: !userTier // Trial available if no current subscription
+    trialAvailable: !userTier, // Trial available if no current subscription
   }
 }
 
@@ -184,17 +200,17 @@ export function calculateUpgradeCost(
 ): number {
   const fromPrice = fromTier ? SUBSCRIPTION_TIERS[fromTier].price : 0
   const toPrice = SUBSCRIPTION_TIERS[toTier].price
-  
+
   if (daysRemaining > 0) {
     // Proration calculation
     const dailyFromPrice = fromPrice / 30
     const dailyToPrice = toPrice / 30
     const proratedCredit = dailyFromPrice * daysRemaining
     const proratedCharge = dailyToPrice * daysRemaining
-    
+
     return Math.max(0, proratedCharge - proratedCredit)
   }
-  
+
   return toPrice - fromPrice
 }
 
@@ -226,19 +242,24 @@ export function checkUsageLimits(
 ): Record<string, boolean> {
   const limits = getTierLimits(userTier)
   const exceeded: Record<string, boolean> = {}
-  
+
   if (usage.storageUsed !== undefined) {
-    exceeded.storage = limits.storageQuota !== -1 && usage.storageUsed > limits.storageQuota
+    exceeded.storage =
+      limits.storageQuota !== -1 && usage.storageUsed > limits.storageQuota
   }
-  
+
   if (usage.bandwidthUsed !== undefined) {
-    exceeded.bandwidth = limits.bandwidthQuota !== -1 && usage.bandwidthUsed > limits.bandwidthQuota
+    exceeded.bandwidth =
+      limits.bandwidthQuota !== -1 &&
+      usage.bandwidthUsed > limits.bandwidthQuota
   }
-  
+
   if (usage.apiCalls !== undefined) {
-    exceeded.apiCalls = limits.apiRateLimit !== -1 && usage.apiCalls > limits.apiRateLimit * 60 * 24 * 30 // Monthly limit
+    exceeded.apiCalls =
+      limits.apiRateLimit !== -1 &&
+      usage.apiCalls > limits.apiRateLimit * 60 * 24 * 30 // Monthly limit
   }
-  
+
   return exceeded
 }
 
@@ -251,30 +272,33 @@ export function getUsageWarnings(
   warningThreshold: number = 0.8
 ): Record<string, { current: number; limit: number; percentage: number }> {
   const limits = getTierLimits(userTier)
-  const warnings: Record<string, { current: number; limit: number; percentage: number }> = {}
-  
+  const warnings: Record<
+    string,
+    { current: number; limit: number; percentage: number }
+  > = {}
+
   if (usage.storageUsed !== undefined && limits.storageQuota !== -1) {
     const percentage = usage.storageUsed / limits.storageQuota
     if (percentage >= warningThreshold) {
       warnings.storage = {
         current: usage.storageUsed,
         limit: limits.storageQuota,
-        percentage
+        percentage,
       }
     }
   }
-  
+
   if (usage.bandwidthUsed !== undefined && limits.bandwidthQuota !== -1) {
     const percentage = usage.bandwidthUsed / limits.bandwidthQuota
     if (percentage >= warningThreshold) {
       warnings.bandwidth = {
         current: usage.bandwidthUsed,
         limit: limits.bandwidthQuota,
-        percentage
+        percentage,
       }
     }
   }
-  
+
   return warnings
 }
 
@@ -287,32 +311,38 @@ export function getRecommendedTier(
   // Check if current usage exceeds basic limits
   const basicLimits = SUBSCRIPTION_TIERS.basic.limits
   const premiumLimits = SUBSCRIPTION_TIERS.premium.limits
-  
+
   let needsPremium = false
   let needsPro = false
-  
+
   if (usage.storageUsed && basicLimits.storageQuota !== -1) {
     if (usage.storageUsed > basicLimits.storageQuota) {
       needsPremium = true
     }
-    if (usage.storageUsed > premiumLimits.storageQuota && premiumLimits.storageQuota !== -1) {
+    if (
+      usage.storageUsed > premiumLimits.storageQuota &&
+      premiumLimits.storageQuota !== -1
+    ) {
       needsPro = true
     }
   }
-  
+
   if (usage.bandwidthUsed && basicLimits.bandwidthQuota !== -1) {
     if (usage.bandwidthUsed > basicLimits.bandwidthQuota) {
       needsPremium = true
     }
-    if (usage.bandwidthUsed > premiumLimits.bandwidthQuota && premiumLimits.bandwidthQuota !== -1) {
+    if (
+      usage.bandwidthUsed > premiumLimits.bandwidthQuota &&
+      premiumLimits.bandwidthQuota !== -1
+    ) {
       needsPro = true
     }
   }
-  
+
   if (usage.apiCalls && !basicLimits.apiAccess) {
     needsPremium = true
   }
-  
+
   if (needsPro) return 'pro'
   if (needsPremium) return 'premium'
   return 'basic'
@@ -328,27 +358,29 @@ export function subscriptionAllowsFeature(
   if (!isSubscriptionActive(user.subscriptionStatus)) {
     return false
   }
-  
+
   const limits = getTierLimits(user.subscriptionTier)
   const featureValue = limits[feature]
-  
+
   // Boolean features
   if (typeof featureValue === 'boolean') {
     return featureValue
   }
-  
+
   // Numeric features (check if > 0 or unlimited)
   if (typeof featureValue === 'number') {
     return featureValue > 0 || featureValue === -1
   }
-  
+
   return false
 }
 
 /**
  * Get subscription status display text
  */
-export function getSubscriptionStatusText(status: SubscriptionStatus | null): string {
+export function getSubscriptionStatusText(
+  status: SubscriptionStatus | null
+): string {
   switch (status) {
     case 'active':
       return 'Active'
@@ -372,7 +404,9 @@ export function getSubscriptionStatusText(status: SubscriptionStatus | null): st
 /**
  * Get subscription tier display name
  */
-export function getSubscriptionTierDisplayName(tier: SubscriptionTier | null): string {
+export function getSubscriptionTierDisplayName(
+  tier: SubscriptionTier | null
+): string {
   if (!tier) return 'Free'
   return SUBSCRIPTION_TIERS[tier].name
 }
@@ -401,10 +435,10 @@ export function getDaysUntilExpiration(
   if (!['trialing', 'past_due'].includes(status || '')) {
     return -1
   }
-  
+
   const now = new Date()
   const diffTime = periodEnd.getTime() - now.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   return Math.max(0, diffDays)
 }

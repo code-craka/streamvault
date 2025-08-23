@@ -16,7 +16,7 @@ export async function initializeFirebase(): Promise<{
   try {
     // Validate environment configuration
     const envValidation = validateFirebaseEnvironment()
-    
+
     if (!envValidation.isValid) {
       const error = `Firebase configuration incomplete. Missing: ${envValidation.missing.join(', ')}`
       initializationError = new Error(error)
@@ -41,10 +41,13 @@ export async function initializeFirebase(): Promise<{
 
     isInitialized = true
     return { success: true }
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown Firebase initialization error'
-    initializationError = error instanceof Error ? error : new Error(errorMessage)
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown Firebase initialization error'
+    initializationError =
+      error instanceof Error ? error : new Error(errorMessage)
     console.error('❌ Firebase initialization failed:', errorMessage)
     return { success: false, error: errorMessage }
   }

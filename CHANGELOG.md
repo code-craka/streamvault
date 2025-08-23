@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - User role and subscription management system
 - Protected route components with middleware
 - Comprehensive user profile management
@@ -22,12 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deployment and development guides
 
 ### Changed
+
 - Updated authentication system to use Clerk metadata
 - Enhanced middleware for route protection
 - Improved type safety across authentication flows
 - Restructured component organization
 
 ### Security
+
 - Implemented role-based middleware protection
 - Added subscription tier validation
 - Enhanced user permission checking
@@ -36,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2024-01-15
 
 ### Added
+
 - Next.js 15.0.1 with App Router setup
 - TypeScript configuration with strict mode
 - Tailwind CSS v4 integration
@@ -53,12 +57,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic routing and layout components
 
 ### Changed
+
 - Migrated from Pages Router to App Router
 - Updated to React 19
 - Enhanced TypeScript configuration
 - Improved development workflow
 
 ### Developer Experience
+
 - Added comprehensive linting rules
 - Implemented pre-commit hooks
 - Set up automated testing pipeline
@@ -67,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-01-01
 
 ### Added
+
 - Initial project setup
 - Basic Next.js configuration
 - Repository structure
@@ -75,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Git repository initialization
 
 ### Infrastructure
+
 - GitHub repository setup
 - Basic CI/CD pipeline
 - Development environment configuration
@@ -88,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This release establishes the core foundation of StreamVault with modern web technologies and development practices.
 
 **Key Highlights:**
+
 - **Modern Stack**: Next.js 15 with App Router, React 19, TypeScript
 - **Authentication**: Clerk integration with OAuth providers
 - **Database**: Firebase Firestore for real-time data
@@ -97,11 +106,13 @@ This release establishes the core foundation of StreamVault with modern web tech
 - **Development**: Enhanced DX with ESLint, Prettier, and Husky
 
 **Breaking Changes:**
+
 - Migrated from Pages Router to App Router (affects routing structure)
 - Updated to React 19 (may affect legacy components)
 
 **Migration Guide:**
 For developers upgrading from 0.1.0:
+
 1. Update routing to use App Router conventions
 2. Migrate components to React 19 patterns
 3. Update environment variables as per new schema
@@ -112,6 +123,7 @@ For developers upgrading from 0.1.0:
 The initial release focused on project setup and repository structure.
 
 **What's Included:**
+
 - Basic Next.js setup
 - Repository structure
 - Documentation templates
@@ -122,6 +134,7 @@ The initial release focused on project setup and repository structure.
 ## Upcoming Features
 
 ### Version 0.3.0 (Planned)
+
 - [ ] Live streaming infrastructure
 - [ ] Video player components
 - [ ] Real-time chat system
@@ -130,6 +143,7 @@ The initial release focused on project setup and repository structure.
 - [ ] Content moderation tools
 
 ### Version 0.4.0 (Planned)
+
 - [ ] AI-powered features
 - [ ] Advanced analytics
 - [ ] Mobile app support
@@ -138,6 +152,7 @@ The initial release focused on project setup and repository structure.
 - [ ] Enterprise features
 
 ### Version 1.0.0 (Planned)
+
 - [ ] Production-ready platform
 - [ ] Full feature set
 - [ ] Performance optimizations
@@ -150,6 +165,7 @@ The initial release focused on project setup and repository structure.
 ## Support
 
 For questions about releases or upgrade assistance:
+
 - **Documentation**: https://docs.streamvault.app
 - **GitHub Issues**: https://github.com/code-craka/streamvault/issues
 - **Email**: support@streamvault.app
@@ -157,6 +173,7 @@ For questions about releases or upgrade assistance:
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
 - How to submit changes
 - Coding standards
 - Testing requirements

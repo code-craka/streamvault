@@ -1,10 +1,32 @@
 import { z } from 'zod'
 
 // Base validation schemas
-export const messageTypeSchema = z.enum(['text', 'emote', 'system', 'super_chat'])
-export const prioritySchema = z.enum(['normal', 'premium', 'streamer', 'system'])
-export const moderationActionSchema = z.enum(['none', 'warn', 'timeout', 'delete', 'ban'])
-export const moderationFlagTypeSchema = z.enum(['spam', 'inappropriate', 'toxic', 'copyright', 'custom'])
+export const messageTypeSchema = z.enum([
+  'text',
+  'emote',
+  'system',
+  'super_chat',
+])
+export const prioritySchema = z.enum([
+  'normal',
+  'premium',
+  'streamer',
+  'system',
+])
+export const moderationActionSchema = z.enum([
+  'none',
+  'warn',
+  'timeout',
+  'delete',
+  'ban',
+])
+export const moderationFlagTypeSchema = z.enum([
+  'spam',
+  'inappropriate',
+  'toxic',
+  'copyright',
+  'custom',
+])
 
 // Chat message validation schemas
 export const emoteUsageSchema = z.object({
@@ -134,7 +156,11 @@ export const emoteMetadataSchema = z.object({
 })
 
 export const createCustomEmoteSchema = z.object({
-  name: z.string().min(2).max(25).regex(/^[a-zA-Z0-9_]+$/),
+  name: z
+    .string()
+    .min(2)
+    .max(25)
+    .regex(/^[a-zA-Z0-9_]+$/),
   streamId: z.string().optional(), // null for global emotes
   isAnimated: z.boolean(),
   metadata: emoteMetadataSchema,
@@ -206,7 +232,14 @@ export const chatAnalyticsSchema = z.object({
 
 // Chat event validation schemas
 export const chatEventSchema = z.object({
-  type: z.enum(['message', 'user_join', 'user_leave', 'moderation', 'super_chat', 'emote_added']),
+  type: z.enum([
+    'message',
+    'user_join',
+    'user_leave',
+    'moderation',
+    'super_chat',
+    'emote_added',
+  ]),
   streamId: z.string(),
   userId: z.string().optional(),
   data: z.any(),
@@ -252,7 +285,9 @@ export type CreateChatRoomInput = z.infer<typeof createChatRoomSchema>
 export type UpdateChatRoomInput = z.infer<typeof updateChatRoomSchema>
 export type CreateCustomEmoteInput = z.infer<typeof createCustomEmoteSchema>
 export type CreateSuperChatInput = z.infer<typeof createSuperChatSchema>
-export type ModerationActionRequest = z.infer<typeof moderationActionRequestSchema>
+export type ModerationActionRequest = z.infer<
+  typeof moderationActionRequestSchema
+>
 export type BanUserRequest = z.infer<typeof banUserSchema>
 export type ChatMessageQueryInput = z.infer<typeof chatMessageQuerySchema>
 export type ChatAnalyticsQueryInput = z.infer<typeof chatAnalyticsQuerySchema>

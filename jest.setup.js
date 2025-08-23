@@ -100,7 +100,9 @@ jest.mock('@google-cloud/storage', () => ({
   Storage: jest.fn().mockImplementation(() => ({
     bucket: jest.fn().mockReturnValue({
       file: jest.fn().mockReturnValue({
-        getSignedUrl: jest.fn().mockResolvedValue(['https://example.com/signed-url']),
+        getSignedUrl: jest
+          .fn()
+          .mockResolvedValue(['https://example.com/signed-url']),
         save: jest.fn().mockResolvedValue(undefined),
         delete: jest.fn().mockResolvedValue(undefined),
       }),

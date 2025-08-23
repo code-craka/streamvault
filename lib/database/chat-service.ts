@@ -1,16 +1,30 @@
 import { BaseService } from './base-service'
 import { COLLECTIONS, SUBCOLLECTIONS } from '@/types/database'
-import type { ChatMessage, ChatRoom, CustomEmote, SuperChat } from '@/types/chat'
+import type {
+  ChatMessage,
+  ChatRoom,
+  CustomEmote,
+  SuperChat,
+} from '@/types/chat'
 import type { DatabaseResult, QueryOptions } from '@/types/database'
-import type { 
-  CreateChatMessageInput, 
-  CreateChatRoomInput, 
+import type {
+  CreateChatMessageInput,
+  CreateChatRoomInput,
   UpdateChatRoomInput,
   CreateCustomEmoteInput,
   CreateSuperChatInput,
-  ChatMessageQueryInput 
+  ChatMessageQueryInput,
 } from '@/lib/validations/chat'
-import { collection, doc, addDoc, query, orderBy, limit, where, onSnapshot } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  where,
+  onSnapshot,
+} from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 
 export class ChatService extends BaseService<ChatMessage> {
@@ -21,7 +35,11 @@ export class ChatService extends BaseService<ChatMessage> {
   /**
    * Create a chat message
    */
-  async createMessage(userId: string, username: string, messageData: CreateChatMessageInput): Promise<DatabaseResult<ChatMessage>> {
+  async createMessage(
+    userId: string,
+    username: string,
+    messageData: CreateChatMessageInput
+  ): Promise<DatabaseResult<ChatMessage>> {
     const messageToCreate = {
       ...messageData,
       userId,
@@ -47,15 +65,15 @@ export class ChatService extends BaseService<ChatMessage> {
   /**
    * Get messages for a stream
    */
-  async getStreamMessages(queryInput: ChatMessageQueryInput): Promise<DatabaseResult<ChatMessage[]>> {
+  async getStreamMessages(
+    queryInput: ChatMessageQueryInput
+  ): Promise<DatabaseResult<ChatMessage[]>> {
     const queryOptions: QueryOptions = {
       limit: queryInput.limit,
       where: [
         { field: 'streamId', operator: '==', value: queryInput.streamId },
       ],
-      orderBy: [
-        { field: 'timestamp', direction: 'desc' },
-      ],
+      orderBy: [{ field: 'timestamp', direction: 'desc' }],
     }
 
     // Add additional filters
@@ -117,7 +135,10 @@ export class ChatService extends BaseService<ChatMessage> {
   /**
    * Delete a message
    */
-  async deleteMessage(messageId: string, deletedBy: string): Promise<DatabaseResult<ChatMessage>> {
+  async deleteMessage(
+    messageId: string,
+    deletedBy: string
+  ): Promise<DatabaseResult<ChatMessage>> {
     return this.update(messageId, {
       isDeleted: true,
       deletedBy,
@@ -128,7 +149,10 @@ export class ChatService extends BaseService<ChatMessage> {
   /**
    * Subscribe to real-time messages
    */
-  subscribeToMessages(streamId: string, callback: (messages: ChatMessage[]) => void): () => void {
+  subscribeToMessages(
+    streamId: string,
+    callback: (messages: ChatMessage[]) => void
+  ): () => void {
     const messagesRef = collection(db, COLLECTIONS.CHAT_MESSAGES)
     const q = query(
       messagesRef,
@@ -138,9 +162,9 @@ export class ChatService extends BaseService<ChatMessage> {
       limit(50)
     )
 
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(q, snapshot => {
       const messages: ChatMessage[] = []
-      snapshot.forEach((doc) => {
+      snapshot.forEach(doc => {
         const data = this.transformFromFirestore(doc.data(), doc.id)
         messages.push(data)
       })
@@ -157,7 +181,9 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Create a chat room
    */
-  async createChatRoom(roomData: CreateChatRoomInput): Promise<DatabaseResult<ChatRoom>> {
+  async createChatRoom(
+    roomData: CreateChatRoomInput
+  ): Promise<DatabaseResult<ChatRoom>> {
     const roomToCreate = {
       ...roomData,
       isActive: true,
@@ -172,7 +198,9 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Update chat room settings
    */
-  async updateChatRoom(roomData: UpdateChatRoomInput): Promise<DatabaseResult<ChatRoom>> {
+  async updateChatRoom(
+    roomData: UpdateChatRoomInput
+  ): Promise<DatabaseResult<ChatRoom>> {
     const { id, ...updateData } = roomData
     return this.update(id, updateData as any)
   }
@@ -180,7 +208,9 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Get chat room by stream ID
    */
-  async getChatRoomByStreamId(streamId: string): Promise<DatabaseResult<ChatRoom | null>> {
+  async getChatRoomByStreamId(
+    streamId: string
+  ): Promise<DatabaseResult<ChatRoom | null>> {
     const result = await this.getByField('streamId', streamId)
     if (!result.success) {
       return {
@@ -199,7 +229,14 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Ban user from chat
    */
-  async banUser(roomId: string, userId: string, username: string, bannedBy: string, reason: string, duration?: number): Promise<DatabaseResult<ChatRoom>> {
+  async banUser(
+    roomId: string,
+    userId: string,
+    username: string,
+    bannedBy: string,
+    reason: string,
+    duration?: number
+  ): Promise<DatabaseResult<ChatRoom>> {
     const room = await this.getById(roomId)
     if (!room.success || !room.data) {
       return room
@@ -211,7 +248,9 @@ export class ChatRoomService extends BaseService<ChatRoom> {
       bannedBy,
       bannedAt: new Date(),
       reason,
-      expiresAt: duration ? new Date(Date.now() + duration * 60 * 1000) : undefined,
+      expiresAt: duration
+        ? new Date(Date.now() + duration * 60 * 1000)
+        : undefined,
       isPermanent: !duration,
     }
 
@@ -225,7 +264,10 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Unban user from chat
    */
-  async unbanUser(roomId: string, userId: string): Promise<DatabaseResult<ChatRoom>> {
+  async unbanUser(
+    roomId: string,
+    userId: string
+  ): Promise<DatabaseResult<ChatRoom>> {
     const room = await this.getById(roomId)
     if (!room.success || !room.data) {
       return room
@@ -243,7 +285,10 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Update active user count
    */
-  async updateActiveUsers(roomId: string, count: number): Promise<DatabaseResult<ChatRoom>> {
+  async updateActiveUsers(
+    roomId: string,
+    count: number
+  ): Promise<DatabaseResult<ChatRoom>> {
     return this.update(roomId, {
       activeUsers: count,
     })
@@ -252,7 +297,9 @@ export class ChatRoomService extends BaseService<ChatRoom> {
   /**
    * Increment message count
    */
-  async incrementMessageCount(roomId: string): Promise<DatabaseResult<ChatRoom>> {
+  async incrementMessageCount(
+    roomId: string
+  ): Promise<DatabaseResult<ChatRoom>> {
     const room = await this.getById(roomId)
     if (!room.success || !room.data) {
       return room
@@ -272,7 +319,10 @@ export class CustomEmoteService extends BaseService<CustomEmote> {
   /**
    * Create a custom emote
    */
-  async createEmote(userId: string, emoteData: CreateCustomEmoteInput & { url: string }): Promise<DatabaseResult<CustomEmote>> {
+  async createEmote(
+    userId: string,
+    emoteData: CreateCustomEmoteInput & { url: string }
+  ): Promise<DatabaseResult<CustomEmote>> {
     const emoteToCreate = {
       ...emoteData,
       userId,
@@ -286,15 +336,15 @@ export class CustomEmoteService extends BaseService<CustomEmote> {
   /**
    * Get emotes by stream
    */
-  async getEmotesByStream(streamId: string): Promise<DatabaseResult<CustomEmote[]>> {
+  async getEmotesByStream(
+    streamId: string
+  ): Promise<DatabaseResult<CustomEmote[]>> {
     const queryOptions: QueryOptions = {
       where: [
         { field: 'streamId', operator: '==', value: streamId },
         { field: 'isApproved', operator: '==', value: true },
       ],
-      orderBy: [
-        { field: 'usageCount', direction: 'desc' },
-      ],
+      orderBy: [{ field: 'usageCount', direction: 'desc' }],
     }
 
     const result = await this.query(queryOptions)
@@ -321,9 +371,7 @@ export class CustomEmoteService extends BaseService<CustomEmote> {
         { field: 'streamId', operator: '==', value: null },
         { field: 'isApproved', operator: '==', value: true },
       ],
-      orderBy: [
-        { field: 'usageCount', direction: 'desc' },
-      ],
+      orderBy: [{ field: 'usageCount', direction: 'desc' }],
     }
 
     const result = await this.query(queryOptions)
@@ -373,9 +421,15 @@ export class SuperChatService extends BaseService<SuperChat> {
   /**
    * Create a super chat
    */
-  async createSuperChat(userId: string, username: string, superChatData: CreateSuperChatInput): Promise<DatabaseResult<SuperChat>> {
+  async createSuperChat(
+    userId: string,
+    username: string,
+    superChatData: CreateSuperChatInput
+  ): Promise<DatabaseResult<SuperChat>> {
     // Calculate display duration and color based on amount
-    const { displayDuration, color } = this.calculateSuperChatProperties(superChatData.amount)
+    const { displayDuration, color } = this.calculateSuperChatProperties(
+      superChatData.amount
+    )
 
     const superChatToCreate = {
       ...superChatData,
@@ -393,16 +447,17 @@ export class SuperChatService extends BaseService<SuperChat> {
   /**
    * Get super chats for stream
    */
-  async getSuperChatsByStream(streamId: string, options: QueryOptions = {}): Promise<DatabaseResult<SuperChat[]>> {
+  async getSuperChatsByStream(
+    streamId: string,
+    options: QueryOptions = {}
+  ): Promise<DatabaseResult<SuperChat[]>> {
     const queryOptions: QueryOptions = {
       ...options,
       where: [
         ...(options.where || []),
         { field: 'streamId', operator: '==', value: streamId },
       ],
-      orderBy: [
-        { field: 'timestamp', direction: 'desc' },
-      ],
+      orderBy: [{ field: 'timestamp', direction: 'desc' }],
     }
 
     const result = await this.query(queryOptions)
@@ -423,7 +478,10 @@ export class SuperChatService extends BaseService<SuperChat> {
   /**
    * Mark super chat as processed
    */
-  async markAsProcessed(superChatId: string, stripePaymentId: string): Promise<DatabaseResult<SuperChat>> {
+  async markAsProcessed(
+    superChatId: string,
+    stripePaymentId: string
+  ): Promise<DatabaseResult<SuperChat>> {
     return this.update(superChatId, {
       isProcessed: true,
       stripePaymentId,
@@ -433,7 +491,10 @@ export class SuperChatService extends BaseService<SuperChat> {
   /**
    * Calculate super chat properties based on amount
    */
-  private calculateSuperChatProperties(amount: number): { displayDuration: number; color: string } {
+  private calculateSuperChatProperties(amount: number): {
+    displayDuration: number
+    color: string
+  } {
     if (amount >= 100) {
       return { displayDuration: 300, color: '#FF0000' } // 5 minutes, red
     } else if (amount >= 50) {

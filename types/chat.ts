@@ -158,7 +158,13 @@ export interface TopChatter {
 
 // Real-time chat events
 export interface ChatEvent {
-  type: 'message' | 'user_join' | 'user_leave' | 'moderation' | 'super_chat' | 'emote_added'
+  type:
+    | 'message'
+    | 'user_join'
+    | 'user_leave'
+    | 'moderation'
+    | 'super_chat'
+    | 'emote_added'
   streamId: string
   userId?: string
   data: any

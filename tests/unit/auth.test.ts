@@ -1,20 +1,28 @@
-import { checkUserRole, checkSubscriptionAccess, getUserPermissions } from '@/lib/auth/permissions'
+import {
+  checkUserRole,
+  checkSubscriptionAccess,
+  getUserPermissions,
+} from '@/lib/auth/permissions'
 import { UserRole, SubscriptionTier } from '@/types/auth'
 
 // Mock Clerk user object
-const createMockUser = (role: UserRole = 'viewer', subscriptionTier: SubscriptionTier | null = null) => ({
-  id: 'test-user-id',
-  emailAddresses: [{ emailAddress: 'test@example.com' }],
-  firstName: 'Test',
-  lastName: 'User',
-  username: 'testuser',
-  publicMetadata: {
-    role,
-    subscriptionTier,
-    subscriptionStatus: subscriptionTier ? 'active' : null
-  },
-  banned: false
-} as any)
+const createMockUser = (
+  role: UserRole = 'viewer',
+  subscriptionTier: SubscriptionTier | null = null
+) =>
+  ({
+    id: 'test-user-id',
+    emailAddresses: [{ emailAddress: 'test@example.com' }],
+    firstName: 'Test',
+    lastName: 'User',
+    username: 'testuser',
+    publicMetadata: {
+      role,
+      subscriptionTier,
+      subscriptionStatus: subscriptionTier ? 'active' : null,
+    },
+    banned: false,
+  }) as any
 
 describe('Authentication Utilities', () => {
   describe('checkUserRole', () => {
@@ -81,7 +89,7 @@ describe('Authentication Utilities', () => {
     it('should return correct permissions for viewer', () => {
       const user = createMockUser('viewer')
       const permissions = getUserPermissions(user)
-      
+
       expect(permissions.canStream).toBe(false)
       expect(permissions.canModerate).toBe(false)
       expect(permissions.canAccessAdmin).toBe(false)
@@ -91,7 +99,7 @@ describe('Authentication Utilities', () => {
     it('should return correct permissions for streamer', () => {
       const user = createMockUser('streamer')
       const permissions = getUserPermissions(user)
-      
+
       expect(permissions.canStream).toBe(true)
       expect(permissions.canModerate).toBe(true)
       expect(permissions.canAccessAdmin).toBe(false)
@@ -101,7 +109,7 @@ describe('Authentication Utilities', () => {
     it('should return correct permissions for admin', () => {
       const user = createMockUser('admin')
       const permissions = getUserPermissions(user)
-      
+
       expect(permissions.canStream).toBe(true)
       expect(permissions.canModerate).toBe(true)
       expect(permissions.canAccessAdmin).toBe(true)

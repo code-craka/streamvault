@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-border: hsl(214.3 31.8% 91.4%);
@@ -20,7 +20,7 @@
   --color-popover-foreground: hsl(222.2 84% 4.9%);
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(222.2 84% 4.9%);
-  
+
   /* StreamVault brand colors */
   --color-brand-50: #f0f9ff;
   --color-brand-100: #e0f2fe;
@@ -32,18 +32,18 @@
   --color-brand-700: #0369a1;
   --color-brand-800: #075985;
   --color-brand-900: #0c4a6e;
-  
+
   /* Streaming status colors */
   --color-streaming-live: #ef4444;
   --color-streaming-offline: #6b7280;
   --color-streaming-processing: #f59e0b;
-  
+
   /* Border radius */
   --radius: 0.5rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-  
+
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -75,18 +75,31 @@
 }
 
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 @keyframes pulse-live {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* StreamVault Custom Styles */
@@ -94,31 +107,31 @@
   .gradient-text {
     @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent;
   }
-  
+
   .glass-card {
-    @apply bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg;
+    @apply rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm;
   }
-  
+
   .streaming-live {
     @apply animate-pulse-live;
   }
-  
+
   .btn-primary {
-    @apply px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105;
+    @apply transform rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:scale-105 hover:bg-blue-700;
   }
-  
+
   .btn-secondary {
-    @apply px-6 py-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-900 text-white font-semibold rounded-lg transition-all duration-200;
+    @apply rounded-lg border border-gray-300 px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-gray-100 hover:text-gray-900;
   }
 }
 
 /* Video Player Styles */
 .video-player {
-  @apply relative aspect-video bg-black rounded-lg overflow-hidden;
+  @apply relative aspect-video overflow-hidden rounded-lg bg-black;
 }
 
 .video-player video {
-  @apply w-full h-full object-cover;
+  @apply h-full w-full object-cover;
 }
 
 .video-controls {
@@ -127,11 +140,11 @@
 
 /* Chat Styles */
 .chat-container {
-  @apply flex flex-col h-96 bg-gray-900 rounded-lg border border-gray-700;
+  @apply flex h-96 flex-col rounded-lg border border-gray-700 bg-gray-900;
 }
 
 .chat-messages {
-  @apply flex-1 overflow-y-auto p-4 space-y-2;
+  @apply flex-1 space-y-2 overflow-y-auto p-4;
 }
 
 .chat-message {
@@ -139,11 +152,11 @@
 }
 
 .chat-message.streamer {
-  @apply bg-red-900/20 p-2 rounded;
+  @apply rounded bg-red-900/20 p-2;
 }
 
 .chat-message.premium {
-  @apply bg-yellow-900/20 p-2 rounded;
+  @apply rounded bg-yellow-900/20 p-2;
 }
 
 /* Loading States */
@@ -156,7 +169,7 @@
   .container {
     @apply px-4;
   }
-  
+
   .grid-responsive {
     @apply grid-cols-1;
   }
@@ -180,7 +193,7 @@ eamVault Custom Styles */
 }
 
 .glass-card {
-  @apply bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg;
+  @apply rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm;
 }
 
 .streaming-live {
@@ -188,20 +201,20 @@ eamVault Custom Styles */
 }
 
 .btn-primary {
-  @apply px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105;
+  @apply transform rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:scale-105 hover:bg-blue-700;
 }
 
 .btn-secondary {
-  @apply px-6 py-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-900 text-white font-semibold rounded-lg transition-all duration-200;
+  @apply rounded-lg border border-gray-300 px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-gray-100 hover:text-gray-900;
 }
 
 /* Video Player Styles */
 .video-player {
-  @apply relative aspect-video bg-black rounded-lg overflow-hidden;
+  @apply relative aspect-video overflow-hidden rounded-lg bg-black;
 }
 
 .video-player video {
-  @apply w-full h-full object-cover;
+  @apply h-full w-full object-cover;
 }
 
 .video-controls {
@@ -210,11 +223,11 @@ eamVault Custom Styles */
 
 /* Chat Styles */
 .chat-container {
-  @apply flex flex-col h-96 bg-gray-900 rounded-lg border border-gray-700;
+  @apply flex h-96 flex-col rounded-lg border border-gray-700 bg-gray-900;
 }
 
 .chat-messages {
-  @apply flex-1 overflow-y-auto p-4 space-y-2;
+  @apply flex-1 space-y-2 overflow-y-auto p-4;
 }
 
 .chat-message {
@@ -222,11 +235,11 @@ eamVault Custom Styles */
 }
 
 .chat-message.streamer {
-  @apply bg-red-900/20 p-2 rounded;
+  @apply rounded bg-red-900/20 p-2;
 }
 
 .chat-message.premium {
-  @apply bg-yellow-900/20 p-2 rounded;
+  @apply rounded bg-yellow-900/20 p-2;
 }
 
 /* Loading States */
@@ -239,7 +252,7 @@ eamVault Custom Styles */
   .container {
     @apply px-4;
   }
-  
+
   .grid-responsive {
     @apply grid-cols-1;
   }

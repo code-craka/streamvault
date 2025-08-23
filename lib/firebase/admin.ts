@@ -1,10 +1,16 @@
-import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app'
+import {
+  initializeApp,
+  getApps,
+  cert,
+  ServiceAccount,
+} from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { getAuth } from 'firebase-admin/auth'
 import path from 'path'
 
 // Firebase Admin configuration using service account file
-const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || 
+const serviceAccountPath =
+  process.env.GOOGLE_APPLICATION_CREDENTIALS ||
   path.join(process.cwd(), '.gcp', 'service-account.json')
 
 // Initialize Firebase Admin (server-side)
@@ -27,12 +33,13 @@ export const adminAuth = getAuth()
 // Helper function to verify Firebase Admin is properly configured
 export const verifyAdminConfig = (): boolean => {
   try {
-    const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || 
+    const serviceAccountPath =
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
       path.join(process.cwd(), '.gcp', 'service-account.json')
-    
+
     // Check if service account file exists
     const fs = require('fs')
-    return fs.existsSync(serviceAccountPath) && !!(process.env.GCP_PROJECT_ID)
+    return fs.existsSync(serviceAccountPath) && !!process.env.GCP_PROJECT_ID
   } catch (error) {
     console.error('Firebase Admin configuration error:', error)
     return false

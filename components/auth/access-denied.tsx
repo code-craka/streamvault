@@ -6,7 +6,13 @@ import { AlertTriangle, Lock, CreditCard, UserX } from 'lucide-react'
 import Link from 'next/link'
 import type { UserRole, SubscriptionTier } from '@/types/auth'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 interface AccessDeniedProps {
   message: string
@@ -21,7 +27,7 @@ export function AccessDenied({
   requiredRole,
   requiredSubscription,
   showUpgradeButton = true,
-  showContactSupport = true
+  showContactSupport = true,
 }: AccessDeniedProps) {
   const getIcon = () => {
     if (requiredSubscription) {
@@ -54,12 +60,10 @@ export function AccessDenied({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="max-w-md w-full">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            {getIcon()}
-          </div>
+          <div className="mb-4 flex justify-center">{getIcon()}</div>
           <CardTitle className="text-2xl font-bold text-gray-900">
             {getTitle()}
           </CardTitle>
@@ -67,12 +71,12 @@ export function AccessDenied({
             {getDescription()}
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* Error message */}
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="rounded-md border border-red-200 bg-red-50 p-4">
             <div className="flex">
-              <AlertTriangle className="h-5 w-5 text-red-400 mr-2 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
               <p className="text-sm text-red-700">{message}</p>
             </div>
           </div>
@@ -81,59 +85,54 @@ export function AccessDenied({
           <div className="space-y-3">
             {requiredSubscription && showUpgradeButton && (
               <Button asChild className="w-full">
-                <Link href="/dashboard/billing">
-                  Upgrade Subscription
-                </Link>
+                <Link href="/dashboard/billing">Upgrade Subscription</Link>
               </Button>
             )}
 
             {requiredRole && (
               <Button asChild variant="outline" className="w-full">
-                <Link href="/dashboard">
-                  Go to Dashboard
-                </Link>
+                <Link href="/dashboard">Go to Dashboard</Link>
               </Button>
             )}
 
             <Button asChild variant="outline" className="w-full">
-              <Link href="/">
-                Return Home
-              </Link>
+              <Link href="/">Return Home</Link>
             </Button>
 
             {showContactSupport && (
               <Button asChild variant="ghost" className="w-full">
-                <Link href="/support">
-                  Contact Support
-                </Link>
+                <Link href="/support">Contact Support</Link>
               </Button>
             )}
           </div>
 
           {/* Additional information */}
           {requiredSubscription && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-              <h4 className="text-sm font-medium text-blue-800 mb-2">
+            <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
+              <h4 className="mb-2 text-sm font-medium text-blue-800">
                 What you get with {requiredSubscription}:
               </h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                {getSubscriptionFeatures(requiredSubscription).map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="mr-2">•</span>
-                    {feature}
-                  </li>
-                ))}
+              <ul className="space-y-1 text-sm text-blue-700">
+                {getSubscriptionFeatures(requiredSubscription).map(
+                  (feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      {feature}
+                    </li>
+                  )
+                )}
               </ul>
             </div>
           )}
 
           {requiredRole && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-              <h4 className="text-sm font-medium text-yellow-800 mb-2">
+            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4">
+              <h4 className="mb-2 text-sm font-medium text-yellow-800">
                 Need {requiredRole} access?
               </h4>
               <p className="text-sm text-yellow-700">
-                Contact your administrator or upgrade your account to get the required permissions.
+                Contact your administrator or upgrade your account to get the
+                required permissions.
               </p>
             </div>
           )}
@@ -152,7 +151,7 @@ function getSubscriptionFeatures(tier: SubscriptionTier): string[] {
         'Limited VOD history (30 days)',
         'Standard quality streaming (720p)',
         'Basic chat participation',
-        'Mobile app access'
+        'Mobile app access',
       ]
     case 'premium':
       return [
@@ -161,7 +160,7 @@ function getSubscriptionFeatures(tier: SubscriptionTier): string[] {
         'HD streaming quality (1080p)',
         'Chat privileges and custom emotes',
         'Offline downloads',
-        'Priority support'
+        'Priority support',
       ]
     case 'pro':
       return [
@@ -170,7 +169,7 @@ function getSubscriptionFeatures(tier: SubscriptionTier): string[] {
         'Unlimited offline downloads',
         'Advanced analytics dashboard',
         'API access for integrations',
-        'White-label customization'
+        'White-label customization',
       ]
   }
 }
@@ -179,18 +178,20 @@ function getSubscriptionFeatures(tier: SubscriptionTier): string[] {
 export function AccessDeniedInline({
   message,
   requiredSubscription,
-  className = ''
+  className = '',
 }: {
   message: string
   requiredSubscription?: SubscriptionTier
   className?: string
 }) {
   return (
-    <div className={`bg-red-50 border border-red-200 rounded-md p-4 ${className}`}>
+    <div
+      className={`rounded-md border border-red-200 bg-red-50 p-4 ${className}`}
+    >
       <div className="flex items-start">
-        <Lock className="h-5 w-5 text-red-400 mr-2 flex-shrink-0 mt-0.5" />
+        <Lock className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
         <div className="flex-1">
-          <p className="text-sm text-red-700 mb-2">{message}</p>
+          <p className="mb-2 text-sm text-red-700">{message}</p>
           {requiredSubscription && (
             <Button asChild size="sm">
               <Link href="/dashboard/billing">
@@ -210,7 +211,7 @@ export function FeatureGate({
   fallback,
   requiredSubscription,
   requiredRole,
-  user
+  user,
 }: {
   children: React.ReactNode
   fallback?: React.ReactNode
@@ -219,32 +220,39 @@ export function FeatureGate({
   user: any // StreamVaultUser or null
 }) {
   if (!user) {
-    return fallback || (
-      <AccessDeniedInline message="Please sign in to access this feature" />
+    return (
+      fallback || (
+        <AccessDeniedInline message="Please sign in to access this feature" />
+      )
     )
   }
 
   // Check role requirement
   if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
-    return fallback || (
-      <AccessDeniedInline 
-        message={`This feature requires ${requiredRole} role or higher`}
-      />
+    return (
+      fallback || (
+        <AccessDeniedInline
+          message={`This feature requires ${requiredRole} role or higher`}
+        />
+      )
     )
   }
 
   // Check subscription requirement
   if (requiredSubscription) {
-    const hasSubscription = user.subscriptionTier && 
-      ['basic', 'premium', 'pro'].indexOf(user.subscriptionTier) >= 
-      ['basic', 'premium', 'pro'].indexOf(requiredSubscription)
-    
+    const hasSubscription =
+      user.subscriptionTier &&
+      ['basic', 'premium', 'pro'].indexOf(user.subscriptionTier) >=
+        ['basic', 'premium', 'pro'].indexOf(requiredSubscription)
+
     if (!hasSubscription) {
-      return fallback || (
-        <AccessDeniedInline 
-          message={`This feature requires ${requiredSubscription} subscription or higher`}
-          requiredSubscription={requiredSubscription}
-        />
+      return (
+        fallback || (
+          <AccessDeniedInline
+            message={`This feature requires ${requiredSubscription} subscription or higher`}
+            requiredSubscription={requiredSubscription}
+          />
+        )
       )
     }
   }

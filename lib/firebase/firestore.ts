@@ -64,7 +64,10 @@ export class FirestoreService {
       }
       return null
     } catch (error) {
-      console.error(`Error getting document ${id} from ${this.collectionName}:`, error)
+      console.error(
+        `Error getting document ${id} from ${this.collectionName}:`,
+        error
+      )
       throw error
     }
   }
@@ -77,7 +80,10 @@ export class FirestoreService {
         updatedAt: Timestamp.now(),
       })
     } catch (error) {
-      console.error(`Error updating document ${id} in ${this.collectionName}:`, error)
+      console.error(
+        `Error updating document ${id} in ${this.collectionName}:`,
+        error
+      )
       throw error
     }
   }
@@ -87,7 +93,10 @@ export class FirestoreService {
     try {
       await deleteDoc(this.getDocRef(id))
     } catch (error) {
-      console.error(`Error deleting document ${id} from ${this.collectionName}:`, error)
+      console.error(
+        `Error deleting document ${id} from ${this.collectionName}:`,
+        error
+      )
       throw error
     }
   }
@@ -102,7 +111,10 @@ export class FirestoreService {
         ...doc.data(),
       }))
     } catch (error) {
-      console.error(`Error getting documents from ${this.collectionName}:`, error)
+      console.error(
+        `Error getting documents from ${this.collectionName}:`,
+        error
+      )
       throw error
     }
   }
@@ -113,7 +125,7 @@ export class FirestoreService {
     constraints: QueryConstraint[] = []
   ): () => void {
     const q = query(this.getCollection(), ...constraints)
-    return onSnapshot(q, (querySnapshot) => {
+    return onSnapshot(q, querySnapshot => {
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -127,7 +139,7 @@ export class FirestoreService {
     id: string,
     callback: (data: DocumentData | null) => void
   ): () => void {
-    return onSnapshot(this.getDocRef(id), (docSnap) => {
+    return onSnapshot(this.getDocRef(id), docSnap => {
       if (docSnap.exists()) {
         callback({
           id: docSnap.id,
@@ -175,14 +187,14 @@ export const firestoreHelpers = {
   // Get recent chat messages for a stream
   getStreamMessages: (streamId: string) => {
     const messagesService = new FirestoreService(`streams/${streamId}/messages`)
-    return messagesService.getMany([
-      orderBy('timestamp', 'desc'),
-      limit(100),
-    ])
+    return messagesService.getMany([orderBy('timestamp', 'desc'), limit(100)])
   },
 
   // Real-time chat listener
-  listenToChat: (streamId: string, callback: (messages: DocumentData[]) => void) => {
+  listenToChat: (
+    streamId: string,
+    callback: (messages: DocumentData[]) => void
+  ) => {
     const messagesService = new FirestoreService(`streams/${streamId}/messages`)
     return messagesService.onSnapshot(callback, [
       orderBy('timestamp', 'desc'),

@@ -22,31 +22,31 @@ export interface SubscriptionLimits {
   maxQuality: '480p' | '720p' | '1080p' | '4K'
   concurrentStreams: number
   maxStreamDuration: number // in minutes, -1 for unlimited
-  
+
   // Chat and engagement limits
   chatRateLimit: number // messages per second
   customEmotes: number // -1 for unlimited
   chatHistory: number // days, -1 for unlimited
-  
+
   // Download and offline features
   offlineDownloads: number // -1 for unlimited
   downloadRetention: number // days
-  
+
   // API and integration limits
   apiAccess: boolean
   apiRateLimit: number // requests per minute
   webhookEndpoints: number
-  
+
   // Analytics and insights
   analyticsRetention: number // days
   advancedAnalytics: boolean
   exportData: boolean
-  
+
   // Support and features
   prioritySupport: boolean
   whiteLabel: boolean
   customDomain: boolean
-  
+
   // Storage limits
   storageQuota: number // in GB, -1 for unlimited
   bandwidthQuota: number // in GB per month, -1 for unlimited
@@ -200,8 +200,13 @@ export interface Discount {
 // Subscription events for webhooks
 export interface SubscriptionEvent {
   id: string
-  type: 'subscription.created' | 'subscription.updated' | 'subscription.deleted' | 
-        'invoice.payment_succeeded' | 'invoice.payment_failed' | 'customer.subscription.trial_will_end'
+  type:
+    | 'subscription.created'
+    | 'subscription.updated'
+    | 'subscription.deleted'
+    | 'invoice.payment_succeeded'
+    | 'invoice.payment_failed'
+    | 'customer.subscription.trial_will_end'
   subscriptionId: string
   customerId: string
   userId: string
@@ -224,7 +229,10 @@ export interface FeatureAccess {
 }
 
 // Subscription tier definitions with all features
-export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig> = {
+export const SUBSCRIPTION_TIERS: Record<
+  SubscriptionTier,
+  SubscriptionTierConfig
+> = {
   basic: {
     name: 'Basic',
     price: 9.99,
@@ -237,7 +245,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       'Standard quality streaming (720p)',
       'Basic chat participation',
       'Mobile app access',
-      'Email support'
+      'Email support',
     ],
     limits: {
       vodRetentionDays: 30,
@@ -259,8 +267,8 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       whiteLabel: false,
       customDomain: false,
       storageQuota: 5, // 5GB
-      bandwidthQuota: 50 // 50GB per month
-    }
+      bandwidthQuota: 50, // 50GB per month
+    },
   },
   premium: {
     name: 'Premium',
@@ -278,7 +286,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       'Priority support',
       'AI-generated highlights',
       'Advanced chat features',
-      '30-day analytics retention'
+      '30-day analytics retention',
     ],
     limits: {
       vodRetentionDays: -1, // unlimited
@@ -300,8 +308,8 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       whiteLabel: false,
       customDomain: false,
       storageQuota: 50, // 50GB
-      bandwidthQuota: 200 // 200GB per month
-    }
+      bandwidthQuota: 200, // 200GB per month
+    },
   },
   pro: {
     name: 'Pro',
@@ -320,7 +328,7 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       'Unlimited custom emotes',
       'Priority chat highlighting',
       'Custom domain support',
-      'Dedicated account manager'
+      'Dedicated account manager',
     ],
     limits: {
       vodRetentionDays: -1,
@@ -342,13 +350,15 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig
       whiteLabel: true,
       customDomain: true,
       storageQuota: -1, // unlimited
-      bandwidthQuota: -1 // unlimited
-    }
-  }
+      bandwidthQuota: -1, // unlimited
+    },
+  },
 } as const
 
 // Helper function to get tier configuration
-export function getSubscriptionTierConfig(tier: SubscriptionTier): SubscriptionTierConfig {
+export function getSubscriptionTierConfig(
+  tier: SubscriptionTier
+): SubscriptionTierConfig {
   return SUBSCRIPTION_TIERS[tier]
 }
 
@@ -358,15 +368,17 @@ export function hasFeatureAccess(
   requiredTier: SubscriptionTier
 ): boolean {
   if (!userTier) return requiredTier === 'basic'
-  
+
   const userLevel = SUBSCRIPTION_HIERARCHY[userTier]
   const requiredLevel = SUBSCRIPTION_HIERARCHY[requiredTier]
-  
+
   return userLevel >= requiredLevel
 }
 
 // Helper function to get usage limits for a tier
-export function getUsageLimits(tier: SubscriptionTier | null): SubscriptionLimits {
+export function getUsageLimits(
+  tier: SubscriptionTier | null
+): SubscriptionLimits {
   if (!tier) return SUBSCRIPTION_TIERS.basic.limits
   return SUBSCRIPTION_TIERS[tier].limits
 }
@@ -377,18 +389,18 @@ export const SUBSCRIPTION_PLANS = {
     name: 'Basic',
     price: 9.99,
     description: 'Perfect for getting started with streaming',
-    popular: false
+    popular: false,
   },
   premium: {
-    name: 'Premium', 
+    name: 'Premium',
     price: 19.99,
     description: 'Advanced features for serious streamers',
-    popular: true
+    popular: true,
   },
   pro: {
     name: 'Pro',
     price: 29.99,
     description: 'Professional streaming with all features',
-    popular: false
-  }
+    popular: false,
+  },
 } as const

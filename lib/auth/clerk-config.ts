@@ -5,13 +5,13 @@ import { UserRole, SubscriptionTier, UserMetadata } from '@/types/auth'
  * Update user metadata in Clerk
  */
 export async function updateUserMetadata(
-  userId: string, 
+  userId: string,
   metadata: Partial<UserMetadata>
 ): Promise<void> {
   try {
     const client = await clerkClient()
     await client.users.updateUserMetadata(userId, {
-      publicMetadata: metadata
+      publicMetadata: metadata,
     })
   } catch (error) {
     console.error('Failed to update user metadata:', error)
@@ -22,7 +22,10 @@ export async function updateUserMetadata(
 /**
  * Set user role
  */
-export async function setUserRole(userId: string, role: UserRole): Promise<void> {
+export async function setUserRole(
+  userId: string,
+  role: UserRole
+): Promise<void> {
   await updateUserMetadata(userId, { role })
 }
 
@@ -30,7 +33,7 @@ export async function setUserRole(userId: string, role: UserRole): Promise<void>
  * Set user subscription
  */
 export async function setUserSubscription(
-  userId: string, 
+  userId: string,
   tier: SubscriptionTier,
   status: string,
   subscriptionId?: string
@@ -38,7 +41,7 @@ export async function setUserSubscription(
   await updateUserMetadata(userId, {
     subscriptionTier: tier,
     subscriptionStatus: status as any,
-    subscriptionId
+    subscriptionId,
   })
 }
 
@@ -60,19 +63,19 @@ export async function initializeNewUser(userId: string): Promise<void> {
         push: true,
         streamStart: true,
         newFollower: true,
-        chatMention: true
+        chatMention: true,
       },
       privacy: {
         showOnlineStatus: true,
         allowDirectMessages: true,
-        showViewingHistory: true
+        showViewingHistory: true,
       },
       streaming: {
         defaultQuality: '720p',
         autoPlay: true,
-        chatEnabled: true
-      }
-    }
+        chatEnabled: true,
+      },
+    },
   }
 
   await updateUserMetadata(userId, defaultMetadata)
@@ -82,11 +85,11 @@ export async function initializeNewUser(userId: string): Promise<void> {
  * Complete user onboarding
  */
 export async function completeOnboarding(
-  userId: string, 
+  userId: string,
   role: UserRole = 'viewer'
 ): Promise<void> {
   await updateUserMetadata(userId, {
-    role
+    role,
   })
 }
 
@@ -97,7 +100,7 @@ export async function getUserByEmail(email: string) {
   try {
     const client = await clerkClient()
     const users = await client.users.getUserList({
-      emailAddress: [email]
+      emailAddress: [email],
     })
     return users.data[0] || null
   } catch (error) {
@@ -153,7 +156,7 @@ export const CLERK_WEBHOOK_EVENTS = {
   USER_UPDATED: 'user.updated',
   USER_DELETED: 'user.deleted',
   SESSION_CREATED: 'session.created',
-  SESSION_ENDED: 'session.ended'
+  SESSION_ENDED: 'session.ended',
 } as const
 
 /**
@@ -163,16 +166,16 @@ export const OAUTH_PROVIDERS = {
   google: {
     name: 'Google',
     icon: '🔍',
-    scopes: ['email', 'profile']
+    scopes: ['email', 'profile'],
   },
   github: {
     name: 'GitHub',
     icon: '🐙',
-    scopes: ['user:email']
+    scopes: ['user:email'],
   },
   discord: {
     name: 'Discord',
     icon: '🎮',
-    scopes: ['identify', 'email']
-  }
+    scopes: ['identify', 'email'],
+  },
 } as const

@@ -52,6 +52,7 @@ We welcome many types of contributions:
 ### Setup Steps
 
 1. **Fork the repository**
+
 ```bash
 # Fork on GitHub, then clone your fork
 git clone https://github.com/YOUR_USERNAME/streamvault.git
@@ -59,27 +60,32 @@ cd streamvault
 ```
 
 2. **Add upstream remote**
+
 ```bash
 git remote add upstream https://github.com/code-craka/streamvault.git
 ```
 
 3. **Install dependencies**
+
 ```bash
 pnpm install
 ```
 
 4. **Set up environment**
+
 ```bash
 cp .env.example .env.local
 # Edit .env.local with your development credentials
 ```
 
 5. **Start development server**
+
 ```bash
 pnpm dev
 ```
 
 6. **Verify setup**
+
 - Open [http://localhost:3000](http://localhost:3000)
 - Run tests: `pnpm test`
 - Check linting: `pnpm lint`
@@ -166,12 +172,14 @@ ci: add automated testing pipeline
 When creating issues, please use our templates:
 
 #### Bug Report Template
+
 ```markdown
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -184,6 +192,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment:**
+
 - OS: [e.g. macOS, Windows, Linux]
 - Browser: [e.g. Chrome, Firefox, Safari]
 - Version: [e.g. 22]
@@ -194,6 +203,7 @@ Add any other context about the problem here.
 ```
 
 #### Feature Request Template
+
 ```markdown
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is.
@@ -208,6 +218,7 @@ A clear and concise description of any alternative solutions or features you've 
 Add any other context or screenshots about the feature request here.
 
 **Implementation considerations**
+
 - Technical requirements
 - Potential challenges
 - Dependencies
@@ -218,6 +229,7 @@ Add any other context or screenshots about the feature request here.
 ### Before Submitting
 
 1. **Sync with upstream**
+
 ```bash
 git fetch upstream
 git checkout main
@@ -225,16 +237,19 @@ git merge upstream/main
 ```
 
 2. **Create feature branch**
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 3. **Make your changes**
+
 - Follow our coding standards
 - Add tests for new functionality
 - Update documentation if needed
 
 4. **Test your changes**
+
 ```bash
 # Run all tests
 pnpm test
@@ -253,12 +268,14 @@ pnpm build
 ```
 
 5. **Commit your changes**
+
 ```bash
 git add .
 git commit -m "feat: add your feature description"
 ```
 
 6. **Push to your fork**
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -267,9 +284,11 @@ git push origin feature/your-feature-name
 
 ```markdown
 ## Description
+
 Brief description of changes made.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -278,15 +297,18 @@ Brief description of changes made.
 - [ ] Code refactoring
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] E2E tests pass
 - [ ] Manual testing completed
 - [ ] New tests added for new functionality
 
 ## Screenshots (if applicable)
+
 Add screenshots to help explain your changes.
 
 ## Checklist
+
 - [ ] My code follows the project's coding standards
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -297,6 +319,7 @@ Add screenshots to help explain your changes.
 - [ ] Any dependent changes have been merged and published
 
 ## Related Issues
+
 Closes #(issue number)
 ```
 
@@ -364,7 +387,7 @@ export function UserCard({ user, onEdit, className }: UserCardProps) {
 
 ```typescript
 // Good
-<button 
+<button
   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
   aria-label="Save changes"
 >
@@ -390,7 +413,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const validatedData = schema.parse(body)
-    
+
     // Implementation
     return NextResponse.json({ data: result }, { status: 201 })
   } catch (error) {
@@ -435,8 +458,10 @@ test('user can create and manage stream', async ({ page }) => {
   await page.click('[data-testid="create-stream-button"]')
   await page.fill('[name="title"]', 'Test Stream')
   await page.click('[type="submit"]')
-  
-  await expect(page.locator('[data-testid="stream-title"]')).toContainText('Test Stream')
+
+  await expect(page.locator('[data-testid="stream-title"]')).toContainText(
+    'Test Stream'
+  )
 })
 ```
 
@@ -465,16 +490,16 @@ tests/
 - Document complex algorithms or business logic
 - Keep comments up to date with code changes
 
-```typescript
+````typescript
 /**
  * Validates user permissions for a specific action
- * 
+ *
  * @param user - The user object with role and subscription info
  * @param resource - The resource being accessed (e.g., 'stream', 'video')
  * @param action - The action being performed (e.g., 'create', 'read', 'update')
  * @param conditions - Additional conditions for permission checking
  * @returns True if user has permission, false otherwise
- * 
+ *
  * @example
  * ```typescript
  * const canEdit = hasPermission(user, 'stream', 'update', { ownerId: user.id })
@@ -488,7 +513,7 @@ export function hasPermission(
 ): boolean {
   // Implementation
 }
-```
+````
 
 ### README Updates
 
@@ -517,6 +542,7 @@ When adding new features, update relevant documentation:
 ### Recognition
 
 Contributors will be recognized in:
+
 - CONTRIBUTORS.md file
 - Release notes for significant contributions
 - Annual contributor highlights

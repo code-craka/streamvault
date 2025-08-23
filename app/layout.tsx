@@ -10,8 +10,16 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'StreamVault - Professional Live Streaming Platform',
-  description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
-  keywords: ['streaming', 'live', 'video', 'content', 'creator', 'monetization'],
+  description:
+    'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+  keywords: [
+    'streaming',
+    'live',
+    'video',
+    'content',
+    'creator',
+    'monetization',
+  ],
   authors: [{ name: 'StreamVault Team' }],
   creator: 'StreamVault',
   publisher: 'StreamVault',
@@ -20,10 +28,13 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ),
   openGraph: {
     title: 'StreamVault - Professional Live Streaming Platform',
-    description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+    description:
+      'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     siteName: 'StreamVault',
     locale: 'en_US',
@@ -32,7 +43,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'StreamVault - Professional Live Streaming Platform',
-    description: 'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
+    description:
+      'Modern, aesthetic live streaming platform with subscription-based monetization and enterprise-grade features.',
     creator: '@streamvault',
   },
   robots: {
@@ -62,9 +74,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={`${inter.className} font-sans antialiased`}>
-          <div id="root">
-            {children}
-          </div>
+          <div id="root">{children}</div>
         </body>
       </html>
     </ClerkProvider>

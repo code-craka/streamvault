@@ -1,12 +1,17 @@
 import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
-import { initializeNewUser, CLERK_WEBHOOK_EVENTS } from '@/lib/auth/clerk-config'
+import {
+  initializeNewUser,
+  CLERK_WEBHOOK_EVENTS,
+} from '@/lib/auth/clerk-config'
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
 
 if (!webhookSecret) {
-  throw new Error('Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
+  throw new Error(
+    'Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
+  )
 }
 
 export async function POST(req: NextRequest) {

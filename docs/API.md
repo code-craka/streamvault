@@ -7,22 +7,26 @@ StreamVault provides a comprehensive REST API for managing users, streams, subsc
 ## Authentication
 
 ### Headers
+
 ```http
 Authorization: Bearer <clerk_session_token>
 Content-Type: application/json
 ```
 
 ### User Roles
+
 - **viewer**: Basic access to streams and content
 - **streamer**: Can create and manage streams
 - **admin**: Full system access
 
 ### Subscription Tiers
+
 - **basic** ($9.99/month): Standard features
 - **premium** ($19.99/month): Enhanced features + HD streaming
 - **pro** ($29.99/month): All features + 4K streaming + API access
 
 ## Base URL
+
 ```
 Production: https://streamvault.app/api
 Development: http://localhost:3000/api
@@ -33,9 +37,11 @@ Development: http://localhost:3000/api
 ### Authentication
 
 #### GET /api/auth/user
+
 Get current user information
 
 **Response:**
+
 ```json
 {
   "id": "user_123",
@@ -55,9 +61,11 @@ Get current user information
 ```
 
 #### PUT /api/auth/user
+
 Update user profile
 
 **Request Body:**
+
 ```json
 {
   "firstName": "John",
@@ -67,9 +75,11 @@ Update user profile
 ```
 
 #### PUT /api/auth/user/preferences
+
 Update user preferences
 
 **Request Body:**
+
 ```json
 {
   "theme": "dark",
@@ -89,15 +99,18 @@ Update user preferences
 ### Streams
 
 #### GET /api/streams
+
 List all streams
 
 **Query Parameters:**
+
 - `page` (number): Page number (default: 1)
 - `limit` (number): Items per page (default: 20)
 - `category` (string): Filter by category
 - `live` (boolean): Filter live streams only
 
 **Response:**
+
 ```json
 {
   "streams": [
@@ -125,9 +138,11 @@ List all streams
 ```
 
 #### POST /api/streams
+
 Create a new stream (Requires: streamer role)
 
 **Request Body:**
+
 ```json
 {
   "title": "My Gaming Stream",
@@ -139,6 +154,7 @@ Create a new stream (Requires: streamer role)
 ```
 
 **Response:**
+
 ```json
 {
   "id": "stream_123",
@@ -150,35 +166,44 @@ Create a new stream (Requires: streamer role)
 ```
 
 #### GET /api/streams/:id
+
 Get stream details
 
 #### PUT /api/streams/:id
+
 Update stream (Requires: owner or admin)
 
 #### DELETE /api/streams/:id
+
 Delete stream (Requires: owner or admin)
 
 #### POST /api/streams/:id/start
+
 Start streaming (Requires: owner)
 
 #### POST /api/streams/:id/stop
+
 Stop streaming (Requires: owner)
 
 ### Videos (VOD)
 
 #### GET /api/videos
+
 List videos
 
 **Query Parameters:**
+
 - `page` (number): Page number
 - `limit` (number): Items per page
 - `streamerId` (string): Filter by streamer
 - `category` (string): Filter by category
 
 #### GET /api/videos/:id
+
 Get video details with signed URL
 
 **Response:**
+
 ```json
 {
   "id": "video_123",
@@ -196,9 +221,11 @@ Get video details with signed URL
 ### Subscriptions
 
 #### GET /api/subscriptions/tiers
+
 Get available subscription tiers
 
 **Response:**
+
 ```json
 {
   "tiers": [
@@ -223,9 +250,11 @@ Get available subscription tiers
 ```
 
 #### POST /api/subscriptions/checkout
+
 Create Stripe checkout session
 
 **Request Body:**
+
 ```json
 {
   "priceId": "price_1234567890",
@@ -235,17 +264,21 @@ Create Stripe checkout session
 ```
 
 #### GET /api/subscriptions/portal
+
 Get Stripe customer portal URL
 
 ### Chat
 
 #### GET /api/chat/:streamId/messages
+
 Get chat messages for a stream
 
 #### POST /api/chat/:streamId/messages
+
 Send a chat message
 
 **Request Body:**
+
 ```json
 {
   "message": "Great stream!",
@@ -254,14 +287,17 @@ Send a chat message
 ```
 
 #### DELETE /api/chat/messages/:messageId
+
 Delete a message (Requires: moderator or admin)
 
 ### Analytics (Pro tier required)
 
 #### GET /api/analytics/streams/:streamId
+
 Get stream analytics
 
 **Response:**
+
 ```json
 {
   "streamId": "stream_123",
@@ -285,6 +321,7 @@ Get stream analytics
 ## Error Responses
 
 ### Standard Error Format
+
 ```json
 {
   "error": {
@@ -296,6 +333,7 @@ Get stream analytics
 ```
 
 ### Common Error Codes
+
 - `400` - Bad Request
 - `401` - Unauthorized
 - `403` - Forbidden (insufficient permissions)
@@ -308,11 +346,12 @@ Get stream analytics
 Rate limits vary by user role and subscription tier:
 
 - **Viewer**: 100 requests/minute
-- **Streamer**: 500 requests/minute  
+- **Streamer**: 500 requests/minute
 - **Admin**: 1000 requests/minute
 - **Pro Subscription**: +500 requests/minute bonus
 
 Rate limit headers:
+
 ```http
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -324,9 +363,11 @@ X-RateLimit-Reset: 2024-01-15T10:01:00Z
 ### Stripe Webhooks
 
 #### POST /api/webhooks/stripe
+
 Handle Stripe subscription events
 
 **Events:**
+
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
@@ -336,9 +377,11 @@ Handle Stripe subscription events
 ### Stream Webhooks
 
 #### POST /api/webhooks/stream
+
 Handle streaming events
 
 **Events:**
+
 - `stream.started`
 - `stream.ended`
 - `stream.recording_ready`
@@ -346,6 +389,7 @@ Handle streaming events
 ## SDKs and Libraries
 
 ### JavaScript/TypeScript
+
 ```bash
 npm install @streamvault/sdk
 ```
@@ -355,7 +399,7 @@ import { StreamVault } from '@streamvault/sdk'
 
 const client = new StreamVault({
   apiKey: 'your-api-key',
-  baseUrl: 'https://streamvault.app/api'
+  baseUrl: 'https://streamvault.app/api',
 })
 
 // Get user streams
@@ -364,25 +408,26 @@ const streams = await client.streams.list()
 // Create a new stream
 const stream = await client.streams.create({
   title: 'My Stream',
-  category: 'gaming'
+  category: 'gaming',
 })
 ```
 
 ## Examples
 
 ### Create and Start a Stream
+
 ```typescript
 // 1. Create stream
 const stream = await fetch('/api/streams', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     title: 'My Gaming Stream',
-    category: 'gaming'
-  })
+    category: 'gaming',
+  }),
 })
 
 // 2. Start streaming to RTMP endpoint
@@ -391,24 +436,25 @@ const stream = await fetch('/api/streams', {
 // 3. Start the stream
 await fetch(`/api/streams/${stream.id}/start`, {
   method: 'POST',
-  headers: { 'Authorization': `Bearer ${token}` }
+  headers: { Authorization: `Bearer ${token}` },
 })
 ```
 
 ### Subscribe to a Plan
+
 ```typescript
 // Create checkout session
 const checkout = await fetch('/api/subscriptions/checkout', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     priceId: 'price_premium_monthly',
     successUrl: window.location.origin + '/dashboard?success=true',
-    cancelUrl: window.location.origin + '/pricing'
-  })
+    cancelUrl: window.location.origin + '/pricing',
+  }),
 })
 
 // Redirect to Stripe Checkout
@@ -418,6 +464,7 @@ window.location.href = checkout.url
 ## Support
 
 For API support, please contact:
+
 - **Email**: api-support@streamvault.app
 - **Documentation**: https://docs.streamvault.app
 - **Status Page**: https://status.streamvault.app

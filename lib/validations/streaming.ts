@@ -3,8 +3,18 @@ import { z } from 'zod'
 // Base validation schemas
 export const videoQualitySchema = z.enum(['480p', '720p', '1080p', '4K'])
 export const subscriptionTierSchema = z.enum(['basic', 'premium', 'pro'])
-export const streamStatusSchema = z.enum(['inactive', 'active', 'ended', 'error'])
-export const vodStatusSchema = z.enum(['processing', 'ready', 'error', 'deleted'])
+export const streamStatusSchema = z.enum([
+  'inactive',
+  'active',
+  'ended',
+  'error',
+])
+export const vodStatusSchema = z.enum([
+  'processing',
+  'ready',
+  'error',
+  'deleted',
+])
 export const visibilitySchema = z.enum(['public', 'unlisted', 'private'])
 
 // Stream validation schemas
@@ -209,7 +219,9 @@ export const streamQuerySchema = z.object({
   isLive: z.boolean().optional(),
   limit: z.number().min(1).max(100).default(20),
   offset: z.number().min(0).default(0),
-  orderBy: z.enum(['createdAt', 'updatedAt', 'viewerCount', 'title']).default('createdAt'),
+  orderBy: z
+    .enum(['createdAt', 'updatedAt', 'viewerCount', 'title'])
+    .default('createdAt'),
   orderDirection: z.enum(['asc', 'desc']).default('desc'),
 })
 
@@ -221,7 +233,9 @@ export const vodQuerySchema = z.object({
   requiredTier: subscriptionTierSchema.optional(),
   limit: z.number().min(1).max(100).default(20),
   offset: z.number().min(0).default(0),
-  orderBy: z.enum(['createdAt', 'updatedAt', 'viewCount', 'title', 'duration']).default('createdAt'),
+  orderBy: z
+    .enum(['createdAt', 'updatedAt', 'viewCount', 'title', 'duration'])
+    .default('createdAt'),
   orderDirection: z.enum(['asc', 'desc']).default('desc'),
   search: z.string().optional(),
 })

@@ -1,4 +1,11 @@
-import { collection, doc, writeBatch, getDocs, query, limit } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  writeBatch,
+  getDocs,
+  query,
+  limit,
+} from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { COLLECTIONS } from '@/types/database'
 import type { DatabaseResult } from '@/types/database'
@@ -64,7 +71,8 @@ export class MigrationUtils {
           tags: ['gaming', 'live', 'entertainment'],
           streamKey: 'sample-stream-key-1',
           rtmpUrl: 'rtmp://ingest.streamvault.app/live/sample-stream-key-1',
-          hlsUrl: 'https://cdn.streamvault.app/hls/sample-stream-key-1/playlist.m3u8',
+          hlsUrl:
+            'https://cdn.streamvault.app/hls/sample-stream-key-1/playlist.m3u8',
           status: 'active',
           isLive: true,
           viewerCount: 150,
@@ -83,7 +91,8 @@ export class MigrationUtils {
           tags: ['music', 'production', 'beats'],
           streamKey: 'sample-stream-key-2',
           rtmpUrl: 'rtmp://ingest.streamvault.app/live/sample-stream-key-2',
-          hlsUrl: 'https://cdn.streamvault.app/hls/sample-stream-key-2/playlist.m3u8',
+          hlsUrl:
+            'https://cdn.streamvault.app/hls/sample-stream-key-2/playlist.m3u8',
           status: 'inactive',
           isLive: false,
           viewerCount: 0,
@@ -106,7 +115,7 @@ export class MigrationUtils {
         {
           userId: 'sample-user-1',
           title: 'Epic Gaming Highlights',
-          description: 'Best moments from last week\'s streams',
+          description: "Best moments from last week's streams",
           category: 'Gaming',
           tags: ['highlights', 'gaming', 'compilation'],
           duration: 3600, // 1 hour
@@ -115,7 +124,8 @@ export class MigrationUtils {
           visibility: 'public',
           requiredTier: 'basic',
           gcsPath: 'vods/sample-vod-1.mp4',
-          thumbnailUrl: 'https://cdn.streamvault.app/thumbnails/sample-vod-1.jpg',
+          thumbnailUrl:
+            'https://cdn.streamvault.app/thumbnails/sample-vod-1.jpg',
           viewCount: 1250,
           likeCount: 89,
           publishedAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
@@ -153,7 +163,7 @@ export class MigrationUtils {
   static async cleanupAllData(): Promise<DatabaseResult<boolean>> {
     try {
       const collections = Object.values(COLLECTIONS)
-      
+
       for (const collectionName of collections) {
         await this.deleteCollection(collectionName)
       }
@@ -179,14 +189,14 @@ export class MigrationUtils {
     const q = query(collectionRef, limit(500))
 
     let snapshot = await getDocs(q)
-    
+
     while (!snapshot.empty) {
       const batch = writeBatch(db)
-      
-      snapshot.docs.forEach((doc) => {
+
+      snapshot.docs.forEach(doc => {
         batch.delete(doc.ref)
       })
-      
+
       await batch.commit()
       snapshot = await getDocs(q)
     }
@@ -199,13 +209,13 @@ export class MigrationUtils {
     try {
       const usersRef = collection(db, COLLECTIONS.USERS)
       const snapshot = await getDocs(usersRef)
-      
+
       const batch = writeBatch(db)
       let updateCount = 0
 
-      snapshot.docs.forEach((doc) => {
+      snapshot.docs.forEach(doc => {
         const userData = doc.data()
-        
+
         // Check if user needs migration (missing preferences)
         if (!userData.preferences) {
           batch.update(doc.ref, {
@@ -243,19 +253,21 @@ export class MigrationUtils {
       // Check for orphaned streams (streams without valid users)
       const streamsSnapshot = await getDocs(collection(db, COLLECTIONS.STREAMS))
       const usersSnapshot = await getDocs(collection(db, COLLECTIONS.USERS))
-      
+
       const userIds = new Set(usersSnapshot.docs.map(doc => doc.id))
-      
+
       streamsSnapshot.docs.forEach(doc => {
         const streamData = doc.data()
         if (!userIds.has(streamData.userId)) {
-          issues.push(`Stream ${doc.id} has invalid userId: ${streamData.userId}`)
+          issues.push(
+            `Stream ${doc.id} has invalid userId: ${streamData.userId}`
+          )
         }
       })
 
       // Check for orphaned VODs
       const vodsSnapshot = await getDocs(collection(db, COLLECTIONS.VODS))
-      
+
       vodsSnapshot.docs.forEach(doc => {
         const vodData = doc.data()
         if (!userIds.has(vodData.userId)) {
@@ -413,9 +425,9 @@ export class DevUtils {
    */
   static async seedDatabase(): Promise<void> {
     console.log('🌱 Seeding database with sample data...')
-    
+
     const result = await MigrationUtils.createSampleData()
-    
+
     if (result.success) {
       console.log('✅ Database seeded successfully')
     } else {
@@ -429,17 +441,17 @@ export class DevUtils {
    */
   static async resetDatabase(): Promise<void> {
     console.log('🔄 Resetting database...')
-    
+
     // Cleanup existing data
     const cleanupResult = await MigrationUtils.cleanupAllData()
     if (!cleanupResult.success) {
       console.error('❌ Failed to cleanup database:', cleanupResult.error)
       throw new Error(cleanupResult.error)
     }
-    
+
     // Seed with fresh data
     await this.seedDatabase()
-    
+
     console.log('✅ Database reset complete')
   }
 
@@ -448,17 +460,18 @@ export class DevUtils {
    */
   static async validateDatabase(): Promise<void> {
     console.log('🔍 Validating database integrity...')
-    
+
     const result = await MigrationUtils.validateDataIntegrity()
-    
+
     if (result.success) {
-      const { isValid, issues, totalUsers, totalStreams, totalVODs } = result.data
-      
+      const { isValid, issues, totalUsers, totalStreams, totalVODs } =
+        result.data
+
       console.log(`📊 Database stats:`)
       console.log(`  - Users: ${totalUsers}`)
       console.log(`  - Streams: ${totalStreams}`)
       console.log(`  - VODs: ${totalVODs}`)
-      
+
       if (isValid) {
         console.log('✅ Database integrity check passed')
       } else {

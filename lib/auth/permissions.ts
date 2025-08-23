@@ -1,15 +1,15 @@
 // User role validation and permission utilities
 
-import type { 
-  UserRole, 
-  SubscriptionTier, 
-  Permission, 
-  PermissionResource, 
+import type {
+  UserRole,
+  SubscriptionTier,
+  Permission,
+  PermissionResource,
   PermissionAction,
   StreamVaultUser,
   ROLE_HIERARCHY,
   SUBSCRIPTION_HIERARCHY,
-  ROLE_PERMISSIONS
+  ROLE_PERMISSIONS,
 } from '@/types/auth'
 import { SUBSCRIPTION_TIERS, hasFeatureAccess } from '@/types/subscription'
 
@@ -90,7 +90,7 @@ export function hasSubscriptionTier(
   requiredTier: SubscriptionTier
 ): boolean {
   if (!userTier) return requiredTier === 'basic'
-  
+
   const userLevel = subscriptionHierarchy[userTier]
   const requiredLevel = subscriptionHierarchy[requiredTier]
   return userLevel >= requiredLevel
@@ -112,12 +112,12 @@ export function hasPermission(
 
   // Get permissions for user's role
   const userPermissions = rolePermissions[user.role]
-  
+
   // Find matching permission
   const permission = userPermissions.find(
     p => p.resource === resource && p.action === action
   )
-  
+
   if (!permission) {
     return false
   }
@@ -182,9 +182,9 @@ export function canAccessFeature(
   if (!userTier) {
     userTier = 'basic'
   }
-  
+
   const limits = SUBSCRIPTION_TIERS[userTier].limits
-  
+
   // Check specific feature access
   switch (feature) {
     case 'apiAccess':
@@ -214,7 +214,7 @@ export function getUsageLimit(
   if (!userTier) {
     userTier = 'basic'
   }
-  
+
   const limits = SUBSCRIPTION_TIERS[userTier].limits
   return limits[feature] as number
 }
@@ -228,12 +228,12 @@ export function hasReachedLimit(
   currentUsage: number
 ): boolean {
   const limit = getUsageLimit(userTier, feature)
-  
+
   // -1 means unlimited
   if (limit === -1) {
     return false
   }
-  
+
   return currentUsage >= limit
 }
 
@@ -247,7 +247,9 @@ export function isValidRole(role: string): role is UserRole {
 /**
  * Validate subscription tier
  */
-export function isValidSubscriptionTier(tier: string): tier is SubscriptionTier {
+export function isValidSubscriptionTier(
+  tier: string
+): tier is SubscriptionTier {
   return ['basic', 'premium', 'pro'].includes(tier)
 }
 
@@ -268,7 +270,9 @@ export function getNextRole(currentRole: UserRole): UserRole | null {
 /**
  * Get the next higher subscription tier
  */
-export function getNextSubscriptionTier(currentTier: SubscriptionTier): SubscriptionTier | null {
+export function getNextSubscriptionTier(
+  currentTier: SubscriptionTier
+): SubscriptionTier | null {
   switch (currentTier) {
     case 'basic':
       return 'premium'
@@ -283,28 +287,37 @@ export function getNextSubscriptionTier(currentTier: SubscriptionTier): Subscrip
  * Check if user can perform bulk operations
  */
 export function canPerformBulkOperations(user: StreamVaultUser): boolean {
-  return hasRole(user.role, 'admin') || 
-         (user.role === 'streamer' && hasSubscriptionTier(user.subscriptionTier, 'premium'))
+  return (
+    hasRole(user.role, 'admin') ||
+    (user.role === 'streamer' &&
+      hasSubscriptionTier(user.subscriptionTier, 'premium'))
+  )
 }
 
 /**
  * Get maximum concurrent streams allowed
  */
-export function getMaxConcurrentStreams(userTier: SubscriptionTier | null): number {
+export function getMaxConcurrentStreams(
+  userTier: SubscriptionTier | null
+): number {
   return getUsageLimit(userTier, 'concurrentStreams')
 }
 
 /**
  * Get maximum stream duration allowed (in minutes)
  */
-export function getMaxStreamDuration(userTier: SubscriptionTier | null): number {
+export function getMaxStreamDuration(
+  userTier: SubscriptionTier | null
+): number {
   return getUsageLimit(userTier, 'maxStreamDuration')
 }
 
 /**
  * Check if user can create custom emotes
  */
-export function canCreateCustomEmotes(userTier: SubscriptionTier | null): boolean {
+export function canCreateCustomEmotes(
+  userTier: SubscriptionTier | null
+): boolean {
   const limit = getUsageLimit(userTier, 'customEmotes')
   return limit > 0 || limit === -1
 }
@@ -317,18 +330,20 @@ export function getRemainingEmoteSlots(
   currentEmotes: number
 ): number {
   const limit = getUsageLimit(userTier, 'customEmotes')
-  
+
   if (limit === -1) {
     return -1 // unlimited
   }
-  
+
   return Math.max(0, limit - currentEmotes)
 }
 
 /**
  * Check if user can access offline downloads
  */
-export function canAccessOfflineDownloads(userTier: SubscriptionTier | null): boolean {
+export function canAccessOfflineDownloads(
+  userTier: SubscriptionTier | null
+): boolean {
   const limit = getUsageLimit(userTier, 'offlineDownloads')
   return limit > 0 || limit === -1
 }
@@ -336,16 +351,18 @@ export function canAccessOfflineDownloads(userTier: SubscriptionTier | null): bo
 /**
  * Get quality levels available to user
  */
-export function getAvailableQualityLevels(userTier: SubscriptionTier | null): string[] {
+export function getAvailableQualityLevels(
+  userTier: SubscriptionTier | null
+): string[] {
   if (!userTier) {
     userTier = 'basic'
   }
-  
+
   const maxQuality = SUBSCRIPTION_TIERS[userTier].limits.maxQuality
-  
+
   const allQualities = ['480p', '720p', '1080p', '4K']
   const qualityIndex = allQualities.indexOf(maxQuality)
-  
+
   return allQualities.slice(0, qualityIndex + 1)
 }
 
@@ -387,7 +404,7 @@ export function formatUserRole(role: UserRole): string {
  */
 export function formatSubscriptionTier(tier: SubscriptionTier | null): string {
   if (!tier) return 'Free'
-  
+
   switch (tier) {
     case 'basic':
       return 'Basic'
@@ -403,7 +420,9 @@ export function formatSubscriptionTier(tier: SubscriptionTier | null): string {
 /**
  * Get user's subscription tier from user object
  */
-export function getUserSubscriptionTier(user: StreamVaultUser): SubscriptionTier | null {
+export function getUserSubscriptionTier(
+  user: StreamVaultUser
+): SubscriptionTier | null {
   return user.subscriptionTier
 }
 
@@ -433,17 +452,21 @@ export function canAccessProFeatures(user: StreamVaultUser): boolean {
  */
 export function getEffectivePermissions(user: StreamVaultUser): Permission[] {
   const basePermissions = getRolePermissions(user.role)
-  
+
   // Add subscription-based permissions
   const subscriptionPermissions: Permission[] = []
-  
+
   if (canAccessFeature(user.subscriptionTier, 'apiAccess')) {
     subscriptionPermissions.push({ resource: 'api', action: 'read' })
   }
-  
+
   if (canAccessFeature(user.subscriptionTier, 'advancedAnalytics')) {
-    subscriptionPermissions.push({ resource: 'analytics', action: 'read', conditions: { advanced: true } })
+    subscriptionPermissions.push({
+      resource: 'analytics',
+      action: 'read',
+      conditions: { advanced: true },
+    })
   }
-  
+
   return [...basePermissions, ...subscriptionPermissions]
 }
