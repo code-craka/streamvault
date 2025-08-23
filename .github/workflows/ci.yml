@@ -39,13 +39,8 @@ jobs:
 
       - name: 'Linting'
         run: |
-          echo "Current working directory:"
-          pwd
-          echo "Files in current directory:"
-          ls -la
-          echo "Looking for .eslintrc.json:"
-          find . -name ".eslintrc.json" -type f
-          echo "Running ESLint:"
+          echo "Current working directory: $(pwd)"
+          echo "ESLint config file exists: $(test -f .eslintrc.json && echo 'YES' || echo 'NO')"
           pnpm lint
 
       - name: 'Code formatting check'
@@ -209,16 +204,7 @@ jobs:
       - name: 'Install dependencies'
         run: pnpm install --no-frozen-lockfile
 
-      - name: 'Initialize CodeQL'
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'javascript'
-          queries: security-extended,security-and-quality
-
-      - name: 'CodeQL Analysis'
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: '/language:javascript'
+      # CodeQL Analysis removed - using GitHub default setup instead
 
       - name: 'Dependency vulnerability scan'
         run: pnpm audit --audit-level moderate

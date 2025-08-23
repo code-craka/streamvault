@@ -57,6 +57,7 @@ logs
 !tsconfig*.json
 !.github/**/*.json
 !lighthouserc.json
+!.eslintrc.json
 
 # Temporary files
 .tmp/
