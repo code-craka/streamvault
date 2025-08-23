@@ -3,6 +3,7 @@ packages:
 
 onlyBuiltDependencies:
   - '@clerk/shared'
+  - '@firebase/util'
   - '@tailwindcss/oxide'
   - protobufjs
   - sharp

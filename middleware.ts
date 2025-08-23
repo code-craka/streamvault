@@ -8,6 +8,8 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/api/webhooks(.*)',
   '/api/health',
+  '/api/firebase/test',
+  '/api/firebase/config',
 ])
 
 export default clerkMiddleware(async (auth, req) => {

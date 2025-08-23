@@ -1,0 +1,127 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             request.auth.token.role == role;
+    }
+    
+    function isStreamerOrAdmin() {
+      return hasRole('streamer') || hasRole('admin');
+    }
+    
+    function hasSubscription(tier) {
+      return isAuthenticated() && 
+             request.auth.token.subscriptionTier == tier;
+    }
+    
+    function hasMinimumSubscription(tier) {
+      let userTier = request.auth.token.subscriptionTier;
+      return userTier == 'pro' || 
+             (tier == 'premium' && (userTier == 'premium' || userTier == 'pro')) ||
+             (tier == 'basic' && userTier != null);
+    }
+
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow read: if hasRole('admin');
+    }
+
+    // Streams collection
+    match /streams/{streamId} {
+      // Anyone can read active streams
+      allow read: if isAuthenticated();
+      
+      // Only streamers can create/update their own streams
+      allow create: if isStreamerOrAdmin() && 
+                       isOwner(resource.data.userId);
+      allow update: if isStreamerOrAdmin() && 
+                       isOwner(resource.data.userId);
+      
+      // Only admins can delete streams
+      allow delete: if hasRole('admin');
+      
+      // Chat messages subcollection
+      match /messages/{messageId} {
+        // Anyone can read chat messages
+        allow read: if isAuthenticated();
+        
+        // Users can create messages (rate limiting handled in app)
+        allow create: if isAuthenticated() && 
+                         isOwner(request.resource.data.userId);
+        
+        // Users can update their own messages, streamers/admins can update any
+        allow update: if isAuthenticated() && 
+                         (isOwner(resource.data.userId) || 
+                          isStreamerOrAdmin());
+        
+        // Only streamers and admins can delete messages
+        allow delete: if isStreamerOrAdmin();
+      }
+    }
+
+    // VOD (Video on Demand) collection
+    match /videos/{videoId} {
+      // Read access based on subscription tier
+      allow read: if isAuthenticated() && 
+                     hasMinimumSubscription(resource.data.requiredTier);
+      
+      // Only streamers can create/update their own videos
+      allow create, update: if isStreamerOrAdmin() && 
+                               isOwner(resource.data.userId);
+      
+      // Only admins can delete videos
+      allow delete: if hasRole('admin');
+    }
+
+    // Analytics collection (read-only for users, write for system)
+    match /analytics/{document=**} {
+      allow read: if isAuthenticated() && 
+                     (isOwner(resource.data.userId) || hasRole('admin'));
+      // Write operations handled server-side only
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{subscriptionId} {
+      allow read: if isAuthenticated() && 
+                     isOwner(resource.data.userId);
+      // Write operations handled via Stripe webhooks server-side only
+    }
+
+    // User preferences and settings
+    match /userPreferences/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && 
+                     isOwner(resource.data.userId);
+      allow update: if isAuthenticated() && 
+                       isOwner(resource.data.userId) &&
+                       request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['read', 'readAt']);
+    }
+
+    // Admin-only collections
+    match /admin/{document=**} {
+      allow read, write: if hasRole('admin');
+    }
+
+    // System collections (server-side only)
+    match /system/{document=**} {
+      allow read, write: if false; // Only server-side operations
+    }
+  }
+}
