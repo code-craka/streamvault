@@ -18,6 +18,8 @@ export interface UserMetadata {
   preferences?: UserPreferences
 }
 
+
+
 // User preferences and settings
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'system'
@@ -39,6 +41,43 @@ export interface UserPreferences {
     autoPlay: boolean
     chatEnabled: boolean
   }
+}
+
+// User analytics interface
+export interface UserAnalytics {
+  totalWatchTime: number
+  streamsWatched: number
+  averageSessionDuration: number
+  favoriteCategories: string[]
+  deviceUsage: Record<string, number>
+  geographicData: {
+    country: string
+    region: string
+    city: string
+  }
+  engagementScore: number
+  lastActivityAt: Date
+}
+
+// Complete User interface for database operations
+export interface User {
+  id: string
+  email: string
+  username: string
+  firstName?: string
+  lastName?: string
+  avatar?: string
+  role: UserRole
+  subscriptionTier: SubscriptionTier | null
+  subscriptionStatus: SubscriptionStatus | null
+  subscriptionId?: string
+  stripeCustomerId?: string
+  createdAt: Date
+  updatedAt: Date
+  lastLoginAt: Date
+  isActive: boolean
+  preferences: UserPreferences
+  analytics: UserAnalytics
 }
 
 // Extended user interface combining Clerk user with our metadata
