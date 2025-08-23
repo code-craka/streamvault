@@ -38,7 +38,15 @@ jobs:
         run: pnpm type-check
 
       - name: 'Linting'
-        run: pnpm lint
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Files in current directory:"
+          ls -la
+          echo "Looking for .eslintrc.json:"
+          find . -name ".eslintrc.json" -type f
+          echo "Running ESLint:"
+          pnpm lint
 
       - name: 'Code formatting check'
         run: pnpm format:check
