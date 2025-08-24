@@ -1,162 +1,180 @@
 'use client'
 
-import { useState } from 'react'
-import { useUser } from '@clerk/nextjs'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
+import { useUser } from '@/hooks/use-user'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, CreditCard, Calendar, AlertCircle } from 'lucide-react'
-import { type SubscriptionTier } from '@/lib/stripe/subscription-tiers'
+import { Separator } from '@/components/ui/separator'
+import { Progress } from '@/components/ui/progress'
+import { 
+  CreditCard, 
+  Download, 
+  Calendar, 
+  TrendingUp, 
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  ExternalLink,
+  RefreshCw
+} from 'lucide-react'
+import { formatSubscriptionTier, getUserSubscriptionTier } from '@/lib/auth/permissions'
+import { SUBSCRIPTION_TIERS } from '@/types/subscription'
+import type { BillingInfo, UsageMetrics } from '@/types/subscription'
 
 interface BillingPortalProps {
-  subscription?: {
-    tier: SubscriptionTier | null
-    status: string | null
-    currentPeriodEnd?: number
-    cancelAtPeriodEnd?: boolean
-  }
-  onSubscriptionChange?: () => void
+  className?: string
 }
 
-export function BillingPortal({ subscription, onSubscriptionChange }: BillingPortalProps) {
+export function BillingPortal({ className }: BillingPortalProps) {
   const { user } = useUser()
-  const [isLoading, setIsLoading] = useState(false)
+  const [billingInfo, setBillingInfo] = useState<BillingInfo | null>(null)
+  const [usageMetrics, setUsageMetrics] = useState<UsageMetrics | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
 
-  const handleOpenPortal = async () => {
-    if (!user) return
+  useEffect(() => {
+    if (user) {
+      fetchBillingData()
+      fetchUsageMetrics()
+    }
+  }, [user])
 
-    setIsLoading(true)
-    
+  const fetchBillingData = async () => {
+    try {
+      const response = await fetch('/api/subscriptions/billing-info')
+      if (response.ok) {
+        const data = await response.json()
+        setBillingInfo(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch billing info:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchUsageMetrics = async () => {
+    try {
+      const response = await fetch('/api/subscriptions/usage')
+      if (response.ok) {
+        const data = await response.json()
+        setUsageMetrics(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch usage metrics:', error)
+    }
+  }
+
+  const handleManageBilling = async () => {
+    setIsUpdating(true)
     try {
       const response = await fetch('/api/subscriptions/portal', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          returnUrl: window.location.href,
+        }),
       })
 
-      if (!response.ok) {
+      if (response.ok) {
+        const { portalUrl } = await response.json()
+        window.location.href = portalUrl
+      } else {
         throw new Error('Failed to create billing portal session')
       }
-
-      const { portalUrl } = await response.json()
-      
-      // Redirect to Stripe Customer Portal
-      window.location.href = portalUrl
     } catch (error) {
-      console.error('Billing portal error:', error)
+      console.error('Error opening billing portal:', error)
       alert('Failed to open billing portal. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsUpdating(false)
     }
   }
 
   const handleCancelSubscription = async () => {
-    if (!user || !confirm('Are you sure you want to cancel your subscription?')) return
+    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
+      return
+    }
 
-    setIsLoading(true)
-    
+    setIsUpdating(true)
     try {
       const response = await fetch('/api/subscriptions/cancel', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       })
 
-      if (!response.ok) {
+      if (response.ok) {
+        await fetchBillingData()
+        alert('Your subscription has been scheduled for cancellation at the end of your billing period.')
+      } else {
         throw new Error('Failed to cancel subscription')
       }
-
-      alert('Subscription canceled successfully. You will retain access until the end of your billing period.')
-      onSubscriptionChange?.()
     } catch (error) {
-      console.error('Cancellation error:', error)
+      console.error('Error canceling subscription:', error)
       alert('Failed to cancel subscription. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsUpdating(false)
     }
   }
 
   const handleReactivateSubscription = async () => {
-    if (!user) return
-
-    setIsLoading(true)
-    
+    setIsUpdating(true)
     try {
       const response = await fetch('/api/subscriptions/reactivate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       })
 
-      if (!response.ok) {
+      if (response.ok) {
+        await fetchBillingData()
+        alert('Your subscription has been reactivated!')
+      } else {
         throw new Error('Failed to reactivate subscription')
       }
-
-      alert('Subscription reactivated successfully!')
-      onSubscriptionChange?.()
     } catch (error) {
-      console.error('Reactivation error:', error)
+      console.error('Error reactivating subscription:', error)
       alert('Failed to reactivate subscription. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsUpdating(false)
     }
   }
 
-  const formatDate = (timestamp?: number) => {
-    if (!timestamp) return 'N/A'
-    return new Date(timestamp * 1000).toLocaleDateString()
-  }
-
-  const getStatusBadge = (status: string | null) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500">Active</Badge>
-      case 'canceled':
-        return <Badge variant="destructive">Canceled</Badge>
-      case 'past_due':
-        return <Badge variant="destructive">Past Due</Badge>
-      case 'incomplete':
-        return <Badge variant="secondary">Incomplete</Badge>
-      default:
-        return <Badge variant="outline">No Subscription</Badge>
-    }
-  }
-
-  if (!subscription?.tier) {
+  if (!user) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <CreditCard className="h-5 w-5" />
-            <span>Billing Information</span>
-          </CardTitle>
-          <CardDescription>
-            You don&apos;t have an active subscription
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            Subscribe to a plan to access premium features and support StreamVault.
+      <Card className={className}>
+        <CardContent className="p-6">
+          <p className="text-center text-muted-foreground">
+            Please sign in to view your billing information.
           </p>
-          <Button onClick={() => window.location.href = '/pricing'}>
-            View Pricing Plans
-          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const currentTier = getUserSubscriptionTier(user)
+  const tierConfig = currentTier ? SUBSCRIPTION_TIERS[currentTier] : null
+
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <RefreshCw className="h-6 w-6 animate-spin" />
+            <span className="ml-2">Loading billing information...</span>
+          </div>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className}`}>
+      {/* Current Subscription */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            <span>Current Subscription</span>
+            Current Subscription
           </CardTitle>
           <CardDescription>
             Manage your subscription and billing information
@@ -165,66 +183,280 @@ export function BillingPortal({ subscription, onSubscriptionChange }: BillingPor
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold capitalize">{subscription.tier} Plan</p>
+              <h3 className="text-lg font-semibold">
+                {formatSubscriptionTier(currentTier)}
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Status: {getStatusBadge(subscription.status)}
+                {tierConfig?.description || 'Basic access to StreamVault'}
               </p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">
+                ${tierConfig?.price || 0}
+                <span className="text-sm font-normal text-muted-foreground">/month</span>
+              </div>
+              <Badge variant={
+                user.subscriptionStatus === 'active' ? 'default' :
+                user.subscriptionStatus === 'canceled' ? 'destructive' :
+                user.subscriptionStatus === 'past_due' ? 'secondary' : 'outline'
+              }>
+                {user.subscriptionStatus === 'active' ? (
+                  <>
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Active
+                  </>
+                ) : user.subscriptionStatus === 'canceled' ? (
+                  <>
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Canceled
+                  </>
+                ) : user.subscriptionStatus === 'past_due' ? (
+                  <>
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Past Due
+                  </>
+                ) : (
+                  'Inactive'
+                )}
+              </Badge>
             </div>
           </div>
 
-          {subscription.currentPeriodEnd && (
-            <div className="flex items-center space-x-2 text-sm">
-              <Calendar className="h-4 w-4" />
-              <span>
-                {subscription.cancelAtPeriodEnd 
-                  ? `Access ends on ${formatDate(subscription.currentPeriodEnd)}`
-                  : `Next billing date: ${formatDate(subscription.currentPeriodEnd)}`
-                }
-              </span>
+          {billingInfo && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground">Next Billing</div>
+                <div className="font-semibold">
+                  {new Date(billingInfo.currentPeriodEnd).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground">Payment Method</div>
+                <div className="font-semibold">
+                  {billingInfo.paymentMethod ? 
+                    `•••• ${billingInfo.paymentMethod.last4}` : 
+                    'Not set'
+                  }
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground">Customer Since</div>
+                <div className="font-semibold">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </div>
+              </div>
             </div>
           )}
 
-          {subscription.cancelAtPeriodEnd && (
-            <div className="flex items-center space-x-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
-              <p className="text-sm text-yellow-800">
-                Your subscription is set to cancel at the end of the billing period.
-              </p>
-            </div>
-          )}
+          <Separator />
 
-          <div className="flex space-x-3 pt-4">
-            <Button
-              onClick={handleOpenPortal}
-              disabled={isLoading}
-              className="flex-1"
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={handleManageBilling}
+              disabled={isUpdating}
+              className="flex items-center gap-2"
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Manage Billing
+              <ExternalLink className="h-4 w-4" />
+              {isUpdating ? 'Opening...' : 'Manage Billing'}
             </Button>
 
-            {subscription.cancelAtPeriodEnd ? (
-              <Button
-                onClick={handleReactivateSubscription}
-                disabled={isLoading}
+            {user.subscriptionStatus === 'active' && !billingInfo?.cancelAtPeriodEnd && (
+              <Button 
                 variant="outline"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Reactivate
-              </Button>
-            ) : (
-              <Button
                 onClick={handleCancelSubscription}
-                disabled={isLoading}
-                variant="destructive"
+                disabled={isUpdating}
               >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Cancel
+                Cancel Subscription
+              </Button>
+            )}
+
+            {billingInfo?.cancelAtPeriodEnd && (
+              <Button 
+                variant="outline"
+                onClick={handleReactivateSubscription}
+                disabled={isUpdating}
+              >
+                Reactivate Subscription
               </Button>
             )}
           </div>
+
+          {billingInfo?.cancelAtPeriodEnd && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  Subscription Ending
+                </span>
+              </div>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                Your subscription will end on {new Date(billingInfo.currentPeriodEnd).toLocaleDateString()}.
+                You'll lose access to premium features after this date.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Usage Metrics */}
+      {usageMetrics && tierConfig && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Usage This Month
+            </CardTitle>
+            <CardDescription>
+              Track your usage against subscription limits
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Storage Usage */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Storage Used</span>
+                <span className="text-sm text-muted-foreground">
+                  {usageMetrics.metrics.storageUsed.toFixed(1)} GB
+                  {tierConfig.limits.storageQuota !== -1 && 
+                    ` / ${tierConfig.limits.storageQuota} GB`
+                  }
+                </span>
+              </div>
+              <Progress 
+                value={
+                  tierConfig.limits.storageQuota === -1 ? 0 :
+                  (usageMetrics.metrics.storageUsed / tierConfig.limits.storageQuota) * 100
+                }
+                className="h-2"
+              />
+            </div>
+
+            {/* Bandwidth Usage */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Bandwidth Used</span>
+                <span className="text-sm text-muted-foreground">
+                  {usageMetrics.metrics.bandwidthUsed.toFixed(1)} GB
+                  {tierConfig.limits.bandwidthQuota !== -1 && 
+                    ` / ${tierConfig.limits.bandwidthQuota} GB`
+                  }
+                </span>
+              </div>
+              <Progress 
+                value={
+                  tierConfig.limits.bandwidthQuota === -1 ? 0 :
+                  (usageMetrics.metrics.bandwidthUsed / tierConfig.limits.bandwidthQuota) * 100
+                }
+                className="h-2"
+              />
+            </div>
+
+            {/* Streaming Minutes */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Streaming Minutes</span>
+                <span className="text-sm text-muted-foreground">
+                  {usageMetrics.metrics.streamingMinutes.toLocaleString()} minutes
+                </span>
+              </div>
+            </div>
+
+            {/* API Calls (if applicable) */}
+            {tierConfig.limits.apiAccess && (
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">API Calls</span>
+                  <span className="text-sm text-muted-foreground">
+                    {usageMetrics.metrics.apiCalls.toLocaleString()}
+                    {tierConfig.limits.apiRateLimit > 0 && 
+                      ` / ${tierConfig.limits.apiRateLimit * 30 * 24 * 60} per month`
+                    }
+                  </span>
+                </div>
+                <Progress 
+                  value={
+                    tierConfig.limits.apiRateLimit === 0 ? 0 :
+                    (usageMetrics.metrics.apiCalls / (tierConfig.limits.apiRateLimit * 30 * 24 * 60)) * 100
+                  }
+                  className="h-2"
+                />
+              </div>
+            )}
+
+            {/* Overage Charges */}
+            {usageMetrics.overages.storage > 0 || usageMetrics.overages.bandwidth > 0 || usageMetrics.overages.apiCalls > 0 && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">
+                  Overage Charges
+                </h4>
+                <div className="space-y-1 text-sm text-red-700 dark:text-red-300">
+                  {usageMetrics.overages.storage > 0 && (
+                    <div>Storage overage: ${usageMetrics.overages.storage.toFixed(2)}</div>
+                  )}
+                  {usageMetrics.overages.bandwidth > 0 && (
+                    <div>Bandwidth overage: ${usageMetrics.overages.bandwidth.toFixed(2)}</div>
+                  )}
+                  {usageMetrics.overages.apiCalls > 0 && (
+                    <div>API overage: ${usageMetrics.overages.apiCalls.toFixed(2)}</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Invoices */}
+      {billingInfo?.invoices && billingInfo.invoices.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Recent Invoices
+            </CardTitle>
+            <CardDescription>
+              View and download your recent invoices
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {billingInfo.invoices.slice(0, 5).map((invoice) => (
+                <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <div className="font-medium">Invoice #{invoice.number}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {new Date(invoice.dueDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-medium">
+                        ${(invoice.amount / 100).toFixed(2)}
+                      </div>
+                      <Badge variant={
+                        invoice.status === 'paid' ? 'default' :
+                        invoice.status === 'open' ? 'secondary' :
+                        'destructive'
+                      }>
+                        {invoice.status}
+                      </Badge>
+                    </div>
+                    {invoice.hostedInvoiceUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(invoice.hostedInvoiceUrl, '_blank')}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
