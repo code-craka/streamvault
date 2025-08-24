@@ -1,7 +1,20 @@
 import { StreamService } from '@/lib/database/stream-service'
-import { generateStreamKey, generateRTMPUrl, generateHLSUrl, isValidStreamKey } from '@/lib/utils/stream-utils'
-import type { Stream, StreamConfig, StreamSettings, StreamMetadata } from '@/types/streaming'
-import type { CreateStreamInput, UpdateStreamInput } from '@/lib/validations/streaming'
+import {
+  generateStreamKey,
+  generateRTMPUrl,
+  generateHLSUrl,
+  isValidStreamKey,
+} from '@/lib/utils/stream-utils'
+import type {
+  Stream,
+  StreamConfig,
+  StreamSettings,
+  StreamMetadata,
+} from '@/types/streaming'
+import type {
+  CreateStreamInput,
+  UpdateStreamInput,
+} from '@/lib/validations/streaming'
 import type { DatabaseResult } from '@/types/database'
 
 export interface StreamManagerConfig {
@@ -22,7 +35,12 @@ export interface StreamHealthMetrics {
 }
 
 export interface StreamNotification {
-  type: 'stream_started' | 'stream_ended' | 'stream_error' | 'viewer_joined' | 'viewer_left'
+  type:
+    | 'stream_started'
+    | 'stream_ended'
+    | 'stream_error'
+    | 'viewer_joined'
+    | 'viewer_left'
   streamId: string
   userId: string
   data?: any
@@ -38,8 +56,12 @@ export class StreamManager {
   constructor(config: StreamManagerConfig = {}) {
     this.streamService = new StreamService()
     this.config = {
-      rtmpEndpoint: process.env.NEXT_PUBLIC_RTMP_ENDPOINT || 'rtmp://ingest.streamvault.app/live',
-      hlsEndpoint: process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls',
+      rtmpEndpoint:
+        process.env.NEXT_PUBLIC_RTMP_ENDPOINT ||
+        'rtmp://ingest.streamvault.app/live',
+      hlsEndpoint:
+        process.env.NEXT_PUBLIC_HLS_ENDPOINT ||
+        'https://cdn.streamvault.app/hls',
       maxConcurrentStreams: 5,
       defaultStreamSettings: {
         quality: ['720p', '1080p'],
@@ -60,14 +82,20 @@ export class StreamManager {
   /**
    * Create a new stream configuration
    */
-  async createStream(userId: string, streamData: CreateStreamInput): Promise<DatabaseResult<Stream>> {
+  async createStream(
+    userId: string,
+    streamData: CreateStreamInput
+  ): Promise<DatabaseResult<Stream>> {
     try {
       // Check concurrent stream limit
       const userStreams = await this.streamService.getStreamsByUser(userId, {
         where: [{ field: 'status', operator: '==', value: 'active' }],
       })
 
-      if (userStreams.success && userStreams.data!.length >= this.config.maxConcurrentStreams!) {
+      if (
+        userStreams.success &&
+        userStreams.data!.length >= this.config.maxConcurrentStreams!
+      ) {
         return {
           success: false,
           error: `Maximum concurrent streams limit reached (${this.config.maxConcurrentStreams})`,
@@ -87,7 +115,10 @@ export class StreamManager {
       }
 
       // Create stream in database
-      const result = await this.streamService.createStream(userId, streamToCreate)
+      const result = await this.streamService.createStream(
+        userId,
+        streamToCreate
+      )
 
       if (result.success) {
         // Initialize stream health tracking
@@ -106,7 +137,8 @@ export class StreamManager {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create stream',
+        error:
+          error instanceof Error ? error.message : 'Failed to create stream',
         code: 'STREAM_CREATION_ERROR',
       }
     }
@@ -115,7 +147,10 @@ export class StreamManager {
   /**
    * Start a stream (transition from inactive to active)
    */
-  async startStream(streamId: string, userId: string): Promise<DatabaseResult<Stream>> {
+  async startStream(
+    streamId: string,
+    userId: string
+  ): Promise<DatabaseResult<Stream>> {
     try {
       // Verify stream ownership
       const stream = await this.streamService.getById(streamId)
@@ -167,7 +202,8 @@ export class StreamManager {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to start stream',
+        error:
+          error instanceof Error ? error.message : 'Failed to start stream',
         code: 'STREAM_START_ERROR',
       }
     }
@@ -176,7 +212,10 @@ export class StreamManager {
   /**
    * End a stream (transition from active to ended)
    */
-  async endStream(streamId: string, userId: string): Promise<DatabaseResult<Stream>> {
+  async endStream(
+    streamId: string,
+    userId: string
+  ): Promise<DatabaseResult<Stream>> {
     try {
       // Verify stream ownership
       const stream = await this.streamService.getById(streamId)
@@ -225,11 +264,16 @@ export class StreamManager {
           type: 'stream_ended',
           streamId,
           userId,
-          data: { 
+          data: {
             title: stream.data.title,
-            duration: result.data!.endedAt && result.data!.startedAt 
-              ? Math.floor((result.data!.endedAt.getTime() - result.data!.startedAt.getTime()) / 1000)
-              : 0
+            duration:
+              result.data!.endedAt && result.data!.startedAt
+                ? Math.floor(
+                    (result.data!.endedAt.getTime() -
+                      result.data!.startedAt.getTime()) /
+                      1000
+                  )
+                : 0,
           },
           timestamp: new Date(),
         })
@@ -248,7 +292,11 @@ export class StreamManager {
   /**
    * Update stream configuration
    */
-  async updateStream(streamId: string, userId: string, updateData: Partial<UpdateStreamInput>): Promise<DatabaseResult<Stream>> {
+  async updateStream(
+    streamId: string,
+    userId: string,
+    updateData: Partial<UpdateStreamInput>
+  ): Promise<DatabaseResult<Stream>> {
     try {
       // Verify stream ownership
       const stream = await this.streamService.getById(streamId)
@@ -270,7 +318,10 @@ export class StreamManager {
 
       // Prevent certain updates while stream is active
       if (stream.data.status === 'active') {
-        const restrictedFields = ['settings.quality', 'settings.enableRecording']
+        const restrictedFields = [
+          'settings.quality',
+          'settings.enableRecording',
+        ]
         for (const field of restrictedFields) {
           if (this.hasNestedProperty(updateData, field)) {
             return {
@@ -291,7 +342,8 @@ export class StreamManager {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to update stream',
+        error:
+          error instanceof Error ? error.message : 'Failed to update stream',
         code: 'STREAM_UPDATE_ERROR',
       }
     }
@@ -300,7 +352,9 @@ export class StreamManager {
   /**
    * Get stream by stream key (for RTMP authentication)
    */
-  async getStreamByKey(streamKey: string): Promise<DatabaseResult<Stream | null>> {
+  async getStreamByKey(
+    streamKey: string
+  ): Promise<DatabaseResult<Stream | null>> {
     if (!isValidStreamKey(streamKey)) {
       return {
         success: false,
@@ -315,8 +369,14 @@ export class StreamManager {
   /**
    * Update viewer count for a stream
    */
-  async updateViewerCount(streamId: string, viewerCount: number): Promise<DatabaseResult<Stream>> {
-    const result = await this.streamService.updateViewerCount(streamId, viewerCount)
+  async updateViewerCount(
+    streamId: string,
+    viewerCount: number
+  ): Promise<DatabaseResult<Stream>> {
+    const result = await this.streamService.updateViewerCount(
+      streamId,
+      viewerCount
+    )
 
     if (result.success) {
       // Update health metrics
@@ -336,7 +396,10 @@ export class StreamManager {
   /**
    * Update stream health metrics
    */
-  async updateStreamHealth(streamId: string, metrics: Partial<StreamHealthMetrics>): Promise<void> {
+  async updateStreamHealth(
+    streamId: string,
+    metrics: Partial<StreamHealthMetrics>
+  ): Promise<void> {
     const currentHealth = this.activeStreams.get(streamId)
     if (!currentHealth) {
       return
@@ -352,7 +415,8 @@ export class StreamManager {
     updatedHealth.healthScore = this.calculateHealthScore(updatedHealth)
 
     // Determine connection quality
-    updatedHealth.connectionQuality = this.determineConnectionQuality(updatedHealth)
+    updatedHealth.connectionQuality =
+      this.determineConnectionQuality(updatedHealth)
 
     this.activeStreams.set(streamId, updatedHealth)
 
@@ -379,7 +443,10 @@ export class StreamManager {
   /**
    * Regenerate stream key (for security purposes)
    */
-  async regenerateStreamKey(streamId: string, userId: string): Promise<DatabaseResult<Stream>> {
+  async regenerateStreamKey(
+    streamId: string,
+    userId: string
+  ): Promise<DatabaseResult<Stream>> {
     try {
       // Verify stream ownership
       const stream = await this.streamService.getById(streamId)
@@ -425,7 +492,10 @@ export class StreamManager {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to regenerate stream key',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to regenerate stream key',
         code: 'STREAM_KEY_REGENERATION_ERROR',
       }
     }
@@ -456,12 +526,18 @@ export class StreamManager {
   /**
    * Initialize transcoding pipeline
    */
-  private async initializeTranscoding(streamId: string, qualities: string[]): Promise<void> {
+  private async initializeTranscoding(
+    streamId: string,
+    qualities: string[]
+  ): Promise<void> {
     // Import HLS service dynamically to avoid circular dependencies
     const { hlsService } = await import('./hls-service')
-    
-    console.log(`Initializing transcoding for stream ${streamId} with qualities:`, qualities)
-    
+
+    console.log(
+      `Initializing transcoding for stream ${streamId} with qualities:`,
+      qualities
+    )
+
     try {
       // Get stream data for HLS initialization
       const streamResult = await this.streamService.getById(streamId)
@@ -469,7 +545,10 @@ export class StreamManager {
         await hlsService.initializeHLSDelivery(streamResult.data)
       }
     } catch (error) {
-      console.error(`Failed to initialize transcoding for stream ${streamId}:`, error)
+      console.error(
+        `Failed to initialize transcoding for stream ${streamId}:`,
+        error
+      )
       throw error
     }
   }
@@ -480,7 +559,7 @@ export class StreamManager {
   private async finalizeRecording(streamId: string): Promise<void> {
     // This would finalize the recording and create a VOD entry
     console.log(`Finalizing recording for stream ${streamId}`)
-    
+
     // TODO: Implement VOD creation from stream recording
     // This could involve:
     // 1. Stopping recording processes
@@ -492,10 +571,12 @@ export class StreamManager {
   /**
    * Send stream notification
    */
-  private async sendNotification(notification: StreamNotification): Promise<void> {
+  private async sendNotification(
+    notification: StreamNotification
+  ): Promise<void> {
     // This would integrate with a notification system
     console.log('Stream notification:', notification)
-    
+
     // TODO: Implement actual notification system
     // This could involve:
     // 1. WebSocket notifications to connected clients
@@ -510,9 +591,10 @@ export class StreamManager {
   private calculateHealthScore(metrics: StreamHealthMetrics): number {
     const bitrateScore = Math.min(metrics.bitrate / 6000, 1) * 40 // 40% weight
     const frameRateScore = Math.min(metrics.frameRate / 60, 1) * 30 // 30% weight
-    const dropScore = metrics.totalFrames > 0 
-      ? (1 - (metrics.droppedFrames / metrics.totalFrames)) * 30 // 30% weight
-      : 30
+    const dropScore =
+      metrics.totalFrames > 0
+        ? (1 - metrics.droppedFrames / metrics.totalFrames) * 30 // 30% weight
+        : 30
 
     return Math.round(bitrateScore + frameRateScore + dropScore)
   }
@@ -520,7 +602,9 @@ export class StreamManager {
   /**
    * Determine connection quality based on metrics
    */
-  private determineConnectionQuality(metrics: StreamHealthMetrics): 'excellent' | 'good' | 'fair' | 'poor' {
+  private determineConnectionQuality(
+    metrics: StreamHealthMetrics
+  ): 'excellent' | 'good' | 'fair' | 'poor' {
     if (metrics.healthScore >= 90) return 'excellent'
     if (metrics.healthScore >= 70) return 'good'
     if (metrics.healthScore >= 50) return 'fair'
@@ -530,9 +614,12 @@ export class StreamManager {
   /**
    * Handle stream issues
    */
-  private async handleStreamIssue(streamId: string, metrics: StreamHealthMetrics): Promise<void> {
+  private async handleStreamIssue(
+    streamId: string,
+    metrics: StreamHealthMetrics
+  ): Promise<void> {
     console.warn(`Stream ${streamId} has health issues:`, metrics)
-    
+
     // Send notification about stream issues
     await this.sendNotification({
       type: 'stream_error',
@@ -561,12 +648,16 @@ export class StreamManager {
       issues.push('Low frame rate detected')
     }
 
-    if (metrics.totalFrames > 0 && (metrics.droppedFrames / metrics.totalFrames) > 0.05) {
+    if (
+      metrics.totalFrames > 0 &&
+      metrics.droppedFrames / metrics.totalFrames > 0.05
+    ) {
       issues.push('High frame drop rate detected')
     }
 
     const timeSinceLastHeartbeat = Date.now() - metrics.lastHeartbeat.getTime()
-    if (timeSinceLastHeartbeat > 30000) { // 30 seconds
+    if (timeSinceLastHeartbeat > 30000) {
+      // 30 seconds
       issues.push('Connection timeout detected')
     }
 
@@ -594,7 +685,7 @@ export class StreamManager {
 
       if (timeSinceLastHeartbeat > timeoutThreshold) {
         console.warn(`Stream ${streamId} appears to be disconnected`)
-        
+
         // Mark stream as ended due to timeout
         try {
           await this.streamService.update(streamId, {

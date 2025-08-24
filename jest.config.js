@@ -45,7 +45,7 @@ const customJestConfig = {
     '**/*.(test|spec).{js,jsx,ts,tsx}',
   ],
   transformIgnorePatterns: [
-    '/node_modules/',
+    '/node_modules/(?!(@clerk|stripe)/)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 }

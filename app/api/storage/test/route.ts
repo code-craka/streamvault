@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAllGCSTests } from '@/lib/storage/gcs-test'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🧪 Starting GCS integration tests...')
     

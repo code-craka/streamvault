@@ -7,11 +7,8 @@ import type {
   PermissionResource,
   PermissionAction,
   StreamVaultUser,
-  ROLE_HIERARCHY,
-  SUBSCRIPTION_HIERARCHY,
-  ROLE_PERMISSIONS,
 } from '@/types/auth'
-import { SUBSCRIPTION_TIERS, hasFeatureAccess } from '@/types/subscription'
+import { SUBSCRIPTION_TIERS } from '@/types/subscription'
 
 // Import the constants from the types file
 const roleHierarchy: Record<UserRole, number> = {

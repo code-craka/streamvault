@@ -6,8 +6,6 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import type {
-  UserRole,
-  SubscriptionTier,
   RouteProtectionConfig,
   StreamVaultUser,
 } from '@/types/auth'
