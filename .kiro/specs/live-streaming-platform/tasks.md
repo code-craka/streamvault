@@ -63,14 +63,14 @@
     - _Requirements: All data-related requirements_
 
 - [ ] 5. Google Cloud Storage Integration
-  - [ ] 5.1 Set up GCS bucket and authentication
+  - [x] 5.1 Set up GCS bucket and authentication
     - Configure Google Cloud Storage bucket (gs://streamvault-videos)
     - Set up service account authentication (ghstreamvault@shining-courage-465501-i8.iam.gserviceaccount.com)
     - Implement credential management and bucket access
     - Create bucket lifecycle policies and security settings
     - Test file upload and download operations
     - _Requirements: 3.1, 3.3, 3.5_
-  - [ ] 5.2 Implement signed URL service
+  - [x] 5.2 Implement signed URL service
     - Build SignedURLService class for secure video access
     - Implement 15-minute expiration and automatic refresh
     - Add subscription tier validation before URL generation
@@ -80,15 +80,15 @@
 
 ## Phase 3: Core Streaming Infrastructure
 
-- [ ] 6. Basic Video Player Implementation
-  - [ ] 6.1 Create HLS video player component
+- [x] 6. Basic Video Player Implementation
+  - [x] 6.1 Create HLS video player component
     - Install and configure HLS.js for video playback
     - Build basic HLSPlayer React component with controls
     - Implement loading states and error handling
     - Add basic player controls (play, pause, volume, fullscreen)
     - Test video playback with sample HLS streams
     - _Requirements: 2.3, 2.4_
-  - [ ] 6.2 Implement secure VOD playback
+  - [x] 6.2 Implement secure VOD playback
     - Integrate signed URL service with video player
     - Add automatic URL refresh mechanism
     - Implement subscription tier validation for video access
@@ -96,15 +96,15 @@
     - Test secure video playback end-to-end
     - _Requirements: 3.1, 3.3, 3.4_
 
-- [ ] 7. Live Streaming Foundation
-  - [ ] 7.1 Create stream management system
+- [x] 7. Live Streaming Foundation
+  - [x] 7.1 Create stream management system
     - Build StreamManager service for stream lifecycle
     - Implement secure stream key generation
     - Create stream status management (inactive/active/ended)
     - Add basic stream configuration and metadata
     - Build stream creation and management API endpoints
     - _Requirements: 2.1, 2.2_
-  - [ ] 7.2 Implement basic live streaming
+  - [x] 7.2 Implement basic live streaming
     - Set up RTMP ingest configuration
     - Create HLS delivery endpoints
     - Implement basic transcoding pipeline

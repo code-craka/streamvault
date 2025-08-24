@@ -19,6 +19,9 @@ import {
 } from 'firebase/firestore'
 import { db } from './config'
 
+// Re-export db for convenience
+export { db }
+
 // Generic Firestore service class
 export class FirestoreService {
   private collectionName: string

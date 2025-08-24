@@ -21,7 +21,12 @@
     "firebase:deploy": "firebase deploy",
     "firebase:rules": "firebase deploy --only firestore:rules",
     "firebase:indexes": "firebase deploy --only firestore:indexes",
-    "firebase:emulator": "firebase emulators:start"
+    "firebase:emulator": "firebase emulators:start",
+    "gcs:setup": "node scripts/setup-gcs.js",
+    "gcs:configure": "node scripts/configure-gcs-bucket.js",
+    "gcs:test": "curl -X GET http://localhost:3000/api/storage/test",
+    "gcs:test-direct": "node scripts/test-gcs-direct.js",
+    "storage:test": "pnpm gcs:test"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.0.0",
@@ -33,6 +38,8 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@tanstack/react-query": "^5.0.0",
+    "@types/hls.js": "^1.0.0",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "firebase": "^10.0.0",
