@@ -185,6 +185,16 @@ export type StagingEnvConfig = z.infer<typeof stagingEnvSchema>
 export function validateEnv(): EnvConfig {
   const env = process.env
 
+  // Check for reserved GITHUB_ prefix in environment variable names
+  const githubPrefixedVars = Object.keys(env).filter(key => key.startsWith('GITHUB_'))
+  if (githubPrefixedVars.length > 0) {
+    throw new Error(
+      `Environment validation failed:\nSecret names must not start with GITHUB_ as this prefix is reserved by GitHub.\n` +
+      `Found variables: ${githubPrefixedVars.join(', ')}\n\n` +
+      `Please rename these variables to use a different prefix.`
+    )
+  }
+
   // Choose schema based on environment (use APP_ENV for staging detection)
   const appEnv = env.APP_ENV || env.NODE_ENV
   let schema: z.ZodSchema

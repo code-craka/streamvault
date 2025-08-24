@@ -105,6 +105,18 @@ describe('Configuration System', () => {
         result.warnings.some(warning => warning.includes('placeholder'))
       ).toBe(true)
     })
+
+    it('should fail validation with GITHUB_ prefix in variable names', () => {
+      process.env.GITHUB_SECRET = 'some-secret-value'
+
+      const result = validateConfiguration()
+      expect(result.success).toBe(false)
+      expect(
+        result.errors.some(error => 
+          error.includes('Secret names must not start with GITHUB_')
+        )
+      ).toBe(true)
+    })
   })
 
   describe('Environment-Specific Configuration', () => {
