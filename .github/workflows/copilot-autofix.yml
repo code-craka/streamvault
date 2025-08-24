@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: 'Get changed files'
         id: changed-files
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             **/*.{ts,tsx,js,jsx}
@@ -189,7 +189,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -288,7 +288,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -353,11 +353,11 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Get changed files'
         id: changed-files
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             **/*.{ts,tsx,js,jsx}
