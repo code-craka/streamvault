@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { signedURLService, VideoAccessError } from '@/lib/storage/signed-url-service'
+import {
+  signedURLService,
+  VideoAccessError,
+} from '@/lib/storage/signed-url-service'
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
@@ -26,7 +29,9 @@ export async function POST(request: NextRequest) {
     // Check if user has admin or streamer permissions
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = (user.publicMetadata?.role as string) || 'viewer'
-    const hasPermission = checkUserRole(userRole as any, 'admin') || checkUserRole(userRole as any, 'streamer')
+    const hasPermission =
+      checkUserRole(userRole as any, 'admin') ||
+      checkUserRole(userRole as any, 'streamer')
 
     if (!hasPermission) {
       return NextResponse.json(
@@ -37,13 +42,16 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { targetUserId, videoId, reason } = RevokeAccessRequestSchema.parse(body)
+    const { targetUserId, videoId, reason } =
+      RevokeAccessRequestSchema.parse(body)
 
     // Revoke access
     await signedURLService.revokeAccess(targetUserId, videoId)
 
     // Log the revocation (in a real implementation, you might want to store this in an audit log)
-    console.log(`Access revoked by ${userId} for user ${targetUserId}${videoId ? ` on video ${videoId}` : ''}. Reason: ${reason || 'No reason provided'}`)
+    console.log(
+      `Access revoked by ${userId} for user ${targetUserId}${videoId ? ` on video ${videoId}` : ''}. Reason: ${reason || 'No reason provided'}`
+    )
 
     return NextResponse.json({
       success: true,
@@ -54,13 +62,12 @@ export async function POST(request: NextRequest) {
         reason: reason || null,
       },
     })
-
   } catch (error) {
     console.error('Access revocation error:', error)
 
     if (error instanceof VideoAccessError) {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
           code: error.code,
         },
@@ -70,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request parameters',
           details: error.errors,
         },
