@@ -275,7 +275,7 @@ export class SignedURLService {
   ): Promise<void> {
     try {
       const user = await (await clerkClient()).users.getUser(userId)
-      const metadata = user.publicMetadata as UserMetadata
+      const metadata = user.publicMetadata as unknown as UserMetadata
 
       const userTier = metadata.subscriptionTier
       const subscriptionStatus = metadata.subscriptionStatus
@@ -465,7 +465,7 @@ export class SignedURLService {
   private async getUserTier(userId: string): Promise<SubscriptionTier | null> {
     try {
       const user = await (await clerkClient()).users.getUser(userId)
-      const metadata = user.publicMetadata as UserMetadata
+      const metadata = user.publicMetadata as unknown as UserMetadata
       return metadata.subscriptionTier || null
     } catch (error) {
       console.error('Failed to get user tier:', error)
