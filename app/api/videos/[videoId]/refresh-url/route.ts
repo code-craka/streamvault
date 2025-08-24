@@ -76,7 +76,7 @@ export async function GET(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { videoId } = await params
+    const { videoId: _videoId } = await params
     // Authenticate user
     const { userId } = await auth()
     if (!userId) {

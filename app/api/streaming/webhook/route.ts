@@ -3,6 +3,14 @@ import { streamManager } from '@/lib/streaming/stream-manager'
 import { hlsService } from '@/lib/streaming/hls-service'
 import { StreamService } from '@/lib/database/stream-service'
 import { z } from 'zod'
+import { 
+  type StreamStartedEvent,
+  type StreamStoppedEvent,
+  type StreamErrorEvent,
+  type StreamHeartbeatEvent,
+  type StreamHealthMetrics,
+  type HLSHealthMetrics
+} from '@/types/webhook'
 
 const streamService = new StreamService()
 
@@ -13,7 +21,7 @@ const webhookEventSchema = z.object({
   clientIp: z.string().optional(),
   userAgent: z.string().optional(),
   timestamp: z.string().datetime(),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.unknown()).optional(),
 })
 
 /**
@@ -52,19 +60,19 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (validatedEvent.event) {
       case 'stream_started':
-        await handleStreamStarted(stream.id, validatedEvent)
+        await handleStreamStarted(stream.id, validatedEvent as StreamStartedEvent)
         break
 
       case 'stream_stopped':
-        await handleStreamStopped(stream.id, validatedEvent)
+        await handleStreamStopped(stream.id, validatedEvent as StreamStoppedEvent)
         break
 
       case 'stream_error':
-        await handleStreamError(stream.id, validatedEvent)
+        await handleStreamError(stream.id, validatedEvent as StreamErrorEvent)
         break
 
       case 'heartbeat':
-        await handleStreamHeartbeat(stream.id, validatedEvent)
+        await handleStreamHeartbeat(stream.id, validatedEvent as StreamHeartbeatEvent)
         break
 
       default:
@@ -96,7 +104,7 @@ export async function POST(request: NextRequest) {
 /**
  * Handle stream started event
  */
-async function handleStreamStarted(streamId: string, event: any): Promise<void> {
+async function handleStreamStarted(streamId: string, _event: StreamStartedEvent): Promise<void> {
   try {
     console.log(`Stream ${streamId} started via RTMP`)
 
@@ -126,7 +134,7 @@ async function handleStreamStarted(streamId: string, event: any): Promise<void> 
 /**
  * Handle stream stopped event
  */
-async function handleStreamStopped(streamId: string, event: any): Promise<void> {
+async function handleStreamStopped(streamId: string, _event: StreamStoppedEvent): Promise<void> {
   try {
     console.log(`Stream ${streamId} stopped via RTMP`)
 
@@ -156,7 +164,7 @@ async function handleStreamStopped(streamId: string, event: any): Promise<void> 
 /**
  * Handle stream error event
  */
-async function handleStreamError(streamId: string, event: any): Promise<void> {
+async function handleStreamError(streamId: string, event: StreamErrorEvent): Promise<void> {
   try {
     console.error(`Stream ${streamId} encountered an error:`, event.data)
 
@@ -181,24 +189,30 @@ async function handleStreamError(streamId: string, event: any): Promise<void> {
 /**
  * Handle stream heartbeat event
  */
-async function handleStreamHeartbeat(streamId: string, event: any): Promise<void> {
+async function handleStreamHeartbeat(streamId: string, event: StreamHeartbeatEvent): Promise<void> {
   try {
-    const healthData = event.data || {}
+    if (event.event !== 'heartbeat') {
+      throw new Error('Invalid event type for heartbeat handler')
+    }
+
+    const healthData = event.data
 
     // Update stream health metrics
-    await streamManager.updateStreamHealth(streamId, {
-      bitrate: healthData.bitrate || 0,
-      frameRate: healthData.frameRate || 0,
-      droppedFrames: healthData.droppedFrames || 0,
-      totalFrames: healthData.totalFrames || 0,
-    })
+    const streamHealthMetrics: StreamHealthMetrics = {
+      bitrate: healthData.bitrate,
+      frameRate: healthData.frameRate,
+      droppedFrames: healthData.droppedFrames,
+      totalFrames: healthData.totalFrames,
+    }
+    await streamManager.updateStreamHealth(streamId, streamHealthMetrics)
 
     // Update HLS service health
-    hlsService.updateStreamHealth(streamId, {
-      bitrate: healthData.bitrate || 0,
-      frameRate: healthData.frameRate || 0,
+    const hlsHealthMetrics: HLSHealthMetrics = {
+      bitrate: healthData.bitrate,
+      frameRate: healthData.frameRate,
       resolution: healthData.resolution || '1280x720',
-    })
+    }
+    hlsService.updateStreamHealth(streamId, hlsHealthMetrics)
 
     // Update viewer count if provided
     if (healthData.viewerCount !== undefined) {

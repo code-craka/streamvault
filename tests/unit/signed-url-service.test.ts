@@ -1,4 +1,4 @@
-import { SignedURLService, VideoAccessError } from '@/lib/storage/signed-url-service'
+import { SignedURLService, VideoAccessError } from '@/lib/storage/sign-url-service'
 
 // Mock dependencies
 jest.mock('@clerk/nextjs/server', () => ({

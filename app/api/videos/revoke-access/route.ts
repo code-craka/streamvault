@@ -7,6 +7,7 @@ import {
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
+import type { UserRole } from '@/types/auth'
 
 // Request validation schema
 const RevokeAccessRequestSchema = z.object({
@@ -28,10 +29,10 @@ export async function POST(request: NextRequest) {
 
     // Check if user has admin or streamer permissions
     const user = await (await clerkClient()).users.getUser(userId)
-    const userRole = (user.publicMetadata?.role as string) || 'viewer'
+    const userRole = (user.publicMetadata?.role as UserRole) || 'viewer'
     const hasPermission =
-      checkUserRole(userRole as any, 'admin') ||
-      checkUserRole(userRole as any, 'streamer')
+      checkUserRole(userRole, 'admin') ||
+      checkUserRole(userRole, 'streamer')
 
     if (!hasPermission) {
       return NextResponse.json(
