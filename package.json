@@ -41,7 +41,7 @@
     "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "firebase": "^10.14.1",
+    "firebase": "^12.1.0",
     "firebase-admin": "^13.4.0",
     "framer-motion": "^11.0.0",
     "hls.js": "^1.4.0",
