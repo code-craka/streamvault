@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { 
-          authenticated: false, 
+        {
+          authenticated: false,
           error: result.error,
-          code: result.code 
+          code: result.code,
         },
         { status: result.code === 'INVALID_STREAM_KEY' ? 400 : 500 }
       )
@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
 
     if (!stream) {
       return NextResponse.json(
-        { 
-          authenticated: false, 
-          error: 'Invalid stream key' 
+        {
+          authenticated: false,
+          error: 'Invalid stream key',
         },
         { status: 401 }
       )
@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
     // Check if stream is in a valid state for streaming
     if (stream.status === 'ended') {
       return NextResponse.json(
-        { 
-          authenticated: false, 
-          error: 'Stream has ended' 
+        {
+          authenticated: false,
+          error: 'Stream has ended',
         },
         { status: 403 }
       )
@@ -77,22 +77,22 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error authenticating RTMP stream:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          authenticated: false, 
-          error: 'Invalid authentication data', 
-          details: error.errors 
+        {
+          authenticated: false,
+          error: 'Invalid authentication data',
+          details: error.errors,
         },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { 
-        authenticated: false, 
-        error: 'Internal server error' 
+      {
+        authenticated: false,
+        error: 'Internal server error',
       },
       { status: 500 }
     )

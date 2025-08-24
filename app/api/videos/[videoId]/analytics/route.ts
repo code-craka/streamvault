@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { signedURLService, VideoAccessError } from '@/lib/storage/signed-url-service'
+import {
+  signedURLService,
+  VideoAccessError,
+} from '@/lib/storage/signed-url-service'
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
 
@@ -29,7 +32,9 @@ export async function GET(
     // Check if user has permission to view analytics
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = (user.publicMetadata?.role as string) || 'viewer'
-    const hasPermission = checkUserRole(userRole as any, 'streamer') || checkUserRole(userRole as any, 'admin')
+    const hasPermission =
+      checkUserRole(userRole as any, 'streamer') ||
+      checkUserRole(userRole as any, 'admin')
 
     if (!hasPermission) {
       return NextResponse.json(
@@ -45,13 +50,12 @@ export async function GET(
       success: true,
       data: analytics,
     })
-
   } catch (error) {
     console.error('Analytics retrieval error:', error)
 
     if (error instanceof VideoAccessError) {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
           code: error.code,
         },

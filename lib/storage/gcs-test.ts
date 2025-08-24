@@ -1,4 +1,8 @@
-import { validateBucketAccess, getBucketInfo, initializeBucket } from './gcs-client'
+import {
+  validateBucketAccess,
+  getBucketInfo,
+  initializeBucket,
+} from './gcs-client'
 import { fileUploadService } from './file-upload'
 
 /**
@@ -12,9 +16,9 @@ export async function testGCSConfiguration(): Promise<void> {
     console.log('1️⃣ Testing environment variables...')
     const requiredEnvVars = [
       'GCP_PROJECT_ID',
-      'GCS_BUCKET_NAME', 
+      'GCS_BUCKET_NAME',
       'GOOGLE_APPLICATION_CREDENTIALS',
-      'GCS_SERVICE_ACCOUNT_EMAIL'
+      'GCS_SERVICE_ACCOUNT_EMAIL',
     ]
 
     for (const envVar of requiredEnvVars) {
@@ -39,11 +43,15 @@ export async function testGCSConfiguration(): Promise<void> {
     console.log(`      Location: ${bucketInfo.location}`)
     console.log(`      Storage Class: ${bucketInfo.storageClass}`)
     console.log(`      Created: ${bucketInfo.created}`)
-    console.log(`      Versioning: ${bucketInfo.versioning?.enabled ? 'Enabled' : 'Disabled'}`)
+    console.log(
+      `      Versioning: ${bucketInfo.versioning?.enabled ? 'Enabled' : 'Disabled'}`
+    )
 
     // Test 4: Test file upload
     console.log('\n4️⃣ Testing file upload...')
-    const testContent = Buffer.from('This is a test file for StreamVault GCS integration')
+    const testContent = Buffer.from(
+      'This is a test file for StreamVault GCS integration'
+    )
     const uploadResult = await fileUploadService.uploadFile(testContent, {
       folder: 'test',
       filename: `test-${Date.now()}.txt`,
@@ -65,7 +73,9 @@ export async function testGCSConfiguration(): Promise<void> {
 
     // Test 6: Test file metadata retrieval
     console.log('\n6️⃣ Testing file metadata retrieval...')
-    const metadata = await fileUploadService.getFileMetadata(uploadResult.filename)
+    const metadata = await fileUploadService.getFileMetadata(
+      uploadResult.filename
+    )
     console.log('   ✅ File metadata retrieved:')
     console.log(`      Size: ${metadata.size}`)
     console.log(`      Content Type: ${metadata.contentType}`)
@@ -85,7 +95,6 @@ export async function testGCSConfiguration(): Promise<void> {
     console.log('   ✅ Test file deleted successfully')
 
     console.log('\n🎉 All GCS tests passed successfully!')
-
   } catch (error) {
     console.error('\n❌ GCS test failed:', error)
     throw error
@@ -104,11 +113,15 @@ export async function testVideoUpload(): Promise<void> {
     const videoId = `test-video-${Date.now()}`
 
     console.log('1️⃣ Testing video upload...')
-    const uploadResult = await fileUploadService.uploadVideo(mockVideoBuffer, videoId, {
-      title: 'Test Video',
-      duration: '60',
-      resolution: '1920x1080',
-    })
+    const uploadResult = await fileUploadService.uploadVideo(
+      mockVideoBuffer,
+      videoId,
+      {
+        title: 'Test Video',
+        duration: '60',
+        resolution: '1920x1080',
+      }
+    )
 
     console.log('   ✅ Video uploaded successfully:')
     console.log(`      Filename: ${uploadResult.filename}`)
@@ -136,7 +149,6 @@ export async function testVideoUpload(): Promise<void> {
     console.log('   ✅ Test files cleaned up')
 
     console.log('\n🎉 Video upload tests passed successfully!')
-
   } catch (error) {
     console.error('\n❌ Video upload test failed:', error)
     throw error

@@ -18,10 +18,7 @@ export async function GET(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const result = await streamService.getById(streamId)
@@ -40,10 +37,7 @@ export async function GET(
     const isPublic = !stream.settings.isPrivate
 
     if (!isOwner && !isPublic) {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     // Get health metrics if stream is active
@@ -77,10 +71,7 @@ export async function PUT(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -92,13 +83,21 @@ export async function PUT(
     })
 
     // Update stream using StreamManager
-    const result = await streamManager.updateStream(streamId, userId, validatedData)
+    const result = await streamManager.updateStream(
+      streamId,
+      userId,
+      validatedData
+    )
 
     if (!result.success) {
-      const statusCode = 
-        result.code === 'STREAM_NOT_FOUND' ? 404 :
-        result.code === 'UNAUTHORIZED' ? 403 :
-        result.code === 'UPDATE_RESTRICTED_WHILE_ACTIVE' ? 409 : 400
+      const statusCode =
+        result.code === 'STREAM_NOT_FOUND'
+          ? 404
+          : result.code === 'UNAUTHORIZED'
+            ? 403
+            : result.code === 'UPDATE_RESTRICTED_WHILE_ACTIVE'
+              ? 409
+              : 400
 
       return NextResponse.json(
         { error: result.error, code: result.code },
@@ -112,7 +111,7 @@ export async function PUT(
     })
   } catch (error) {
     console.error('Error updating stream:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
@@ -138,19 +137,13 @@ export async function DELETE(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Verify stream ownership
     const stream = await streamService.getById(streamId)
     if (!stream.success || !stream.data) {
-      return NextResponse.json(
-        { error: 'Stream not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
     }
 
     if (stream.data.userId !== userId) {
@@ -171,10 +164,7 @@ export async function DELETE(
     const result = await streamService.delete(streamId)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({

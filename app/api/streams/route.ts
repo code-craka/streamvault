@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { streamManager } from '@/lib/streaming/stream-manager'
 import { StreamService } from '@/lib/database/stream-service'
-import { createStreamSchema, streamQuerySchema } from '@/lib/validations/streaming'
+import {
+  createStreamSchema,
+  streamQuerySchema,
+} from '@/lib/validations/streaming'
 import { z } from 'zod'
 
 const streamService = new StreamService()
@@ -14,10 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -39,10 +39,7 @@ export async function GET(request: NextRequest) {
     const result = await streamService.searchStreams(validatedQuery)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -55,7 +52,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching streams:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: error.errors },
@@ -77,10 +74,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -108,7 +102,7 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('Error creating stream:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },

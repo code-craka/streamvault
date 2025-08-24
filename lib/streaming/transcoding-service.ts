@@ -71,18 +71,19 @@ export class TranscodingService {
     try {
       // Start the transcoding process
       await this.initializeFFmpegProcess(job)
-      
+
       job.status = 'processing'
       this.activeJobs.set(jobId, job)
 
       console.log(`Started transcoding job ${jobId} for stream ${streamId}`)
-      
+
       return job
     } catch (error) {
       job.status = 'failed'
-      job.errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      job.errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
       this.activeJobs.set(jobId, job)
-      
+
       throw error
     }
   }
@@ -99,19 +100,20 @@ export class TranscodingService {
     try {
       // Stop FFmpeg process
       await this.stopFFmpegProcess(jobId)
-      
+
       job.status = 'completed'
       job.completedAt = new Date()
       job.progress = 100
-      
+
       this.activeJobs.set(jobId, job)
-      
+
       console.log(`Stopped transcoding job ${jobId}`)
     } catch (error) {
       job.status = 'failed'
-      job.errorMessage = error instanceof Error ? error.message : 'Failed to stop transcoding'
+      job.errorMessage =
+        error instanceof Error ? error.message : 'Failed to stop transcoding'
       this.activeJobs.set(jobId, job)
-      
+
       throw error
     }
   }
@@ -127,8 +129,8 @@ export class TranscodingService {
    * Get all active transcoding jobs
    */
   getActiveJobs(): TranscodingJob[] {
-    return Array.from(this.activeJobs.values()).filter(job => 
-      job.status === 'processing' || job.status === 'pending'
+    return Array.from(this.activeJobs.values()).filter(
+      job => job.status === 'processing' || job.status === 'pending'
     )
   }
 
@@ -153,7 +155,8 @@ export class TranscodingService {
    * Generate master playlist URL for HLS
    */
   generateMasterPlaylistUrl(streamId: string): string {
-    const hlsEndpoint = process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
+    const hlsEndpoint =
+      process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
     return `${hlsEndpoint}/${streamId}/master.m3u8`
   }
 
@@ -161,7 +164,8 @@ export class TranscodingService {
    * Generate quality-specific playlist URL
    */
   generateQualityPlaylistUrl(streamId: string, quality: VideoQuality): string {
-    const hlsEndpoint = process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
+    const hlsEndpoint =
+      process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
     return `${hlsEndpoint}/${streamId}/${quality}/playlist.m3u8`
   }
 
@@ -184,7 +188,7 @@ export class TranscodingService {
 
     // Simulate FFmpeg command generation
     const ffmpegCommands = this.generateFFmpegCommands(job)
-    
+
     console.log('Generated FFmpeg commands:', ffmpegCommands)
 
     // TODO: Implement actual FFmpeg process spawning
@@ -198,7 +202,7 @@ export class TranscodingService {
   private async stopFFmpegProcess(jobId: string): Promise<void> {
     // This would stop the actual FFmpeg processes
     console.log(`Stopping FFmpeg processes for job ${jobId}`)
-    
+
     // TODO: Implement actual process termination
     // This would involve sending SIGTERM to FFmpeg processes
     // and cleaning up temporary files
@@ -216,22 +220,38 @@ export class TranscodingService {
 
       const command = [
         'ffmpeg',
-        '-i', job.inputPath,
-        '-c:v', 'libx264',
-        '-c:a', 'aac',
-        '-preset', 'veryfast',
-        '-tune', 'zerolatency',
-        '-b:v', `${settings.bitrate}k`,
-        '-s', settings.resolution,
-        '-r', settings.frameRate.toString(),
-        '-f', 'hls',
-        '-hls_time', this.config.hlsSegmentDuration.toString(),
-        '-hls_list_size', this.config.hlsPlaylistSize.toString(),
-        '-hls_flags', 'delete_segments',
-        ...(this.config.enableLowLatency ? [
-          '-hls_segment_type', 'mpegts',
-          '-hls_fmp4_init_filename', 'init.mp4',
-        ] : []),
+        '-i',
+        job.inputPath,
+        '-c:v',
+        'libx264',
+        '-c:a',
+        'aac',
+        '-preset',
+        'veryfast',
+        '-tune',
+        'zerolatency',
+        '-b:v',
+        `${settings.bitrate}k`,
+        '-s',
+        settings.resolution,
+        '-r',
+        settings.frameRate.toString(),
+        '-f',
+        'hls',
+        '-hls_time',
+        this.config.hlsSegmentDuration.toString(),
+        '-hls_list_size',
+        this.config.hlsPlaylistSize.toString(),
+        '-hls_flags',
+        'delete_segments',
+        ...(this.config.enableLowLatency
+          ? [
+              '-hls_segment_type',
+              'mpegts',
+              '-hls_fmp4_init_filename',
+              'init.mp4',
+            ]
+          : []),
         outputPath,
       ].join(' ')
 
@@ -299,8 +319,9 @@ export class TranscodingService {
 
     for (const [jobId, job] of this.activeJobs.entries()) {
       if (job.completedAt || job.status === 'failed') {
-        const jobAge = now - (job.completedAt?.getTime() || job.startedAt?.getTime() || now)
-        
+        const jobAge =
+          now - (job.completedAt?.getTime() || job.startedAt?.getTime() || now)
+
         if (jobAge > maxAge) {
           this.activeJobs.delete(jobId)
           console.log(`Cleaned up old transcoding job ${jobId}`)

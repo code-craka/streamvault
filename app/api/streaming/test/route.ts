@@ -11,7 +11,7 @@ import type { CreateStreamInput } from '@/lib/validations/streaming'
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     // Get system status
     const activeStreams = streamManager.getActiveStreamsHealth()
     const hlsHealth = hlsService.getAllStreamHealth()
@@ -35,8 +35,12 @@ export async function GET(request: NextRequest) {
         },
       },
       configuration: {
-        rtmpEndpoint: process.env.NEXT_PUBLIC_RTMP_ENDPOINT || 'rtmp://ingest.streamvault.app/live',
-        hlsEndpoint: process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls',
+        rtmpEndpoint:
+          process.env.NEXT_PUBLIC_RTMP_ENDPOINT ||
+          'rtmp://ingest.streamvault.app/live',
+        hlsEndpoint:
+          process.env.NEXT_PUBLIC_HLS_ENDPOINT ||
+          'https://cdn.streamvault.app/hls',
         maxConcurrentStreams: 5,
       },
     }
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in streaming test endpoint:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         timestamp: new Date().toISOString(),
         services: {
@@ -66,10 +70,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Create a test stream

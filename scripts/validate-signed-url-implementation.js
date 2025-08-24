@@ -61,10 +61,14 @@ function validateSignedURLImplementation() {
   // Check file contents for key implementations
   console.log('\n🔍 Checking implementation details...')
 
-  const signedUrlServicePath = path.join(__dirname, '..', 'lib/storage/signed-url-service.ts')
+  const signedUrlServicePath = path.join(
+    __dirname,
+    '..',
+    'lib/storage/signed-url-service.ts'
+  )
   if (fs.existsSync(signedUrlServicePath)) {
     const content = fs.readFileSync(signedUrlServicePath, 'utf8')
-    
+
     const checks = [
       {
         pattern: /class SignedURLService/,
@@ -123,7 +127,7 @@ function validateSignedURLImplementation() {
   const storageIndexPath = path.join(__dirname, '..', 'lib/storage/index.ts')
   if (fs.existsSync(storageIndexPath)) {
     const content = fs.readFileSync(storageIndexPath, 'utf8')
-    
+
     if (content.includes('signedURLService')) {
       console.log('✅ signedURLService exported from storage module')
     } else {
@@ -153,7 +157,7 @@ function validateSignedURLImplementation() {
     console.log('   ✅ Comprehensive error handling with custom error types')
     console.log('   ✅ Unit and integration test coverage')
     console.log('   ✅ Proper module exports and integration')
-    
+
     console.log('\n🔧 Key Features Implemented:')
     console.log('   • Secure video access with signed URLs')
     console.log('   • Automatic URL refresh mechanism')
@@ -162,7 +166,7 @@ function validateSignedURLImplementation() {
     console.log('   • Session lifecycle management')
     console.log('   • Admin tools for access revocation')
     console.log('   • Comprehensive test suite')
-    
+
     console.log('\n🚀 Ready for production use!')
   } else {
     console.log('❌ Some validations failed. Please check the issues above.')

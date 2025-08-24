@@ -19,7 +19,10 @@ async function validateSignedURLService() {
 
     // Test 2: Module imports
     console.log('\n📦 Testing module imports...')
-    const { signedURLService, VideoAccessError } = require('../lib/storage/signed-url-service')
+    const {
+      signedURLService,
+      VideoAccessError,
+    } = require('../lib/storage/signed-url-service')
     console.log('✅ SignedURLService imported successfully')
     console.log('✅ VideoAccessError imported successfully')
 
@@ -83,7 +86,6 @@ async function validateSignedURLService() {
     console.log('   ✅ Unit and integration tests')
 
     return true
-
   } catch (error) {
     console.error('❌ Validation failed:', error.message)
     return false
@@ -93,10 +95,10 @@ async function validateSignedURLService() {
 // Run validation
 if (require.main === module) {
   validateSignedURLService()
-    .then((success) => {
+    .then(success => {
       process.exit(success ? 0 : 1)
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Validation error:', error)
       process.exit(1)
     })

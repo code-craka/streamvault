@@ -88,7 +88,7 @@ export class FileUploadService {
 
       return {
         filename: filePath,
-        url: makePublic 
+        url: makePublic
           ? `https://storage.googleapis.com/${bucket.name}/${filePath}`
           : `gs://${bucket.name}/${filePath}`,
         size: parseInt(String(fileMetadata.size || '0')),
@@ -97,7 +97,9 @@ export class FileUploadService {
       }
     } catch (error) {
       console.error('❌ File upload failed:', error)
-      throw new Error(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -208,16 +210,23 @@ export class FileUploadService {
   /**
    * Validate file size based on type
    */
-  private validateFileSize(file: Buffer | Uint8Array, contentType: string): void {
+  private validateFileSize(
+    file: Buffer | Uint8Array,
+    contentType: string
+  ): void {
     const fileSize = file.length
 
     if (ALLOWED_VIDEO_TYPES.includes(contentType)) {
       if (fileSize > MAX_VIDEO_SIZE) {
-        throw new Error(`Video file too large. Maximum size is ${MAX_VIDEO_SIZE / (1024 * 1024 * 1024)}GB`)
+        throw new Error(
+          `Video file too large. Maximum size is ${MAX_VIDEO_SIZE / (1024 * 1024 * 1024)}GB`
+        )
       }
     } else if (ALLOWED_IMAGE_TYPES.includes(contentType)) {
       if (fileSize > MAX_IMAGE_SIZE) {
-        throw new Error(`Image file too large. Maximum size is ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`)
+        throw new Error(
+          `Image file too large. Maximum size is ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`
+        )
       }
     }
   }
@@ -227,7 +236,7 @@ export class FileUploadService {
    */
   private validateFileType(contentType: string): void {
     const allowedTypes = [...ALLOWED_VIDEO_TYPES, ...ALLOWED_IMAGE_TYPES]
-    
+
     if (!allowedTypes.includes(contentType)) {
       throw new Error(`File type ${contentType} is not allowed`)
     }

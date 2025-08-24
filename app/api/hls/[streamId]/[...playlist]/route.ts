@@ -42,14 +42,14 @@ export async function GET(
     }
 
     // Determine content type based on file extension
-    const contentType = playlistPath.endsWith('.m3u8') 
+    const contentType = playlistPath.endsWith('.m3u8')
       ? 'application/vnd.apple.mpegurl'
       : 'video/mp2t' // For .ts segments
 
     // Set appropriate headers for HLS delivery
     const headers = new Headers({
       'Content-Type': contentType,
-      'Cache-Control': playlistPath.endsWith('.m3u8') 
+      'Cache-Control': playlistPath.endsWith('.m3u8')
         ? 'no-cache, no-store, must-revalidate' // Playlists should not be cached
         : 'public, max-age=31536000', // Segments can be cached for a long time
       'Access-Control-Allow-Origin': '*',
@@ -107,14 +107,14 @@ export async function HEAD(
     }
 
     // Return headers without content
-    const contentType = playlistPath.endsWith('.m3u8') 
+    const contentType = playlistPath.endsWith('.m3u8')
       ? 'application/vnd.apple.mpegurl'
       : 'video/mp2t'
 
     const headers = new Headers({
       'Content-Type': contentType,
       'Content-Length': playlistContent.content.length.toString(),
-      'Cache-Control': playlistPath.endsWith('.m3u8') 
+      'Cache-Control': playlistPath.endsWith('.m3u8')
         ? 'no-cache, no-store, must-revalidate'
         : 'public, max-age=31536000',
       'Access-Control-Allow-Origin': '*',

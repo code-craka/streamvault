@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Hls from 'hls.js'
 import { Button } from '@/components/ui/button'
-import { 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  Maximize, 
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
   Minimize,
   Settings,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 
 interface HLSPlayerProps {
@@ -38,21 +38,21 @@ interface PlayerState {
   error: string | null
 }
 
-export function HLSPlayer({ 
-  src, 
-  isLive = false, 
+export function HLSPlayer({
+  src,
+  isLive = false,
   autoPlay = false,
   muted = false,
-  onError, 
+  onError,
   onLoadedData,
   onPlay,
   onPause,
-  className = ""
+  className = '',
 }: HLSPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const hlsRef = useRef<Hls | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const [playerState, setPlayerState] = useState<PlayerState>({
     isPlaying: false,
     isMuted: muted,
@@ -62,11 +62,13 @@ export function HLSPlayer({
     duration: 0,
     buffered: 0,
     isLoading: true,
-    error: null
+    error: null,
   })
 
   const [showControls, setShowControls] = useState(true)
-  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  )
 
   // Initialize HLS player
   useEffect(() => {
@@ -94,7 +96,7 @@ export function HLSPlayer({
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setPlayerState(prev => ({ ...prev, isLoading: false }))
         onLoadedData?.()
-        
+
         if (autoPlay) {
           video.play().catch(console.error)
         }
@@ -102,13 +104,13 @@ export function HLSPlayer({
 
       hls.on(Hls.Events.ERROR, (event, data) => {
         console.error('HLS Error:', data)
-        
+
         if (data.fatal) {
           const errorMessage = `HLS Error: ${data.type} - ${data.details}`
-          setPlayerState(prev => ({ 
-            ...prev, 
+          setPlayerState(prev => ({
+            ...prev,
             error: errorMessage,
-            isLoading: false 
+            isLoading: false,
           }))
           onError?.(data)
         }
@@ -126,22 +128,22 @@ export function HLSPlayer({
         setPlayerState(prev => ({ ...prev, isLoading: false }))
         onLoadedData?.()
       })
-      
-      video.addEventListener('error', (e) => {
+
+      video.addEventListener('error', e => {
         const errorMessage = 'Video playback error'
-        setPlayerState(prev => ({ 
-          ...prev, 
+        setPlayerState(prev => ({
+          ...prev,
           error: errorMessage,
-          isLoading: false 
+          isLoading: false,
         }))
         onError?.(e)
       })
     } else {
       const errorMessage = 'HLS is not supported in this browser'
-      setPlayerState(prev => ({ 
-        ...prev, 
+      setPlayerState(prev => ({
+        ...prev,
         error: errorMessage,
-        isLoading: false 
+        isLoading: false,
       }))
       onError?.(new Error(errorMessage))
     }
@@ -173,7 +175,7 @@ export function HLSPlayer({
       setPlayerState(prev => ({
         ...prev,
         currentTime: video.currentTime,
-        duration: video.duration || 0
+        duration: video.duration || 0,
       }))
     }
 
@@ -188,7 +190,7 @@ export function HLSPlayer({
       setPlayerState(prev => ({
         ...prev,
         volume: video.volume,
-        isMuted: video.muted
+        isMuted: video.muted,
       }))
     }
 
@@ -212,12 +214,13 @@ export function HLSPlayer({
     const handleFullscreenChange = () => {
       setPlayerState(prev => ({
         ...prev,
-        isFullscreen: !!document.fullscreenElement
+        isFullscreen: !!document.fullscreenElement,
       }))
     }
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
   // Auto-hide controls
@@ -225,9 +228,9 @@ export function HLSPlayer({
     if (controlsTimeout) {
       clearTimeout(controlsTimeout)
     }
-    
+
     setShowControls(true)
-    
+
     if (playerState.isPlaying) {
       const timeout = setTimeout(() => {
         setShowControls(false)
@@ -296,11 +299,11 @@ export function HLSPlayer({
 
   const formatTime = (seconds: number): string => {
     if (!isFinite(seconds)) return '0:00'
-    
+
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
@@ -309,13 +312,15 @@ export function HLSPlayer({
 
   if (playerState.error) {
     return (
-      <div className={`relative aspect-video bg-black rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center text-white p-4">
-          <div className="text-red-400 mb-2">⚠️ Playback Error</div>
+      <div
+        className={`relative flex aspect-video items-center justify-center rounded-lg bg-black ${className}`}
+      >
+        <div className="p-4 text-center text-white">
+          <div className="mb-2 text-red-400">⚠️ Playback Error</div>
           <div className="text-sm opacity-75">{playerState.error}</div>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="mt-4"
             onClick={() => window.location.reload()}
           >
@@ -327,15 +332,15 @@ export function HLSPlayer({
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={`relative aspect-video bg-black rounded-lg overflow-hidden group ${className}`}
+      className={`group relative aspect-video overflow-hidden rounded-lg bg-black ${className}`}
       onMouseMove={resetControlsTimeout}
       onMouseLeave={() => setShowControls(false)}
     >
       <video
         ref={videoRef}
-        className="w-full h-full object-contain"
+        className="h-full w-full object-contain"
         playsInline
         muted={playerState.isMuted}
         onClick={togglePlay}
@@ -344,19 +349,19 @@ export function HLSPlayer({
       {/* Loading Spinner */}
       {playerState.isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <Loader2 className="h-8 w-8 text-white animate-spin" />
+          <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
       )}
 
       {/* Live Indicator */}
       {isLive && (
-        <div className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 rounded text-sm font-medium">
+        <div className="absolute left-4 top-4 rounded bg-red-600 px-2 py-1 text-sm font-medium text-white">
           🔴 LIVE
         </div>
       )}
 
       {/* Controls */}
-      <div 
+      <div
         className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
           showControls ? 'opacity-100' : 'opacity-0'
         }`}
@@ -369,10 +374,10 @@ export function HLSPlayer({
               min={0}
               max={playerState.duration || 0}
               value={playerState.currentTime}
-              onChange={(e) => handleSeek(Number(e.target.value))}
-              className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+              onChange={e => handleSeek(Number(e.target.value))}
+              className="slider h-1 w-full cursor-pointer appearance-none rounded-lg bg-white/20"
             />
-            <div className="flex justify-between text-xs text-white/75 mt-1">
+            <div className="mt-1 flex justify-between text-xs text-white/75">
               <span>{formatTime(playerState.currentTime)}</span>
               <span>{formatTime(playerState.duration)}</span>
             </div>
@@ -408,15 +413,15 @@ export function HLSPlayer({
                   <Volume2 className="h-4 w-4" />
                 )}
               </Button>
-              
+
               <input
                 type="range"
                 min={0}
                 max={1}
                 step={0.1}
                 value={playerState.isMuted ? 0 : playerState.volume}
-                onChange={(e) => handleVolumeChange(Number(e.target.value))}
-                className="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                onChange={e => handleVolumeChange(Number(e.target.value))}
+                className="h-1 w-20 cursor-pointer appearance-none rounded-lg bg-white/20"
               />
             </div>
           </div>

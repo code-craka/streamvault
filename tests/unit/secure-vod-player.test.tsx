@@ -20,7 +20,9 @@ jest.mock('@/components/player/hls-player', () => ({
     <div data-testid="hls-player" data-src={src}>
       <button onClick={onPlay}>Play</button>
       <button onClick={onPause}>Pause</button>
-      <button onClick={() => onError({ type: 'networkError' })}>Trigger Error</button>
+      <button onClick={() => onError({ type: 'networkError' })}>
+        Trigger Error
+      </button>
     </div>
   ),
 }))
@@ -35,7 +37,9 @@ jest.mock('@/components/ui/button', () => ({
 }))
 
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className}>{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className}>{children}</div>
+  ),
   CardContent: ({ children }: any) => <div>{children}</div>,
   CardDescription: ({ children }: any) => <div>{children}</div>,
   CardHeader: ({ children }: any) => <div>{children}</div>,
@@ -43,7 +47,9 @@ jest.mock('@/components/ui/card', () => ({
 }))
 
 jest.mock('@/components/ui/badge', () => ({
-  Badge: ({ children, className }: any) => <span className={className}>{children}</span>,
+  Badge: ({ children, className }: any) => (
+    <span className={className}>{children}</span>
+  ),
 }))
 
 // Mock Lucide React icons
@@ -71,15 +77,17 @@ describe('SecureVODPlayer', () => {
 
   const mockSuccessResponse = {
     ok: true,
-    json: () => Promise.resolve({
-      success: true,
-      data: {
-        signedUrl: 'https://storage.googleapis.com/test-bucket/videos/test-video-123.mp4?signed=true',
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-        sessionId: 'session-123',
-        refreshToken: 'refresh-token-123',
-      },
-    }),
+    json: () =>
+      Promise.resolve({
+        success: true,
+        data: {
+          signedUrl:
+            'https://storage.googleapis.com/test-bucket/videos/test-video-123.mp4?signed=true',
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          sessionId: 'session-123',
+          refreshToken: 'refresh-token-123',
+        },
+      }),
   }
 
   beforeEach(() => {
@@ -89,19 +97,19 @@ describe('SecureVODPlayer', () => {
 
   it('renders loading state initially', () => {
     render(<SecureVODPlayer {...defaultProps} />)
-    
+
     expect(screen.getByText('Securing video access...')).toBeInTheDocument()
   })
 
   it('fetches signed URL on mount', async () => {
     render(<SecureVODPlayer {...defaultProps} />)
-    
+
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
         '/api/videos/test-video-123/signed-url?tier=basic',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer mock-token',
+            Authorization: 'Bearer mock-token',
           }),
         })
       )
@@ -110,17 +118,20 @@ describe('SecureVODPlayer', () => {
 
   it('renders HLS player with signed URL after successful fetch', async () => {
     render(<SecureVODPlayer {...defaultProps} />)
-    
+
     await waitFor(() => {
       const hlsPlayer = screen.getByTestId('hls-player')
       expect(hlsPlayer).toBeInTheDocument()
-      expect(hlsPlayer).toHaveAttribute('data-src', expect.stringContaining('signed=true'))
+      expect(hlsPlayer).toHaveAttribute(
+        'data-src',
+        expect.stringContaining('signed=true')
+      )
     })
   })
 
   it('shows security indicator when video is loaded', async () => {
     render(<SecureVODPlayer {...defaultProps} />)
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('shield-icon')).toBeInTheDocument()
       expect(screen.getByText('Secure')).toBeInTheDocument()
@@ -138,7 +149,7 @@ describe('SecureVODPlayer', () => {
     }
 
     render(<SecureVODPlayer {...defaultProps} videoMetadata={videoMetadata} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Test Video Title')).toBeInTheDocument()
       expect(screen.getByText('Test video description')).toBeInTheDocument()
@@ -151,19 +162,22 @@ describe('SecureVODPlayer', () => {
   it('shows access denied for insufficient subscription', async () => {
     const errorResponse = {
       ok: false,
-      json: () => Promise.resolve({
-        error: 'Premium subscription or higher required',
-        code: 'INSUFFICIENT_SUBSCRIPTION_TIER',
-      }),
+      json: () =>
+        Promise.resolve({
+          error: 'Premium subscription or higher required',
+          code: 'INSUFFICIENT_SUBSCRIPTION_TIER',
+        }),
     }
-    
+
     ;(global.fetch as jest.Mock).mockResolvedValue(errorResponse)
 
     render(<SecureVODPlayer {...defaultProps} requiredTier="premium" />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Access Denied')).toBeInTheDocument()
-      expect(screen.getByText('Premium subscription or higher required')).toBeInTheDocument()
+      expect(
+        screen.getByText('Premium subscription or higher required')
+      ).toBeInTheDocument()
       expect(screen.getByText(/PREMIUM.*Required/)).toBeInTheDocument()
     })
   })
@@ -171,16 +185,17 @@ describe('SecureVODPlayer', () => {
   it('shows upgrade button for premium/pro content', async () => {
     const errorResponse = {
       ok: false,
-      json: () => Promise.resolve({
-        error: 'Pro subscription required',
-        code: 'INSUFFICIENT_SUBSCRIPTION_TIER',
-      }),
+      json: () =>
+        Promise.resolve({
+          error: 'Pro subscription required',
+          code: 'INSUFFICIENT_SUBSCRIPTION_TIER',
+        }),
     }
-    
+
     ;(global.fetch as jest.Mock).mockResolvedValue(errorResponse)
 
     render(<SecureVODPlayer {...defaultProps} requiredTier="pro" />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Upgrade Subscription')).toBeInTheDocument()
     })
@@ -189,15 +204,16 @@ describe('SecureVODPlayer', () => {
   it('handles network errors gracefully', async () => {
     const errorResponse = {
       ok: false,
-      json: () => Promise.resolve({
-        error: 'Network error occurred',
-      }),
+      json: () =>
+        Promise.resolve({
+          error: 'Network error occurred',
+        }),
     }
-    
+
     ;(global.fetch as jest.Mock).mockResolvedValue(errorResponse)
 
     render(<SecureVODPlayer {...defaultProps} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Access Denied')).toBeInTheDocument()
       expect(screen.getByText('Network error occurred')).toBeInTheDocument()
@@ -209,8 +225,10 @@ describe('SecureVODPlayer', () => {
     const onPlay = jest.fn()
     const onPause = jest.fn()
 
-    render(<SecureVODPlayer {...defaultProps} onPlay={onPlay} onPause={onPause} />)
-    
+    render(
+      <SecureVODPlayer {...defaultProps} onPlay={onPlay} onPause={onPause} />
+    )
+
     await waitFor(() => {
       expect(screen.getByTestId('hls-player')).toBeInTheDocument()
     })
@@ -232,22 +250,34 @@ describe('SecureVODPlayer', () => {
     }
 
     const { rerender } = render(
-      <SecureVODPlayer {...defaultProps} requiredTier="basic" videoMetadata={videoMetadata} />
+      <SecureVODPlayer
+        {...defaultProps}
+        requiredTier="basic"
+        videoMetadata={videoMetadata}
+      />
     )
-    
+
     await waitFor(() => {
       expect(screen.getByText(/🥉.*BASIC/)).toBeInTheDocument()
     })
 
     rerender(
-      <SecureVODPlayer {...defaultProps} requiredTier="premium" videoMetadata={videoMetadata} />
+      <SecureVODPlayer
+        {...defaultProps}
+        requiredTier="premium"
+        videoMetadata={videoMetadata}
+      />
     )
     await waitFor(() => {
       expect(screen.getByText(/🥈.*PREMIUM/)).toBeInTheDocument()
     })
 
     rerender(
-      <SecureVODPlayer {...defaultProps} requiredTier="pro" videoMetadata={videoMetadata} />
+      <SecureVODPlayer
+        {...defaultProps}
+        requiredTier="pro"
+        videoMetadata={videoMetadata}
+      />
     )
     await waitFor(() => {
       expect(screen.getByText(/🥇.*PRO/)).toBeInTheDocument()
@@ -256,8 +286,10 @@ describe('SecureVODPlayer', () => {
 
   it('applies custom className', () => {
     const customClass = 'custom-secure-player'
-    const { container } = render(<SecureVODPlayer {...defaultProps} className={customClass} />)
-    
+    const { container } = render(
+      <SecureVODPlayer {...defaultProps} className={customClass} />
+    )
+
     expect(container.firstChild).toHaveClass(customClass)
   })
 })

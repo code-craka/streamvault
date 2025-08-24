@@ -8,7 +8,12 @@ const streamService = new StreamService()
 
 // Schema for streaming webhook events
 const webhookEventSchema = z.object({
-  event: z.enum(['stream_started', 'stream_stopped', 'stream_error', 'heartbeat']),
+  event: z.enum([
+    'stream_started',
+    'stream_stopped',
+    'stream_error',
+    'heartbeat',
+  ]),
   streamKey: z.string(),
   clientIp: z.string().optional(),
   userAgent: z.string().optional(),
@@ -37,14 +42,15 @@ export async function POST(request: NextRequest) {
     console.log('Received streaming webhook event:', validatedEvent)
 
     // Get stream by stream key
-    const streamResult = await streamManager.getStreamByKey(validatedEvent.streamKey)
-    
+    const streamResult = await streamManager.getStreamByKey(
+      validatedEvent.streamKey
+    )
+
     if (!streamResult.success || !streamResult.data) {
-      console.warn(`Webhook event for unknown stream key: ${validatedEvent.streamKey}`)
-      return NextResponse.json(
-        { error: 'Stream not found' },
-        { status: 404 }
+      console.warn(
+        `Webhook event for unknown stream key: ${validatedEvent.streamKey}`
       )
+      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
     }
 
     const stream = streamResult.data
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error processing streaming webhook:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid webhook data', details: error.errors },
@@ -96,7 +102,10 @@ export async function POST(request: NextRequest) {
 /**
  * Handle stream started event
  */
-async function handleStreamStarted(streamId: string, event: any): Promise<void> {
+async function handleStreamStarted(
+  streamId: string,
+  event: any
+): Promise<void> {
   try {
     console.log(`Stream ${streamId} started via RTMP`)
 
@@ -126,7 +135,10 @@ async function handleStreamStarted(streamId: string, event: any): Promise<void> 
 /**
  * Handle stream stopped event
  */
-async function handleStreamStopped(streamId: string, event: any): Promise<void> {
+async function handleStreamStopped(
+  streamId: string,
+  event: any
+): Promise<void> {
   try {
     console.log(`Stream ${streamId} stopped via RTMP`)
 
@@ -181,7 +193,10 @@ async function handleStreamError(streamId: string, event: any): Promise<void> {
 /**
  * Handle stream heartbeat event
  */
-async function handleStreamHeartbeat(streamId: string, event: any): Promise<void> {
+async function handleStreamHeartbeat(
+  streamId: string,
+  event: any
+): Promise<void> {
   try {
     const healthData = event.data || {}
 
@@ -218,6 +233,11 @@ export async function GET() {
     service: 'Streaming Webhook Handler',
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    supportedEvents: ['stream_started', 'stream_stopped', 'stream_error', 'heartbeat'],
+    supportedEvents: [
+      'stream_started',
+      'stream_stopped',
+      'stream_error',
+      'heartbeat',
+    ],
   })
 }

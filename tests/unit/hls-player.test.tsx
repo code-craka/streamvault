@@ -43,7 +43,7 @@ describe('HLSPlayer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    
+
     // Mock video element methods
     Object.defineProperty(HTMLVideoElement.prototype, 'play', {
       writable: true,
@@ -57,7 +57,7 @@ describe('HLSPlayer', () => {
       writable: true,
       value: jest.fn().mockReturnValue('probably'), // Support native HLS
     })
-    
+
     // Mock HLS.js static method
     const Hls = require('hls.js')
     Hls.isSupported = jest.fn(() => false) // Use native HLS fallback
@@ -65,7 +65,7 @@ describe('HLSPlayer', () => {
 
   it('renders the video player component', () => {
     render(<HLSPlayer {...defaultProps} />)
-    
+
     // Should render a video element
     const video = document.querySelector('video')
     expect(video).toBeInTheDocument()
@@ -73,26 +73,26 @@ describe('HLSPlayer', () => {
 
   it('shows live indicator for live streams', () => {
     render(<HLSPlayer {...defaultProps} isLive={true} />)
-    
+
     expect(screen.getByText('🔴 LIVE')).toBeInTheDocument()
   })
 
   it('renders player controls', () => {
     render(<HLSPlayer {...defaultProps} />)
-    
+
     // Should have play/pause button
     expect(screen.getByTestId('play-icon')).toBeInTheDocument()
-    
+
     // Should have volume controls
     expect(screen.getByTestId('volume-icon')).toBeInTheDocument()
-    
+
     // Should have fullscreen button
     expect(screen.getByTestId('maximize-icon')).toBeInTheDocument()
   })
 
   it('shows progress bar for VOD content', () => {
     render(<HLSPlayer {...defaultProps} isLive={false} />)
-    
+
     // Progress bar should be present for non-live content (there are multiple sliders, so check for the specific one)
     const sliders = screen.getAllByRole('slider')
     expect(sliders.length).toBeGreaterThan(1) // Should have progress bar + volume slider
@@ -100,7 +100,7 @@ describe('HLSPlayer', () => {
 
   it('hides progress bar for live content', () => {
     render(<HLSPlayer {...defaultProps} isLive={true} />)
-    
+
     // For live content, should only have volume slider, not progress bar
     const sliders = screen.getAllByRole('slider')
     expect(sliders.length).toBe(1) // Should only have volume slider
@@ -108,8 +108,10 @@ describe('HLSPlayer', () => {
 
   it('applies custom className', () => {
     const customClass = 'custom-player-class'
-    const { container } = render(<HLSPlayer {...defaultProps} className={customClass} />)
-    
+    const { container } = render(
+      <HLSPlayer {...defaultProps} className={customClass} />
+    )
+
     expect(container.firstChild).toHaveClass(customClass)
   })
 })

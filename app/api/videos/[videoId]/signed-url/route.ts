@@ -34,7 +34,9 @@ export async function GET(
     const requiredTier = searchParams.get('tier') || 'basic'
 
     // Validate request
-    const { requiredTier: validatedTier } = RequestSchema.parse({ requiredTier })
+    const { requiredTier: validatedTier } = RequestSchema.parse({
+      requiredTier,
+    })
 
     // Generate signed URL
     const result = await signedURLService.generateSignedURL({
@@ -57,9 +59,9 @@ export async function GET(
 
     if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
-          code: error.code 
+          code: error.code,
         },
         { status: error.statusCode }
       )
@@ -112,9 +114,9 @@ export async function POST(
 
     if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
-          code: error.code 
+          code: error.code,
         },
         { status: error.statusCode }
       )

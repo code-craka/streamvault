@@ -55,9 +55,9 @@ export async function POST(
 
     if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
-          code: error.code 
+          code: error.code,
         },
         { status: error.statusCode }
       )
@@ -87,7 +87,7 @@ export async function GET(
     }
 
     const searchParams = request.nextUrl.searchParams
-    
+
     const sessionId = searchParams.get('sessionId')
     const refreshToken = searchParams.get('refreshToken')
 
@@ -119,9 +119,9 @@ export async function GET(
 
     if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        { 
+        {
           error: error.message,
-          code: error.code 
+          code: error.code,
         },
         { status: error.statusCode }
       )

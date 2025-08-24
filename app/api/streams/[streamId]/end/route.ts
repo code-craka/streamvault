@@ -13,20 +13,21 @@ export async function POST(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // End stream using StreamManager
     const result = await streamManager.endStream(streamId, userId)
 
     if (!result.success) {
-      const statusCode = 
-        result.code === 'STREAM_NOT_FOUND' ? 404 :
-        result.code === 'UNAUTHORIZED' ? 403 :
-        result.code === 'STREAM_NOT_ACTIVE' ? 409 : 400
+      const statusCode =
+        result.code === 'STREAM_NOT_FOUND'
+          ? 404
+          : result.code === 'UNAUTHORIZED'
+            ? 403
+            : result.code === 'STREAM_NOT_ACTIVE'
+              ? 409
+              : 400
 
       return NextResponse.json(
         { error: result.error, code: result.code },

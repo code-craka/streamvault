@@ -104,15 +104,11 @@ Automatic lifecycle management:
 import { fileUploadService } from '@/lib/storage'
 
 // Upload a video file
-const result = await fileUploadService.uploadVideo(
-  videoBuffer,
-  'video-123',
-  {
-    title: 'My Video',
-    duration: '300',
-    resolution: '1920x1080',
-  }
-)
+const result = await fileUploadService.uploadVideo(videoBuffer, 'video-123', {
+  title: 'My Video',
+  duration: '300',
+  resolution: '1920x1080',
+})
 
 console.log(`Video uploaded: ${result.filename}`)
 ```
@@ -132,10 +128,14 @@ const thumbnailResult = await fileUploadService.uploadThumbnail(
 
 ```typescript
 // Check if file exists
-const exists = await fileUploadService.fileExists('videos/2025-08-23/video-123.mp4')
+const exists = await fileUploadService.fileExists(
+  'videos/2025-08-23/video-123.mp4'
+)
 
 // Get file metadata
-const metadata = await fileUploadService.getFileMetadata('videos/2025-08-23/video-123.mp4')
+const metadata = await fileUploadService.getFileMetadata(
+  'videos/2025-08-23/video-123.mp4'
+)
 
 // List files in folder
 const files = await fileUploadService.listFiles('videos/2025-08-23', 10)

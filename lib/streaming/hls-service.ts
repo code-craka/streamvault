@@ -45,7 +45,10 @@ export class HLSService {
       console.log(`Initializing HLS delivery for stream ${stream.id}`)
 
       // Generate master playlist
-      const masterPlaylist = this.generateMasterPlaylist(stream.id, stream.settings.quality)
+      const masterPlaylist = this.generateMasterPlaylist(
+        stream.id,
+        stream.settings.quality
+      )
       this.playlists.set(`${stream.id}/master.m3u8`, {
         type: 'master',
         content: masterPlaylist,
@@ -76,7 +79,10 @@ export class HLSService {
 
       console.log(`HLS delivery initialized for stream ${stream.id}`)
     } catch (error) {
-      console.error(`Failed to initialize HLS delivery for stream ${stream.id}:`, error)
+      console.error(
+        `Failed to initialize HLS delivery for stream ${stream.id}:`,
+        error
+      )
       throw error
     }
   }
@@ -91,7 +97,7 @@ export class HLSService {
       // Stop transcoding
       const activeJobs = transcodingService.getActiveJobs()
       const streamJob = activeJobs.find(job => job.streamId === streamId)
-      
+
       if (streamJob) {
         await transcodingService.stopTranscoding(streamJob.id)
       }
@@ -109,7 +115,10 @@ export class HLSService {
 
       console.log(`HLS delivery stopped for stream ${streamId}`)
     } catch (error) {
-      console.error(`Failed to stop HLS delivery for stream ${streamId}:`, error)
+      console.error(
+        `Failed to stop HLS delivery for stream ${streamId}:`,
+        error
+      )
       throw error
     }
   }
@@ -157,12 +166,15 @@ export class HLSService {
   /**
    * Generate master HLS playlist
    */
-  private generateMasterPlaylist(streamId: string, qualities: VideoQuality[]): string {
+  private generateMasterPlaylist(
+    streamId: string,
+    qualities: VideoQuality[]
+  ): string {
     const lines = ['#EXTM3U', '#EXT-X-VERSION:6']
 
     for (const quality of qualities) {
       const settings = this.getQualitySettings(quality)
-      
+
       lines.push(
         `#EXT-X-STREAM-INF:BANDWIDTH=${settings.bitrate * 1000},RESOLUTION=${settings.resolution},FRAME-RATE=${settings.frameRate}`,
         `${quality}/playlist.m3u8`
@@ -176,8 +188,8 @@ export class HLSService {
    * Generate media playlist for a specific quality
    */
   generateMediaPlaylist(
-    streamId: string, 
-    quality: VideoQuality, 
+    streamId: string,
+    quality: VideoQuality,
     segments: HLSSegment[]
   ): string {
     const lines = [
@@ -189,10 +201,7 @@ export class HLSService {
 
     // Add segments
     for (const segment of segments) {
-      lines.push(
-        `#EXTINF:${segment.duration.toFixed(3)},`,
-        segment.filename
-      )
+      lines.push(`#EXTINF:${segment.duration.toFixed(3)},`, segment.filename)
     }
 
     return lines.join('\n')
@@ -213,7 +222,11 @@ export class HLSService {
     // In a real implementation, this would maintain a sliding window of segments
     const segments = [newSegment] // This would be a maintained list of recent segments
 
-    const playlistContent = this.generateMediaPlaylist(streamId, quality, segments)
+    const playlistContent = this.generateMediaPlaylist(
+      streamId,
+      quality,
+      segments
+    )
 
     this.playlists.set(playlistKey, {
       type: 'media',
@@ -223,11 +236,16 @@ export class HLSService {
 
     // Update health metrics
     this.updateStreamHealth(streamId, {
-      segments: this.streamHealth.get(streamId)?.segments.map(s => 
-        s.quality === quality 
-          ? { ...s, segmentCount: s.segmentCount + 1, lastSegment: new Date() }
-          : s
-      ) || [],
+      segments:
+        this.streamHealth.get(streamId)?.segments.map(s =>
+          s.quality === quality
+            ? {
+                ...s,
+                segmentCount: s.segmentCount + 1,
+                lastSegment: new Date(),
+              }
+            : s
+        ) || [],
     })
   }
 
@@ -281,8 +299,10 @@ export class HLSService {
       const timeSinceLastUpdate = now - health.lastUpdate.getTime()
 
       if (timeSinceLastUpdate > healthTimeout) {
-        console.warn(`Stream ${streamId} appears to be unhealthy - no updates for ${timeSinceLastUpdate}ms`)
-        
+        console.warn(
+          `Stream ${streamId} appears to be unhealthy - no updates for ${timeSinceLastUpdate}ms`
+        )
+
         // Mark stream as offline
         health.isOnline = false
         this.streamHealth.set(streamId, health)
@@ -300,14 +320,16 @@ export class HLSService {
     masterPlaylist: string
     qualities: { quality: VideoQuality; url: string }[]
   } {
-    const hlsEndpoint = process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
+    const hlsEndpoint =
+      process.env.NEXT_PUBLIC_HLS_ENDPOINT || 'https://cdn.streamvault.app/hls'
     const masterPlaylist = `${hlsEndpoint}/${streamId}/master.m3u8`
 
     const health = this.streamHealth.get(streamId)
-    const qualities = health?.segments.map(s => ({
-      quality: s.quality,
-      url: `${hlsEndpoint}/${streamId}/${s.quality}/playlist.m3u8`,
-    })) || []
+    const qualities =
+      health?.segments.map(s => ({
+        quality: s.quality,
+        url: `${hlsEndpoint}/${streamId}/${s.quality}/playlist.m3u8`,
+      })) || []
 
     return {
       masterPlaylist,
@@ -325,7 +347,7 @@ export class HLSService {
     const now = Date.now()
     const maxAge = 60 * 1000 // 1 minute
 
-    return health.isOnline && (now - health.lastUpdate.getTime()) < maxAge
+    return health.isOnline && now - health.lastUpdate.getTime() < maxAge
   }
 
   /**
@@ -341,7 +363,10 @@ export class HLSService {
     const health = this.streamHealth.get(streamId)
     if (!health) return null
 
-    const totalSegments = health.segments.reduce((sum, s) => sum + s.segmentCount, 0)
+    const totalSegments = health.segments.reduce(
+      (sum, s) => sum + s.segmentCount,
+      0
+    )
     const uptime = Date.now() - health.lastUpdate.getTime()
 
     return {

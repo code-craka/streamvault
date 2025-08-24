@@ -15,19 +15,13 @@ export async function GET(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Verify stream exists and user has access
     const stream = await streamService.getById(streamId)
     if (!stream.success || !stream.data) {
-      return NextResponse.json(
-        { error: 'Stream not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
     }
 
     // Only stream owner can access analytics

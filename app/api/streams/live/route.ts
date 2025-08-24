@@ -36,22 +36,28 @@ export async function GET(request: NextRequest) {
         // Only include public streams
         { field: 'settings.isPrivate', operator: '==', value: false },
         // Add category filter if specified
-        ...(validatedQuery.category ? [
-          { field: 'category', operator: '==' as const, value: validatedQuery.category }
-        ] : []),
+        ...(validatedQuery.category
+          ? [
+              {
+                field: 'category',
+                operator: '==' as const,
+                value: validatedQuery.category,
+              },
+            ]
+          : []),
       ],
       orderBy: [
-        { field: validatedQuery.orderBy, direction: validatedQuery.orderDirection },
+        {
+          field: validatedQuery.orderBy,
+          direction: validatedQuery.orderDirection,
+        },
         // Secondary sort by startedAt for consistent ordering
         { field: 'startedAt', direction: 'desc' },
       ],
     })
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     // Filter out sensitive information for public API
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching live streams:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: error.errors },

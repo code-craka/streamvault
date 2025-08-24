@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
 
     // Check if user has admin permissions
     const user = await (await clerkClient()).users.getUser(userId)
-    const userRole = (user.publicMetadata?.role as string) || 'viewer'; const hasPermission = checkUserRole(userRole as any, 'admin')
+    const userRole = (user.publicMetadata?.role as string) || 'viewer'
+    const hasPermission = checkUserRole(userRole as any, 'admin')
 
     if (!hasPermission) {
       return NextResponse.json(
@@ -36,7 +37,6 @@ export async function POST(request: NextRequest) {
         message: `Successfully cleaned up ${cleanedCount} expired sessions`,
       },
     })
-
   } catch (error) {
     console.error('Session cleanup error:', error)
 
@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
 
     // Check if user has admin permissions
     const user = await (await clerkClient()).users.getUser(userId)
-    const userRole = (user.publicMetadata?.role as string) || 'viewer'; const hasPermission = checkUserRole(userRole as any, 'admin')
+    const userRole = (user.publicMetadata?.role as string) || 'viewer'
+    const hasPermission = checkUserRole(userRole as any, 'admin')
 
     if (!hasPermission) {
       return NextResponse.json(
@@ -77,7 +78,6 @@ export async function GET(request: NextRequest) {
         lastCleanup: new Date().toISOString(),
       },
     })
-
   } catch (error) {
     console.error('Session cleanup status error:', error)
 

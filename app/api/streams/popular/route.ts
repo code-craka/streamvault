@@ -28,17 +28,16 @@ export async function GET(request: NextRequest) {
     const result = await streamService.getPopularStreams(validatedQuery.limit)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     // Filter by category if specified and filter out private streams
     let streams = result.data!.filter(stream => !stream.settings.isPrivate)
 
     if (validatedQuery.category) {
-      streams = streams.filter(stream => stream.category === validatedQuery.category)
+      streams = streams.filter(
+        stream => stream.category === validatedQuery.category
+      )
     }
 
     // Filter out sensitive information for public API
@@ -78,7 +77,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching popular streams:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: error.errors },

@@ -26,19 +26,13 @@ export async function GET(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Verify stream exists and user has access
     const stream = await streamService.getById(streamId)
     if (!stream.success || !stream.data) {
-      return NextResponse.json(
-        { error: 'Stream not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
     }
 
     // Check if user has access (owner or public stream)
@@ -46,10 +40,7 @@ export async function GET(
     const isPublic = !stream.data.settings.isPrivate
 
     if (!isOwner && !isPublic) {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     // Get health metrics
@@ -92,10 +83,7 @@ export async function POST(
     const { streamId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -106,10 +94,7 @@ export async function POST(
     // Verify stream ownership
     const stream = await streamService.getById(streamId)
     if (!stream.success || !stream.data) {
-      return NextResponse.json(
-        { error: 'Stream not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Stream not found' }, { status: 404 })
     }
 
     if (stream.data.userId !== userId) {
@@ -143,7 +128,7 @@ export async function POST(
     })
   } catch (error) {
     console.error('Error updating stream health:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid health metrics data', details: error.errors },

@@ -474,6 +474,9 @@ export function getEffectivePermissions(user: StreamVaultUser): Permission[] {
 /**
  * Check user role (alias for hasRole for backward compatibility)
  */
-export function checkUserRole(userRole: UserRole, requiredRole: UserRole): boolean {
+export function checkUserRole(
+  userRole: UserRole,
+  requiredRole: UserRole
+): boolean {
   return hasRole(userRole, requiredRole)
 }

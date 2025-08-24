@@ -4,7 +4,16 @@ import { z } from 'zod'
 import type { SubscriptionTier, UserMetadata } from '@/types/auth'
 import { SUBSCRIPTION_HIERARCHY } from '@/types/auth'
 import { db } from '@/lib/firebase/firestore'
-import { collection, addDoc, query, where, getDocs, orderBy, limit, updateDoc } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  updateDoc,
+} from 'firebase/firestore'
 
 // Validation schemas
 const VideoAccessRequestSchema = z.object({
@@ -100,7 +109,9 @@ export class SignedURLService {
   /**
    * Generate a signed URL for secure video access
    */
-  async generateSignedURL(request: VideoAccessRequest): Promise<SignedURLResult> {
+  async generateSignedURL(
+    request: VideoAccessRequest
+  ): Promise<SignedURLResult> {
     // Validate input
     const validatedRequest = VideoAccessRequestSchema.parse(request)
     const { videoId, userId, requiredTier } = validatedRequest
@@ -113,13 +124,19 @@ export class SignedURLService {
       await this.validateVideoExists(videoId)
 
       // Create or update playback session
-      const session = await this.createPlaybackSession(videoId, userId, requiredTier)
+      const session = await this.createPlaybackSession(
+        videoId,
+        userId,
+        requiredTier
+      )
 
       // Generate signed URL
       const fileName = `videos/${videoId}.mp4`
       const file = bucket.file(fileName)
 
-      const expiresAt = new Date(Date.now() + this.URL_EXPIRY_MINUTES * 60 * 1000)
+      const expiresAt = new Date(
+        Date.now() + this.URL_EXPIRY_MINUTES * 60 * 1000
+      )
 
       const [signedUrl] = await file.getSignedUrl({
         version: 'v4',
@@ -214,7 +231,9 @@ export class SignedURLService {
       const fileName = `videos/${session.videoId}.mp4`
       const file = bucket.file(fileName)
 
-      const expiresAt = new Date(Date.now() + this.URL_EXPIRY_MINUTES * 60 * 1000)
+      const expiresAt = new Date(
+        Date.now() + this.URL_EXPIRY_MINUTES * 60 * 1000
+      )
 
       const [signedUrl] = await file.getSignedUrl({
         version: 'v4',
@@ -281,7 +300,10 @@ export class SignedURLService {
       const subscriptionStatus = metadata.subscriptionStatus
 
       // Check if subscription is active
-      if (subscriptionStatus !== 'active' && subscriptionStatus !== 'trialing') {
+      if (
+        subscriptionStatus !== 'active' &&
+        subscriptionStatus !== 'trialing'
+      ) {
         throw new VideoAccessError(
           'Active subscription required',
           'SUBSCRIPTION_INACTIVE',
@@ -335,11 +357,7 @@ export class SignedURLService {
       const [exists] = await file.exists()
 
       if (!exists) {
-        throw new VideoAccessError(
-          'Video not found',
-          'VIDEO_NOT_FOUND',
-          404
-        )
+        throw new VideoAccessError('Video not found', 'VIDEO_NOT_FOUND', 404)
       }
     } catch (error) {
       if (error instanceof VideoAccessError) {
@@ -363,7 +381,9 @@ export class SignedURLService {
     requiredTier: SubscriptionTier
   ): Promise<PlaybackSession> {
     const now = new Date()
-    const expiresAt = new Date(now.getTime() + this.SESSION_EXPIRY_HOURS * 60 * 60 * 1000)
+    const expiresAt = new Date(
+      now.getTime() + this.SESSION_EXPIRY_HOURS * 60 * 60 * 1000
+    )
 
     const sessionData = {
       videoId,
@@ -377,7 +397,10 @@ export class SignedURLService {
     }
 
     try {
-      const docRef = await addDoc(collection(db, 'playbackSessions'), sessionData)
+      const docRef = await addDoc(
+        collection(db, 'playbackSessions'),
+        sessionData
+      )
 
       return {
         id: docRef.id,
@@ -395,7 +418,9 @@ export class SignedURLService {
   /**
    * Get playback session by ID
    */
-  private async getPlaybackSession(sessionId: string): Promise<PlaybackSession | null> {
+  private async getPlaybackSession(
+    sessionId: string
+  ): Promise<PlaybackSession | null> {
     try {
       const sessionsRef = collection(db, 'playbackSessions')
       const q = query(sessionsRef, where('__name__', '==', sessionId))
@@ -476,7 +501,10 @@ export class SignedURLService {
   /**
    * Generate refresh token for session
    */
-  private async generateRefreshToken(sessionId: string, userId: string): Promise<string> {
+  private async generateRefreshToken(
+    sessionId: string,
+    userId: string
+  ): Promise<string> {
     // In a real implementation, you would generate a secure JWT or similar token
     // For now, we'll create a simple token
     const payload = {
@@ -532,7 +560,9 @@ export class SignedURLService {
   /**
    * Get video access analytics
    */
-  async getVideoAccessAnalytics(videoId: string): Promise<VideoAccessAnalytics> {
+  async getVideoAccessAnalytics(
+    videoId: string
+  ): Promise<VideoAccessAnalytics> {
     try {
       const logsRef = collection(db, 'videoAccessLogs')
       const q = query(
@@ -553,12 +583,15 @@ export class SignedURLService {
       // Calculate analytics
       const totalAccesses = logs.length
       const uniqueUsers = new Set(logs.map(log => log.userId)).size
-      const accessesByTier = logs.reduce((acc, log) => {
-        if (log.userTier) {
-          acc[log.userTier] = (acc[log.userTier] || 0) + 1
-        }
-        return acc
-      }, {} as Record<SubscriptionTier, number>)
+      const accessesByTier = logs.reduce(
+        (acc, log) => {
+          if (log.userTier) {
+            acc[log.userTier] = (acc[log.userTier] || 0) + 1
+          }
+          return acc
+        },
+        {} as Record<SubscriptionTier, number>
+      )
 
       const lastAccessedAt = logs.length > 0 ? logs[0].accessedAt : new Date()
 
@@ -630,7 +663,9 @@ export class SignedURLService {
         await updateDoc(doc.ref, { expired: true })
       }
 
-      console.log(`Revoked access for user ${userId}${videoId ? ` on video ${videoId}` : ''}`)
+      console.log(
+        `Revoked access for user ${userId}${videoId ? ` on video ${videoId}` : ''}`
+      )
     } catch (error) {
       console.error('Failed to revoke access:', error)
       throw new VideoAccessError(

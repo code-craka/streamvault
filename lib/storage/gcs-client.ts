@@ -73,7 +73,7 @@ export async function validateBucketAccess(): Promise<boolean> {
     // Test bucket access by listing files (limited to 1)
     const [files] = await bucket.getFiles({ maxResults: 1 })
     console.log(`✅ Bucket access validated. Found ${files.length} files.`)
-    
+
     return true
   } catch (error) {
     console.error('❌ Bucket access validation failed:', error)
@@ -85,7 +85,7 @@ export async function validateBucketAccess(): Promise<boolean> {
 export async function initializeBucket(): Promise<void> {
   try {
     const [exists] = await bucket.exists()
-    
+
     if (!exists) {
       console.log(`Creating bucket: ${BUCKET_CONFIG.name}`)
       await storage.createBucket(BUCKET_CONFIG.name, {

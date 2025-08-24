@@ -1,4 +1,7 @@
-import { SignedURLService, VideoAccessError } from '@/lib/storage/signed-url-service'
+import {
+  SignedURLService,
+  VideoAccessError,
+} from '@/lib/storage/signed-url-service'
 
 // Mock dependencies
 jest.mock('@clerk/nextjs/server', () => ({
@@ -39,7 +42,7 @@ describe('SignedURLService', () => {
 
   beforeEach(() => {
     signedURLService = new SignedURLService()
-    
+
     // Mock Clerk user
     mockClerkUser = {
       id: 'user_123',
@@ -52,7 +55,9 @@ describe('SignedURLService', () => {
     // Mock GCS file
     mockGCSFile = {
       exists: jest.fn().mockResolvedValue([true]),
-      getSignedUrl: jest.fn().mockResolvedValue(['https://signed-url.example.com']),
+      getSignedUrl: jest
+        .fn()
+        .mockResolvedValue(['https://signed-url.example.com']),
     }
 
     // Setup mocks
@@ -94,9 +99,9 @@ describe('SignedURLService', () => {
         requiredTier: 'basic' as const,
       }
 
-      await expect(signedURLService.generateSignedURL(request))
-        .rejects
-        .toThrow(VideoAccessError)
+      await expect(signedURLService.generateSignedURL(request)).rejects.toThrow(
+        VideoAccessError
+      )
     })
 
     it('should throw error for insufficient subscription tier', async () => {
@@ -108,9 +113,9 @@ describe('SignedURLService', () => {
         requiredTier: 'pro' as const,
       }
 
-      await expect(signedURLService.generateSignedURL(request))
-        .rejects
-        .toThrow(VideoAccessError)
+      await expect(signedURLService.generateSignedURL(request)).rejects.toThrow(
+        VideoAccessError
+      )
     })
 
     it('should throw error for non-existent video', async () => {
@@ -122,9 +127,9 @@ describe('SignedURLService', () => {
         requiredTier: 'basic' as const,
       }
 
-      await expect(signedURLService.generateSignedURL(request))
-        .rejects
-        .toThrow(VideoAccessError)
+      await expect(signedURLService.generateSignedURL(request)).rejects.toThrow(
+        VideoAccessError
+      )
     })
 
     it('should validate input parameters', async () => {
@@ -134,9 +139,9 @@ describe('SignedURLService', () => {
         requiredTier: 'basic' as const,
       }
 
-      await expect(signedURLService.generateSignedURL(invalidRequest))
-        .rejects
-        .toThrow()
+      await expect(
+        signedURLService.generateSignedURL(invalidRequest)
+      ).rejects.toThrow()
     })
   })
 
@@ -159,25 +164,29 @@ describe('SignedURLService', () => {
       const mockGetDocs = await import('firebase/firestore')
       ;(mockGetDocs.getDocs as jest.Mock).mockResolvedValue({
         empty: false,
-        docs: [{
-          id: 'session_123',
-          data: () => ({
-            ...mockSession,
-            startedAt: { toDate: () => mockSession.startedAt },
-            expiresAt: { toDate: () => mockSession.expiresAt },
-            lastRefreshedAt: { toDate: () => mockSession.lastRefreshedAt },
-          }),
-          ref: {
-            update: jest.fn(),
+        docs: [
+          {
+            id: 'session_123',
+            data: () => ({
+              ...mockSession,
+              startedAt: { toDate: () => mockSession.startedAt },
+              expiresAt: { toDate: () => mockSession.expiresAt },
+              lastRefreshedAt: { toDate: () => mockSession.lastRefreshedAt },
+            }),
+            ref: {
+              update: jest.fn(),
+            },
           },
-        }],
+        ],
       })
 
-      const refreshToken = Buffer.from(JSON.stringify({
-        sessionId: 'session_123',
-        userId: 'user_123',
-        timestamp: Date.now(),
-      })).toString('base64')
+      const refreshToken = Buffer.from(
+        JSON.stringify({
+          sessionId: 'session_123',
+          userId: 'user_123',
+          timestamp: Date.now(),
+        })
+      ).toString('base64')
 
       const result = await signedURLService.refreshSignedURL(
         'session_123',
@@ -194,11 +203,13 @@ describe('SignedURLService', () => {
     it('should throw error for invalid refresh token', async () => {
       const invalidToken = 'invalid_token'
 
-      await expect(signedURLService.refreshSignedURL(
-        'session_123',
-        'user_123',
-        invalidToken
-      )).rejects.toThrow(VideoAccessError)
+      await expect(
+        signedURLService.refreshSignedURL(
+          'session_123',
+          'user_123',
+          invalidToken
+        )
+      ).rejects.toThrow(VideoAccessError)
     })
 
     it('should throw error for expired session', async () => {
@@ -206,32 +217,44 @@ describe('SignedURLService', () => {
       const mockGetDocs = await import('firebase/firestore')
       ;(mockGetDocs.getDocs as jest.Mock).mockResolvedValue({
         empty: false,
-        docs: [{
-          id: 'session_123',
-          data: () => ({
-            videoId: 'video_123',
-            userId: 'user_123',
-            requiredTier: 'basic',
-            startedAt: { toDate: () => new Date(Date.now() - 25 * 60 * 60 * 1000) },
-            expiresAt: { toDate: () => new Date(Date.now() - 1 * 60 * 60 * 1000) },
-            lastRefreshedAt: { toDate: () => new Date(Date.now() - 1 * 60 * 60 * 1000) },
-            accessCount: 1,
-            expired: true,
-          }),
-        }],
+        docs: [
+          {
+            id: 'session_123',
+            data: () => ({
+              videoId: 'video_123',
+              userId: 'user_123',
+              requiredTier: 'basic',
+              startedAt: {
+                toDate: () => new Date(Date.now() - 25 * 60 * 60 * 1000),
+              },
+              expiresAt: {
+                toDate: () => new Date(Date.now() - 1 * 60 * 60 * 1000),
+              },
+              lastRefreshedAt: {
+                toDate: () => new Date(Date.now() - 1 * 60 * 60 * 1000),
+              },
+              accessCount: 1,
+              expired: true,
+            }),
+          },
+        ],
       })
 
-      const refreshToken = Buffer.from(JSON.stringify({
-        sessionId: 'session_123',
-        userId: 'user_123',
-        timestamp: Date.now(),
-      })).toString('base64')
+      const refreshToken = Buffer.from(
+        JSON.stringify({
+          sessionId: 'session_123',
+          userId: 'user_123',
+          timestamp: Date.now(),
+        })
+      ).toString('base64')
 
-      await expect(signedURLService.refreshSignedURL(
-        'session_123',
-        'user_123',
-        refreshToken
-      )).rejects.toThrow(VideoAccessError)
+      await expect(
+        signedURLService.refreshSignedURL(
+          'session_123',
+          'user_123',
+          refreshToken
+        )
+      ).rejects.toThrow(VideoAccessError)
     })
   })
 
@@ -264,7 +287,8 @@ describe('SignedURLService', () => {
         ],
       })
 
-      const analytics = await signedURLService.getVideoAccessAnalytics('video_123')
+      const analytics =
+        await signedURLService.getVideoAccessAnalytics('video_123')
 
       expect(analytics).toHaveProperty('videoId', 'video_123')
       expect(analytics).toHaveProperty('totalAccesses', 2)
@@ -280,7 +304,7 @@ describe('SignedURLService', () => {
       // Mock Firestore query for expired sessions
       const mockGetDocs = await import('firebase/firestore')
       const mockUpdate = jest.fn()
-      
+
       ;(mockGetDocs.getDocs as jest.Mock).mockResolvedValue({
         docs: [
           {
@@ -307,7 +331,7 @@ describe('SignedURLService', () => {
       // Mock Firestore query for user sessions
       const mockGetDocs = await import('firebase/firestore')
       const mockUpdate = jest.fn()
-      
+
       ;(mockGetDocs.getDocs as jest.Mock).mockResolvedValue({
         docs: [
           {
@@ -326,7 +350,7 @@ describe('SignedURLService', () => {
       // Mock Firestore query for specific user/video sessions
       const mockGetDocs = await import('firebase/firestore')
       const mockUpdate = jest.fn()
-      
+
       ;(mockGetDocs.getDocs as jest.Mock).mockResolvedValue({
         docs: [
           {
@@ -384,9 +408,9 @@ describe('SignedURLService', () => {
         requiredTier: 'pro' as const,
       }
 
-      await expect(signedURLService.generateSignedURL(request))
-        .rejects
-        .toThrow(VideoAccessError)
+      await expect(signedURLService.generateSignedURL(request)).rejects.toThrow(
+        VideoAccessError
+      )
     })
   })
 })

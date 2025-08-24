@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST as generateSignedURL, GET as getSignedURL } from '@/app/api/videos/[videoId]/signed-url/route'
+import {
+  POST as generateSignedURL,
+  GET as getSignedURL,
+} from '@/app/api/videos/[videoId]/signed-url/route'
 import { POST as refreshSignedURL } from '@/app/api/videos/[videoId]/refresh-url/route'
 import { GET as getAnalytics } from '@/app/api/videos/[videoId]/analytics/route'
 import { POST as cleanupSessions } from '@/app/api/videos/sessions/cleanup/route'
@@ -23,7 +26,11 @@ vi.mock('@/lib/storage/signed-url-service', () => ({
     cleanupExpiredSessions: vi.fn(),
   },
   VideoAccessError: class VideoAccessError extends Error {
-    constructor(message: string, public code: string, public statusCode: number = 403) {
+    constructor(
+      message: string,
+      public code: string,
+      public statusCode: number = 403
+    ) {
       super(message)
       this.name = 'VideoAccessError'
     }
@@ -36,9 +43,15 @@ vi.mock('@/lib/auth/permissions', () => ({
 
 describe('Signed URL API Routes', () => {
   const mockAuth = vi.mocked(await import('@clerk/nextjs/server')).auth
-  const mockClerkClient = vi.mocked(await import('@clerk/nextjs/server')).clerkClient
-  const mockSignedURLService = vi.mocked(await import('@/lib/storage/signed-url-service')).signedURLService
-  const mockCheckUserRole = vi.mocked(await import('@/lib/auth/permissions')).checkUserRole
+  const mockClerkClient = vi.mocked(
+    await import('@clerk/nextjs/server')
+  ).clerkClient
+  const mockSignedURLService = vi.mocked(
+    await import('@/lib/storage/signed-url-service')
+  ).signedURLService
+  const mockCheckUserRole = vi.mocked(
+    await import('@/lib/auth/permissions')
+  ).checkUserRole
 
   beforeEach(() => {
     // Reset mocks
@@ -72,13 +85,18 @@ describe('Signed URL API Routes', () => {
 
       mockSignedURLService.generateSignedURL.mockResolvedValue(mockResult)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url', {
-        method: 'POST',
-        body: JSON.stringify({ requiredTier: 'basic' }),
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({ requiredTier: 'basic' }),
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await generateSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await generateSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -92,13 +110,18 @@ describe('Signed URL API Routes', () => {
     it('should return 401 for unauthenticated user', async () => {
       mockAuth.mockReturnValue({ userId: null })
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url', {
-        method: 'POST',
-        body: JSON.stringify({ requiredTier: 'basic' }),
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({ requiredTier: 'basic' }),
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await generateSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await generateSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -106,13 +129,18 @@ describe('Signed URL API Routes', () => {
     })
 
     it('should return 400 for missing video ID', async () => {
-      const request = new NextRequest('http://localhost:3000/api/videos//signed-url', {
-        method: 'POST',
-        body: JSON.stringify({ requiredTier: 'basic' }),
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos//signed-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({ requiredTier: 'basic' }),
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await generateSignedURL(request, { params: { videoId: '' } })
+      const response = await generateSignedURL(request, {
+        params: { videoId: '' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -120,18 +148,29 @@ describe('Signed URL API Routes', () => {
     })
 
     it('should handle VideoAccessError', async () => {
-      const { VideoAccessError } = await import('@/lib/storage/signed-url-service')
+      const { VideoAccessError } = await import(
+        '@/lib/storage/signed-url-service'
+      )
       mockSignedURLService.generateSignedURL.mockRejectedValue(
-        new VideoAccessError('Insufficient subscription tier', 'INSUFFICIENT_SUBSCRIPTION_TIER', 403)
+        new VideoAccessError(
+          'Insufficient subscription tier',
+          'INSUFFICIENT_SUBSCRIPTION_TIER',
+          403
+        )
       )
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url', {
-        method: 'POST',
-        body: JSON.stringify({ requiredTier: 'pro' }),
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({ requiredTier: 'pro' }),
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await generateSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await generateSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -151,11 +190,16 @@ describe('Signed URL API Routes', () => {
 
       mockSignedURLService.generateSignedURL.mockResolvedValue(mockResult)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url?tier=premium', {
-        method: 'GET',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url?tier=premium',
+        {
+          method: 'GET',
+        }
+      )
 
-      const response = await getSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await getSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -177,11 +221,16 @@ describe('Signed URL API Routes', () => {
 
       mockSignedURLService.generateSignedURL.mockResolvedValue(mockResult)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url', {
-        method: 'GET',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url',
+        {
+          method: 'GET',
+        }
+      )
 
-      const response = await getSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await getSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
 
       expect(mockSignedURLService.generateSignedURL).toHaveBeenCalledWith({
         videoId: 'video_123',
@@ -191,11 +240,16 @@ describe('Signed URL API Routes', () => {
     })
 
     it('should return 400 for invalid tier parameter', async () => {
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/signed-url?tier=invalid', {
-        method: 'GET',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/signed-url?tier=invalid',
+        {
+          method: 'GET',
+        }
+      )
 
-      const response = await getSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await getSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -214,16 +268,21 @@ describe('Signed URL API Routes', () => {
 
       mockSignedURLService.refreshSignedURL.mockResolvedValue(mockResult)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/refresh-url', {
-        method: 'POST',
-        body: JSON.stringify({
-          sessionId: 'session_123',
-          refreshToken: 'refresh_token_123',
-        }),
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/refresh-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            sessionId: 'session_123',
+            refreshToken: 'refresh_token_123',
+          }),
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await refreshSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await refreshSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -237,13 +296,18 @@ describe('Signed URL API Routes', () => {
     })
 
     it('should return 400 for missing session ID or refresh token', async () => {
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/refresh-url', {
-        method: 'POST',
-        body: JSON.stringify({ sessionId: 'session_123' }), // Missing refreshToken
-        headers: { 'content-type': 'application/json' },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/refresh-url',
+        {
+          method: 'POST',
+          body: JSON.stringify({ sessionId: 'session_123' }), // Missing refreshToken
+          headers: { 'content-type': 'application/json' },
+        }
+      )
 
-      const response = await refreshSignedURL(request, { params: { videoId: 'video_123' } })
+      const response = await refreshSignedURL(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -266,13 +330,20 @@ describe('Signed URL API Routes', () => {
         lastAccessedAt: new Date(),
       }
 
-      mockSignedURLService.getVideoAccessAnalytics.mockResolvedValue(mockAnalytics)
+      mockSignedURLService.getVideoAccessAnalytics.mockResolvedValue(
+        mockAnalytics
+      )
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/analytics', {
-        method: 'GET',
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/analytics',
+        {
+          method: 'GET',
+        }
+      )
+
+      const response = await getAnalytics(request, {
+        params: { videoId: 'video_123' },
       })
-
-      const response = await getAnalytics(request, { params: { videoId: 'video_123' } })
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -283,11 +354,16 @@ describe('Signed URL API Routes', () => {
     it('should return 403 for unauthorized user', async () => {
       mockCheckUserRole.mockReturnValue(false)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/video_123/analytics', {
-        method: 'GET',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/video_123/analytics',
+        {
+          method: 'GET',
+        }
+      )
 
-      const response = await getAnalytics(request, { params: { videoId: 'video_123' } })
+      const response = await getAnalytics(request, {
+        params: { videoId: 'video_123' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -299,9 +375,12 @@ describe('Signed URL API Routes', () => {
     it('should cleanup expired sessions for admin user', async () => {
       mockSignedURLService.cleanupExpiredSessions.mockResolvedValue(5)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/sessions/cleanup', {
-        method: 'POST',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/sessions/cleanup',
+        {
+          method: 'POST',
+        }
+      )
 
       const response = await cleanupSessions(request)
       const data = await response.json()
@@ -309,7 +388,9 @@ describe('Signed URL API Routes', () => {
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
       expect(data.data.cleanedSessions).toBe(5)
-      expect(data.data.message).toBe('Successfully cleaned up 5 expired sessions')
+      expect(data.data.message).toBe(
+        'Successfully cleaned up 5 expired sessions'
+      )
     })
 
     it('should return 403 for non-admin user', async () => {
@@ -319,9 +400,12 @@ describe('Signed URL API Routes', () => {
       } as any)
       mockCheckUserRole.mockReturnValue(false)
 
-      const request = new NextRequest('http://localhost:3000/api/videos/sessions/cleanup', {
-        method: 'POST',
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/videos/sessions/cleanup',
+        {
+          method: 'POST',
+        }
+      )
 
       const response = await cleanupSessions(request)
       const data = await response.json()
