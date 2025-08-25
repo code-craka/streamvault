@@ -227,6 +227,7 @@ The configuration system validates:
 - **Secret strength** meets requirements
 - **Environment-specific** requirements
 - **Security best practices**
+- **GitHub reserved names** are not used for environment variables
 
 ### Validation Errors
 
@@ -236,6 +237,7 @@ The system will exit with an error if:
 - Variables have invalid formats
 - Security requirements are not met
 - Environment-specific requirements are not satisfied
+- Environment variable names start with `GITHUB_` (reserved for GitHub Actions)
 
 ### Validation Warnings
 
@@ -266,6 +268,7 @@ The system will warn about:
 - Use strong secrets even in development
 - Don't commit real credentials
 - Use test/development API keys
+- Avoid environment variable names starting with `GITHUB_` to prevent conflicts with GitHub Actions
 
 ## Testing
 
@@ -301,10 +304,15 @@ The test suite covers:
    - Generate a longer, more secure secret
    - Use a password generator for strong secrets
 
-4. **Configuration not loading**
+4. **"Configuration not loading"**
    - Ensure `initializeConfiguration()` is called on startup
    - Check for syntax errors in environment files
    - Verify file permissions on credential files
+
+5. **"Environment variable 'GITHUB_X' starts with 'GITHUB_' prefix"**
+   - Rename the environment variable to avoid conflicts with GitHub Actions
+   - GitHub reserves all environment variables starting with `GITHUB_`
+   - Use an alternative prefix like `APP_`, `CUSTOM_`, or your application name
 
 ### Debug Mode
 

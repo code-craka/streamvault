@@ -225,6 +225,18 @@ function validateSecurityConfig(
     result.errors.push('WEBHOOK_SECRET must be at least 16 characters long')
   }
 
+  // Check for GitHub reserved environment variable names
+  const githubReservedNames = Object.keys(process.env).filter(name =>
+    name.startsWith('GITHUB_')
+  )
+  if (githubReservedNames.length > 0) {
+    githubReservedNames.forEach(name => {
+      result.errors.push(
+        `Environment variable '${name}' starts with 'GITHUB_' prefix which is reserved for GitHub Actions. Please rename this variable to avoid conflicts with GitHub's reserved environment variables.`
+      )
+    })
+  }
+
   // Check for weak secrets in production
   if (env === 'production') {
     const weakPatterns = ['password', '123456', 'secret', 'admin']
