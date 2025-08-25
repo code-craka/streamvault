@@ -7,7 +7,7 @@ import {
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
-import { UserRole } from '@/types/auth'
+import type { UserRole } from '@/types/auth'
 
 // Request validation schema
 const RevokeAccessRequestSchema = z.object({

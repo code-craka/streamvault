@@ -257,6 +257,22 @@ export class StreamManager {
         // Finalize transcoding and create VOD if recording was enabled
         if (stream.data.settings.enableRecording) {
           await this.finalizeRecording(streamId)
+          
+          // Automatically create VOD from stream
+          try {
+            const { vodProcessor } = await import('./vod-processor')
+            await vodProcessor.createVODFromStream(streamId, {
+              enableAIProcessing: true,
+              generateThumbnails: true,
+              generateTranscription: true,
+              generateHighlights: true,
+              autoPublish: false, // Let creator decide when to publish
+            })
+            console.log(`VOD creation initiated for stream ${streamId}`)
+          } catch (error) {
+            console.error(`Failed to create VOD for stream ${streamId}:`, error)
+            // Don't fail the stream ending process if VOD creation fails
+          }
         }
 
         // Send notification

@@ -1,7 +1,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app'
-import { getFirestore, Firestore } from 'firebase/firestore'
-import { getAuth, Auth } from 'firebase/auth'
-import { getStorage, FirebaseStorage } from 'firebase/storage'
+import { getFirestore } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
+import { getStorage } from 'firebase/storage'
 
 // Firebase client configuration
 const firebaseConfig = {

@@ -1,4 +1,4 @@
-import { TranscodingJob, VideoQuality, Stream } from '@/types/streaming'
+import { TranscodingJob, VideoQuality } from '@/types/streaming'
 import { generateId } from '@/lib/utils'
 
 export interface TranscodingConfig {

@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { signedURLService } from '@/lib/storage/signed-url-service'
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
-import { UserRole } from '@/types/auth'
+import type { UserRole } from '@/types/auth'
 
-export async function POST() {
+export async function POST(_request: NextRequest) {
   try {
     // Authenticate user
     const { userId } = await auth()
@@ -38,6 +38,7 @@ export async function POST() {
         message: `Successfully cleaned up ${cleanedCount} expired sessions`,
       },
     })
+
   } catch (error) {
     console.error('Session cleanup error:', error)
 
@@ -48,7 +49,7 @@ export async function POST() {
   }
 }
 
-export async function GET() {
+export async function GET(_request: NextRequest) {
   try {
     // Authenticate user
     const { userId } = await auth()
@@ -79,6 +80,7 @@ export async function GET() {
         lastCleanup: new Date().toISOString(),
       },
     })
+
   } catch (error) {
     console.error('Session cleanup status error:', error)
 

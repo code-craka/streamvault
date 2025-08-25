@@ -13,13 +13,20 @@ export async function POST(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    await params
+    const { videoId } = await params
     // Authenticate user
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      )
+    }
+
+    if (!videoId) {
+      return NextResponse.json(
+        { error: 'Video ID is required' },
+        { status: 400 }
       )
     }
 
@@ -43,16 +50,16 @@ export async function POST(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signed URL refresh error:', error)
 
-    if (error instanceof Error && error.name === 'VideoAccessError') {
+    if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        {
+        { 
           error: error.message,
-          code: (error as any).code,
+          code: error.code 
         },
-        { status: (error as any).statusCode }
+        { status: error.statusCode }
       )
     }
 
@@ -69,7 +76,7 @@ export async function GET(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    await params
+    const { videoId: _videoId } = await params
     // Authenticate user
     const { userId } = await auth()
     if (!userId) {
@@ -80,7 +87,7 @@ export async function GET(
     }
 
     const searchParams = request.nextUrl.searchParams
-
+    
     const sessionId = searchParams.get('sessionId')
     const refreshToken = searchParams.get('refreshToken')
 
@@ -107,16 +114,16 @@ export async function GET(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signed URL refresh error:', error)
 
-    if (error instanceof Error && error.name === 'VideoAccessError') {
+    if (error.name === 'VideoAccessError') {
       return NextResponse.json(
-        {
+        { 
           error: error.message,
-          code: (error as any).code,
+          code: error.code 
         },
-        { status: (error as any).statusCode }
+        { status: error.statusCode }
       )
     }
 

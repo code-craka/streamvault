@@ -1,6 +1,6 @@
 import { BaseService } from './base-service'
 import { COLLECTIONS } from '@/types/database'
-import type { FirestoreUser } from '@/types/database'
+
 import type { User } from '@/types/auth'
 import type { DatabaseResult, QueryOptions } from '@/types/database'
 import type {
@@ -8,7 +8,7 @@ import type {
   UpdateUserInput,
   UserQueryInput,
 } from '@/lib/validations/user'
-import { Timestamp } from 'firebase/firestore'
+
 
 export class UserService extends BaseService<User> {
   constructor() {

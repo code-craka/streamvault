@@ -1,5 +1,5 @@
 import { BaseService } from './base-service'
-import { COLLECTIONS, SUBCOLLECTIONS } from '@/types/database'
+import { COLLECTIONS } from '@/types/database'
 import type {
   ChatMessage,
   ChatRoom,

@@ -8,8 +8,6 @@ import { SubscriptionBadge } from './role-badge'
 import {
   getUserSubscriptionTier,
   isActiveSubscriber,
-  canAccessPremiumFeatures,
-  canAccessProFeatures,
 } from '@/lib/auth/permissions'
 
 interface SubscriptionFeature {
@@ -90,8 +88,6 @@ export function SubscriptionManager() {
 
   const currentTier = getUserSubscriptionTier(user)
   const isSubscribed = isActiveSubscriber(user)
-  const hasPremium = canAccessPremiumFeatures(user)
-  const hasPro = canAccessProFeatures(user)
 
   const handleUpgrade = async (tier: SubscriptionTier) => {
     // This would integrate with Stripe checkout
