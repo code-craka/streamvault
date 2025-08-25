@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const query = querySchema.parse(Object.fromEntries(searchParams))
 
-    let whereConditions = []
+    const whereConditions = []
 
     // Add timeframe filter if specified
     if (query.timeframe !== 'all') {
