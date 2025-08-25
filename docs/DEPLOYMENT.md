@@ -432,6 +432,7 @@ export async function GET() {
 
 - [ ] All environment variables are set correctly
 - [ ] JWT secrets are cryptographically secure (32+ characters)
+- [ ] No environment variables start with "GITHUB_" (reserved for GitHub Actions)
 - [ ] Database security rules are configured
 - [ ] API rate limiting is enabled
 - [ ] CORS is properly configured

@@ -72,3 +72,4 @@ temp/
 .gcp/firebase-adminsdk-fbsvc-cc86734eaf.json
 .env.staging
 .env.development
+package-lock.json

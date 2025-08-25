@@ -105,6 +105,43 @@ describe('Configuration System', () => {
         result.warnings.some(warning => warning.includes('placeholder'))
       ).toBe(true)
     })
+
+    it('should fail validation with GITHUB_ prefixed environment variables', () => {
+      process.env.GITHUB_SECRET = 'my-secret-value'
+      process.env.GITHUB_TOKEN = 'my-token-value'
+
+      const result = validateConfiguration()
+      expect(result.success).toBe(false)
+      expect(
+        result.errors.some(error => error.includes('GITHUB_SECRET'))
+      ).toBe(true)
+      expect(
+        result.errors.some(error => error.includes('GITHUB_TOKEN'))
+      ).toBe(true)
+      expect(
+        result.errors.some(error => 
+          error.includes('reserved for GitHub Actions')
+        )
+      ).toBe(true)
+
+      // Clean up
+      delete process.env.GITHUB_SECRET
+      delete process.env.GITHUB_TOKEN
+    })
+
+    it('should pass validation without GITHUB_ prefixed environment variables', () => {
+      // Ensure no GITHUB_ variables exist
+      Object.keys(process.env).forEach(key => {
+        if (key.startsWith('GITHUB_')) {
+          delete process.env[key]
+        }
+      })
+
+      const result = validateConfiguration()
+      expect(
+        result.errors.some(error => error.includes('GITHUB_'))
+      ).toBe(false)
+    })
   })
 
   describe('Environment-Specific Configuration', () => {

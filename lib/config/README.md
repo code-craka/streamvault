@@ -227,6 +227,7 @@ The configuration system validates:
 - **Secret strength** meets requirements
 - **Environment-specific** requirements
 - **Security best practices**
+- **GitHub Actions compatibility** (no GITHUB_ prefixed variables)
 
 ### Validation Errors
 
@@ -236,6 +237,7 @@ The system will exit with an error if:
 - Variables have invalid formats
 - Security requirements are not met
 - Environment-specific requirements are not satisfied
+- Environment variables start with "GITHUB_" (reserved for GitHub Actions)
 
 ### Validation Warnings
 
@@ -253,6 +255,12 @@ The system will warn about:
 - **JWT_SECRET**: Must be at least 32 characters
 - **ENCRYPTION_KEY**: Must be exactly 32 characters
 - **WEBHOOK_SECRET**: Must be at least 16 characters
+
+### GitHub Actions Compatibility
+
+- **No GITHUB_ prefixed variables**: Environment variables starting with "GITHUB_" are reserved for GitHub Actions and will cause validation to fail
+- This prevents conflicts with GitHub Actions reserved environment variables
+- Use alternative naming conventions (e.g., `GH_CUSTOM_VAR` instead of `GITHUB_CUSTOM_VAR`)
 
 ### Production Security
 
