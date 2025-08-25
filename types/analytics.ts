@@ -59,7 +59,7 @@ export interface EngagementMetrics {
   streamId: string
   userId?: string
   timestamp: Date
-  eventType: 'view_start' | 'view_end' | 'chat_message' | 'subscription' | 'donation' | 'share' | 'like'
+  eventType: 'view_start' | 'view_end' | 'chat_message' | 'subscription' | 'donation' | 'share' | 'like' | 'quality_change'
   eventData?: Record<string, any>
   sessionId: string
   value?: number // For revenue events

@@ -3,8 +3,7 @@
  * Tracks LCP, FID, CLS and other performance metrics
  */
 
-// TODO: Add web-vitals to dependencies
-// import { getCLS, getFCP, getFID, getLCP, getTTFB } from 'web-vitals'
+import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals'
 
 export interface WebVitalsMetric {
   name: string
@@ -59,12 +58,11 @@ class WebVitalsTracker {
 
   private initializeTracking(): void {
     // Track Core Web Vitals
-    // TODO: Uncomment when web-vitals is added to dependencies
-    // getCLS(this.handleMetric.bind(this))
-    // getFCP(this.handleMetric.bind(this))
-    // getFID(this.handleMetric.bind(this))
-    // getLCP(this.handleMetric.bind(this))
-    // getTTFB(this.handleMetric.bind(this))
+    onCLS(this.handleMetric.bind(this))
+    onFCP(this.handleMetric.bind(this))
+    onFID(this.handleMetric.bind(this))
+    onLCP(this.handleMetric.bind(this))
+    onTTFB(this.handleMetric.bind(this))
 
     // Track custom performance metrics
     this.trackCustomMetrics()

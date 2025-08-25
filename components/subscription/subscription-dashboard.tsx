@@ -234,22 +234,11 @@ export function SubscriptionDashboard() {
         </TabsList>
 
         <TabsContent value="billing" className="space-y-4">
-          <BillingPortal 
-            subscription={subscriptionData ? {
-              tier: subscriptionData.tier,
-              status: subscriptionData.status,
-              currentPeriodEnd: subscriptionData.currentPeriodEnd,
-              cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd
-            } : undefined}
-            onSubscriptionChange={handleSubscriptionChange}
-          />
+          <BillingPortal />
         </TabsContent>
 
         <TabsContent value="plans" className="space-y-4">
-          <PricingTiers 
-            currentTier={subscriptionData?.tier}
-            onSubscribe={handleSubscriptionChange}
-          />
+          <PricingTiers />
         </TabsContent>
       </Tabs>
     </div>

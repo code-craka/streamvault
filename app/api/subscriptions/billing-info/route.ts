@@ -118,7 +118,7 @@ export async function GET() {
         })),
       })),
       upcomingInvoice: upcomingInvoice ? {
-        id: upcomingInvoice.id,
+        id: 'upcoming',
         number: upcomingInvoice.number || '',
         status: upcomingInvoice.status || 'draft',
         amount: upcomingInvoice.amount_due || 0,

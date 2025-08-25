@@ -32,6 +32,31 @@ Production: https://streamvault.app/api
 Development: http://localhost:3000/api
 ```
 
+## API Versions
+
+### v1 API (Enterprise/Pro)
+
+The v1 API provides enterprise-grade endpoints with API key authentication, rate limiting, and enhanced security features. These endpoints are available to Pro subscribers and enterprise clients.
+
+**Base URL:** `/api/v1`
+
+**Authentication:** API Key (Header: `x-api-key`)
+
+**Features:**
+- API key-based authentication
+- Granular permission system
+- Advanced rate limiting
+- Instance-based access control
+- Enhanced error handling
+
+### Standard API
+
+The standard API uses Clerk session-based authentication and is available to all users.
+
+**Base URL:** `/api`
+
+**Authentication:** Bearer Token (Clerk session)
+
 ## Endpoints
 
 ### Authentication
@@ -98,7 +123,9 @@ Update user preferences
 
 ### Streams
 
-#### GET /api/streams
+#### Standard API
+
+##### GET /api/streams
 
 List all streams
 
@@ -137,7 +164,7 @@ List all streams
 }
 ```
 
-#### POST /api/streams
+##### POST /api/streams
 
 Create a new stream (Requires: streamer role)
 
@@ -165,25 +192,132 @@ Create a new stream (Requires: streamer role)
 }
 ```
 
-#### GET /api/streams/:id
+##### GET /api/streams/:id
 
 Get stream details
 
-#### PUT /api/streams/:id
+##### PUT /api/streams/:id
 
 Update stream (Requires: owner or admin)
 
-#### DELETE /api/streams/:id
+##### DELETE /api/streams/:id
 
 Delete stream (Requires: owner or admin)
 
-#### POST /api/streams/:id/start
+##### POST /api/streams/:id/start
 
 Start streaming (Requires: owner)
 
-#### POST /api/streams/:id/stop
+##### POST /api/streams/:id/stop
 
 Stop streaming (Requires: owner)
+
+#### v1 API (Enterprise)
+
+##### GET /api/v1/streams/:streamId
+
+Get stream details with API key authentication
+
+**Headers:**
+```http
+x-api-key: sk_live_your_api_key_here
+```
+
+**Required Permissions:** `stream:read`
+
+**Response:**
+```json
+{
+  "data": {
+    "id": "stream_123",
+    "title": "Gaming Session",
+    "description": "Playing the latest games",
+    "userId": "user_456",
+    "category": "gaming",
+    "tags": ["gaming", "fps", "competitive"],
+    "streamKey": "sk_live_abc123def456",
+    "rtmpUrl": "rtmp://ingest.streamvault.app/live",
+    "hlsUrl": "https://cdn.streamvault.app/hls/stream_123/playlist.m3u8",
+    "status": "active",
+    "isLive": true,
+    "viewerCount": 1250,
+    "maxViewers": 1500,
+    "startedAt": "2024-01-15T10:00:00Z",
+    "createdAt": "2024-01-15T09:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "settings": {
+      "quality": ["720p", "1080p"],
+      "enableChat": true,
+      "enableRecording": true,
+      "isPrivate": false,
+      "requireSubscription": false,
+      "moderationLevel": "medium"
+    },
+    "metadata": {
+      "thumbnailUrl": "https://cdn.streamvault.app/thumbs/stream_123.jpg",
+      "language": "en",
+      "ageRating": "all"
+    }
+  }
+}
+```
+
+##### PUT /api/v1/streams/:streamId
+
+Update stream metadata
+
+**Headers:**
+```http
+x-api-key: sk_live_your_api_key_here
+Content-Type: application/json
+```
+
+**Required Permissions:** `stream:update`
+
+**Request Body:**
+```json
+{
+  "title": "Updated Stream Title",
+  "description": "Updated description",
+  "category": "entertainment",
+  "isPrivate": false,
+  "thumbnailUrl": "https://cdn.streamvault.app/thumbs/new_thumb.jpg"
+}
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "id": "stream_123",
+    "title": "Updated Stream Title",
+    "description": "Updated description",
+    "category": "entertainment",
+    "isPrivate": false,
+    "thumbnailUrl": "https://cdn.streamvault.app/thumbs/new_thumb.jpg",
+    "updatedAt": "2024-01-15T11:00:00Z"
+  },
+  "message": "Stream updated successfully"
+}
+```
+
+##### DELETE /api/v1/streams/:streamId
+
+Delete a stream
+
+**Headers:**
+```http
+x-api-key: sk_live_your_api_key_here
+```
+
+**Required Permissions:** `stream:delete`
+
+**Response:**
+```json
+{
+  "message": "Stream deleted successfully"
+}
+```
 
 ### Videos (VOD)
 

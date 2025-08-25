@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer",
+  "description": "Monitors source code files for changes and analyzes them for potential improvements including code smells, design patterns, and best practices. Provides actionable suggestions for enhancing readability, maintainability, and performance while preserving functionality.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify long functions, complex conditionals, duplicated code, and unclear naming\n2. **Design Patterns**: Suggest appropriate patterns (hooks, composition, factory, etc.) where beneficial\n3. **Best Practices**: Review for TypeScript best practices, React patterns, Next.js optimizations\n4. **Performance**: Look for unnecessary re-renders, inefficient algorithms, memory leaks\n5. **Readability**: Suggest improvements for variable names, function structure, and comments\n6. **Maintainability**: Identify tightly coupled code, missing error handling, and testing gaps\n\nFor each suggestion:\n- Explain the current issue clearly\n- Provide specific, actionable improvement recommendations\n- Show code examples where helpful\n- Prioritize suggestions by impact (high/medium/low)\n- Ensure suggestions maintain existing functionality\n\nConsider the StreamVault context: Next.js 15, TypeScript, React 19, streaming platform with enterprise requirements."
+  }
+}

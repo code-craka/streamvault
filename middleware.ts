@@ -67,7 +67,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             'login_attempt',
             'low',
             req,
-            userId,
+            userId || undefined,
             {
               route: req.nextUrl.pathname,
               success: true
@@ -83,7 +83,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
           'failed_login',
           'high',
           req,
-          userId || undefined,
+          userId,
           {
             route: req.nextUrl.pathname,
             error: error instanceof Error ? error.message : 'Unknown error'
@@ -101,7 +101,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       userId: userId || undefined,
       ipAddress,
       userAgent,
-      requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      requestId: `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
     }
 
     return await securityMiddleware.processResponse(req, response, securityContext)
@@ -112,7 +112,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     // Log critical security error
     try {
       await logSecurityIncident(
-        'suspicious_activity',
+        'unauthorized_access',
         'critical',
         req,
         undefined,
