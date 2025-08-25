@@ -494,3 +494,7 @@ export class AuditTrailService {
 }
 
 export const auditTrailService = new AuditTrailService()
+
+// Export aliases for backward compatibility
+export const auditTrail = auditTrailService
+export const logUserAction = auditTrailService.logEvent.bind(auditTrailService)

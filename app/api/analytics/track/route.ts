@@ -63,7 +63,7 @@ const trackEngagementSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     const body = await request.json()
 
     // Validate request body based on action type
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
 // GET endpoint for retrieving real-time analytics
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },

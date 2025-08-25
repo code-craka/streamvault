@@ -7,10 +7,11 @@ const chatService = new ChatService()
 // GET /api/chat/[streamId]/messages/[messageId] - Get a specific message
 export async function GET(
   request: NextRequest,
-  { params }: { params: { streamId: string; messageId: string } }
+  { params }: { params: Promise<{ streamId: string; messageId: string }> }
 ) {
   try {
-    const { userId } = auth()
+    const { streamId, messageId } = await params
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -18,7 +19,7 @@ export async function GET(
       )
     }
 
-    const result = await chatService.getById(params.messageId)
+    const result = await chatService.getById(messageId)
     
     if (!result.success) {
       return NextResponse.json(
@@ -28,7 +29,7 @@ export async function GET(
     }
 
     // Check if message belongs to the specified stream
-    if (result.data?.streamId !== params.streamId) {
+    if (result.data?.streamId !== streamId) {
       return NextResponse.json(
         { error: 'Message not found in this stream' },
         { status: 404 }
@@ -50,10 +51,11 @@ export async function GET(
 // PATCH /api/chat/[streamId]/messages/[messageId] - Update a message (for moderation)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { streamId: string; messageId: string } }
+  { params }: { params: Promise<{ streamId: string; messageId: string }> }
 ) {
   try {
-    const { userId } = auth()
+    const { streamId, messageId } = await params
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -62,7 +64,7 @@ export async function PATCH(
     }
 
     // Get user details to check permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     // Check if user has permission to moderate messages
@@ -94,7 +96,7 @@ export async function PATCH(
       
       case 'flag':
         // Add moderation flag
-        const message = await chatService.getById(params.messageId)
+        const message = await chatService.getById(messageId)
         if (!message.success || !message.data) {
           return NextResponse.json(
             { error: 'Message not found' },
@@ -127,7 +129,7 @@ export async function PATCH(
         )
     }
 
-    const result = await chatService.update(params.messageId, updateData)
+    const result = await chatService.update(messageId, updateData)
     
     if (!result.success) {
       return NextResponse.json(
@@ -152,10 +154,11 @@ export async function PATCH(
 // DELETE /api/chat/[streamId]/messages/[messageId] - Delete a specific message
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { streamId: string; messageId: string } }
+  { params }: { params: Promise<{ streamId: string; messageId: string }> }
 ) {
   try {
-    const { userId } = auth()
+    const { streamId, messageId } = await params
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -164,7 +167,7 @@ export async function DELETE(
     }
 
     // Get the message first to check ownership and permissions
-    const messageResult = await chatService.getById(params.messageId)
+    const messageResult = await chatService.getById(messageId)
     if (!messageResult.success || !messageResult.data) {
       return NextResponse.json(
         { error: 'Message not found' },
@@ -175,7 +178,7 @@ export async function DELETE(
     const message = messageResult.data
     
     // Check if message belongs to the specified stream
-    if (message.streamId !== params.streamId) {
+    if (message.streamId !== streamId) {
       return NextResponse.json(
         { error: 'Message not found in this stream' },
         { status: 404 }
@@ -183,7 +186,7 @@ export async function DELETE(
     }
 
     // Get user details to check permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     // Check permissions: user can delete their own messages, or moderators can delete any
@@ -197,7 +200,7 @@ export async function DELETE(
       )
     }
 
-    const result = await chatService.deleteMessage(params.messageId, userId)
+    const result = await chatService.deleteMessage(messageId, userId)
     
     if (!result.success) {
       return NextResponse.json(

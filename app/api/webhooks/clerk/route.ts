@@ -1,10 +1,16 @@
 import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { Webhook, WebhookEvent } from 'svix'
+import { Webhook } from 'svix'
 import {
   initializeNewUser,
   CLERK_WEBHOOK_EVENTS,
 } from '@/lib/auth/clerk-config'
+
+// Define WebhookEvent type
+interface WebhookEvent {
+  data: any
+  type: string
+}
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
 
@@ -43,7 +49,7 @@ export async function POST(req: NextRequest) {
       'svix-id': svix_id,
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature,
-    })
+    }) as WebhookEvent
   } catch (err) {
     console.error('Error verifying webhook:', err)
     return new NextResponse('Error occurred', {

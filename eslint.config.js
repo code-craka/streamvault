@@ -1,58 +1,56 @@
-// @ts-check
+// eslint.config.js
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+import reactPlugin from "eslint-plugin-react";
+import hooksPlugin from "eslint-plugin-react-hooks";
+import nextPlugin from "@next/eslint-plugin-next";
+import globals from "globals";
 
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import reactPlugin from 'eslint-plugin-react';
-import hooksPlugin from 'eslint-plugin-react-hooks';
-import nextPlugin from '@next/eslint-plugin-next';
-import globals from 'globals';
-
-/** @type {import('typescript-eslint').Config} */
-export default tseslint.config(
-  // 1. Global ignores
+/** @type {import('eslint').FlatConfig[]} */
+export default [
+  // 1️⃣ Global ignores
   {
     ignores: [
-      'node_modules/',
-      '.next/',
-      'out/',
-      'build/',
-      'dist/',
-      'coverage/',
-      '**/*.config.js',
-      '**/*.config.ts',
-      'jest.setup.js',
+      "node_modules/",
+      ".next/",
+      "out/",
+      "build/",
+      "dist/",
+      "coverage/",
+      "**/*.config.js",
+      "**/*.config.ts",
+      "jest.setup.js",
     ],
   },
 
-  // 2. Base ESLint rules
+  // 2️⃣ Base ESLint recommended rules
   eslint.configs.recommended,
 
-  // 3. TypeScript-specific rules
+  // 3️⃣ TypeScript recommended rules
   ...tseslint.configs.recommended,
 
-  // 4. React, React Hooks, Next.js config
+  // 4️⃣ React, Hooks, Next.js, and custom rules
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
-
-    // Use safe spread for React plugin (avoids flat API issues)
-    ...reactPlugin.configs.recommended,
-
-    plugins: {
-      'react-hooks': hooksPlugin,
-      '@next/next': nextPlugin,
-    },
+    files: ["**/*.{ts,tsx,js,jsx}"],
 
     languageOptions: {
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: {
         ...globals.browser,
         ...globals.node,
       },
     },
 
-    settings: {
-      react: {
-        version: 'detect',
-      },
+    plugins: {
+      "react-hooks": hooksPlugin,
+      "@next/next": nextPlugin,
+      react: reactPlugin,
     },
 
     rules: {
@@ -60,19 +58,25 @@ export default tseslint.config(
       ...hooksPlugin.configs.recommended.rules,
 
       // General JS/TS rules
-      'prefer-const': 'error',
-      'no-var': 'error',
+      "prefer-const": "error",
+      "no-var": "error",
 
       // Warnings
-      'react-hooks/exhaustive-deps': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
 
       // Turn off unnecessary rules for Next.js/TS
-      '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/triple-slash-reference': 'off',
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
+      "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/triple-slash-reference": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
     },
-  }
-);
+
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+  },
+];

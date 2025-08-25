@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "name": "Source to Docs Sync",
+  "description": "Monitors all TypeScript source files, React components, API routes, configuration files, and other relevant source code for changes and automatically updates documentation in README.md or the /docs folder to keep documentation in sync with code changes",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "middleware.ts",
+      "next.config.js",
+      "package.json",
+      "tsconfig.json",
+      "tailwind.config.js",
+      "components.json",
+      "firebase.json",
+      "firestore.rules",
+      "firestore.indexes.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code files have been modified. Please review the changes and update the relevant documentation in either the README.md file or the appropriate files in the /docs folder. Focus on:\n\n1. API changes - update API.md if routes or endpoints changed\n2. Configuration changes - update relevant setup/deployment docs\n3. New features or components - update feature documentation\n4. Architecture changes - update technical documentation\n5. Dependencies or build changes - update development setup docs\n\nEnsure the documentation accurately reflects the current state of the codebase and maintains consistency with the existing documentation style."
+  }
+}

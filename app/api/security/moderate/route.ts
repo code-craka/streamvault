@@ -7,7 +7,7 @@ import { rateLimiters } from '@/lib/security/rate-limiting'
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     
     // Log the error
     try {
-      const { userId } = auth()
+      const { userId } = await auth()
       if (userId) {
         await logUserAction(
           'content_moderation_error',
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

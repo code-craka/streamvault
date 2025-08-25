@@ -28,10 +28,12 @@ export function PWASettings({ className }: PWASettingsProps) {
   const { user } = useUser()
   const { 
     isInstalled, 
-    hasNotificationPermission, 
+    notificationPermission, 
     requestNotifications, 
     subscribeToPush 
   } = usePWA()
+  
+  const hasNotificationPermission = notificationPermission.granted
   const [offlineManager] = useState(() => new OfflineManager())
   
   // Settings state

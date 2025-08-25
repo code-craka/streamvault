@@ -71,7 +71,7 @@ export class AnalyticsService {
 
       // Update real-time stream metrics
       await this.updateRealtimeMetrics(streamId, {
-        currentViewers: increment(1)
+        currentViewers: increment(1) as any
       })
 
       // Track engagement event
@@ -117,7 +117,7 @@ export class AnalyticsService {
 
       // Update real-time stream metrics
       await this.updateRealtimeMetrics(streamId, {
-        currentViewers: increment(-1)
+        currentViewers: increment(-1) as any
       })
 
       // Track engagement event
@@ -163,7 +163,7 @@ export class AnalyticsService {
 
       // Update real-time metrics
       await this.updateRealtimeMetrics(streamId, {
-        chatMessagesPerMinute: increment(1)
+        chatMessagesPerMinute: increment(1) as any
       })
 
     } catch (error) {
@@ -359,9 +359,9 @@ export class AnalyticsService {
         const updates: any = { quality: newQuality }
         
         if (bufferingEvent) {
-          updates.bufferingEvents = increment(1)
+          updates.bufferingEvents = increment(1) as any
           if (bufferingDuration) {
-            updates.totalBufferingTime = increment(bufferingDuration)
+            updates.totalBufferingTime = increment(bufferingDuration) as any
           }
         }
 

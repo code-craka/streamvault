@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -66,7 +66,7 @@ export async function POST(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -126,7 +126,7 @@ export async function DELETE(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },

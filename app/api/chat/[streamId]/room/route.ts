@@ -11,7 +11,7 @@ export async function GET(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -46,7 +46,7 @@ export async function POST(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -55,7 +55,7 @@ export async function POST(
     }
 
     // Check if user has permission to create chat room (streamer or admin)
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     if (!['admin', 'streamer'].includes(userRole)) {
@@ -108,7 +108,7 @@ export async function PATCH(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -117,7 +117,7 @@ export async function PATCH(
     }
 
     // Check if user has permission to modify chat room (streamer or admin)
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     if (!['admin', 'streamer'].includes(userRole)) {

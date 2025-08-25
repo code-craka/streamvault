@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clerkMiddleware } from '@clerk/nextjs/server'
-import { rateLimiters, ddosProtection, createRateLimitMiddleware } from './rate-limiting'
+import {
+  rateLimiters,
+  ddosProtection,
+  createRateLimitMiddleware,
+} from './rate-limiting'
 import { securityLogger, logSecurityIncident } from './logging'
 import { validateRequest, sanitizeInput } from './validation'
 import { auditTrail, logUserAction } from './audit-trail'
@@ -48,7 +52,7 @@ class SecurityMiddleware {
         const ddosResult = await ddosProtection(req)
         if (ddosResult) {
           await this.logSecurityEvent('suspicious_activity', context, {
-            reason: 'DDoS protection triggered'
+            reason: 'DDoS protection triggered',
           })
           return ddosResult
         }
@@ -61,7 +65,10 @@ class SecurityMiddleware {
       }
 
       // 4. Input Validation (for POST/PUT requests)
-      if (this.config.enableInputValidation && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      if (
+        this.config.enableInputValidation &&
+        ['POST', 'PUT', 'PATCH'].includes(req.method)
+      ) {
         const validationResult = await this.validateInput(req, context)
         if (validationResult) return validationResult
       }
@@ -72,12 +79,11 @@ class SecurityMiddleware {
       }
 
       return null // Continue to next middleware
-
     } catch (error) {
       console.error('Security middleware error:', error)
-      
+
       await this.logSecurityEvent('system_error', context, {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
 
       // Fail securely - block request on security middleware errors
@@ -85,7 +91,11 @@ class SecurityMiddleware {
     }
   }
 
-  async processResponse(req: NextRequest, res: NextResponse, context: SecurityContext): Promise<NextResponse> {
+  async processResponse(
+    req: NextRequest,
+    res: NextResponse,
+    context: SecurityContext
+  ): Promise<NextResponse> {
     try {
       // Add security headers
       if (this.config.enableSecurityHeaders) {
@@ -98,18 +108,20 @@ class SecurityMiddleware {
       }
 
       return res
-
     } catch (error) {
       console.error('Security response processing error:', error)
       return res
     }
   }
 
-  private async checkIPBlocking(req: NextRequest, context: SecurityContext): Promise<NextResponse | null> {
+  private async checkIPBlocking(
+    req: NextRequest,
+    context: SecurityContext
+  ): Promise<NextResponse | null> {
     if (this.config.blockedIPs.includes(context.ipAddress)) {
       await this.logSecurityEvent('unauthorized_access', context, {
         reason: 'IP address blocked',
-        blockedIP: context.ipAddress
+        blockedIP: context.ipAddress,
       })
 
       return new NextResponse('Access Denied', { status: 403 })
@@ -118,7 +130,10 @@ class SecurityMiddleware {
     return null
   }
 
-  private async applyRateLimiting(req: NextRequest, context: SecurityContext): Promise<NextResponse | null> {
+  private async applyRateLimiting(
+    req: NextRequest,
+    context: SecurityContext
+  ): Promise<NextResponse | null> {
     const pathname = req.nextUrl.pathname
 
     // Choose appropriate rate limiter based on endpoint
@@ -142,30 +157,33 @@ class SecurityMiddleware {
     if (result) {
       await this.logSecurityEvent('rate_limit_exceeded', context, {
         endpoint: pathname,
-        method: req.method
+        method: req.method,
       })
     }
 
     return result
   }
 
-  private async validateInput(req: NextRequest, context: SecurityContext): Promise<NextResponse | null> {
+  private async validateInput(
+    req: NextRequest,
+    context: SecurityContext
+  ): Promise<NextResponse | null> {
     try {
       const contentType = req.headers.get('content-type')
-      
+
       if (contentType?.includes('application/json')) {
         const body = await req.json()
-        
+
         // Basic validation for common attack patterns
         const bodyString = JSON.stringify(body)
-        
+
         // Check for script injection
         if (/<script|javascript:|on\w+\s*=/i.test(bodyString)) {
           await this.logSecurityEvent('malicious_content', context, {
             reason: 'Script injection attempt detected',
-            content: bodyString.substring(0, 200)
+            content: bodyString.substring(0, 200),
           })
-          
+
           return new NextResponse('Invalid Input', { status: 400 })
         }
 
@@ -173,28 +191,27 @@ class SecurityMiddleware {
         const sqlPatterns = [
           /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/i,
           /(--|\/\*|\*\/|;|'|")/,
-          /(\bOR\b|\bAND\b).*[=<>]/i
+          /(\bOR\b|\bAND\b).*[=<>]/i,
         ]
 
         if (sqlPatterns.some(pattern => pattern.test(bodyString))) {
           await this.logSecurityEvent('malicious_content', context, {
             reason: 'SQL injection attempt detected',
-            content: bodyString.substring(0, 200)
+            content: bodyString.substring(0, 200),
           })
-          
+
           return new NextResponse('Invalid Input', { status: 400 })
         }
 
         // Sanitize input
         const sanitizedBody = this.sanitizeObject(body)
-        
+
         // Replace request body with sanitized version
         // Note: This is a simplified approach. In production, you'd need to
         // properly handle request body replacement
       }
 
       return null
-
     } catch (error) {
       console.error('Input validation error:', error)
       return new NextResponse('Validation Error', { status: 400 })
@@ -235,7 +252,7 @@ class SecurityMiddleware {
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'none'",
-      "upgrade-insecure-requests"
+      'upgrade-insecure-requests',
     ].join('; ')
 
     headers.set('Content-Security-Policy', csp)
@@ -245,11 +262,17 @@ class SecurityMiddleware {
     headers.set('X-Frame-Options', 'DENY')
     headers.set('X-XSS-Protection', '1; mode=block')
     headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-    
+    headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()'
+    )
+
     // HSTS (only for HTTPS)
     if (req.nextUrl.protocol === 'https:') {
-      headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+      headers.set(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains; preload'
+      )
     }
 
     // CORS headers
@@ -259,11 +282,20 @@ class SecurityMiddleware {
       headers.set('Access-Control-Allow-Credentials', 'true')
     }
 
-    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+    headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS'
+    )
+    headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With'
+    )
   }
 
-  private buildSecurityContext(req: NextRequest, requestId: string): SecurityContext {
+  private buildSecurityContext(
+    req: NextRequest,
+    requestId: string
+  ): SecurityContext {
     return {
       ipAddress: this.getClientIP(req),
       userAgent: req.headers.get('user-agent') || '',
@@ -276,11 +308,11 @@ class SecurityMiddleware {
     const forwarded = req.headers.get('x-forwarded-for')
     const realIP = req.headers.get('x-real-ip')
     const cfConnectingIP = req.headers.get('cf-connecting-ip')
-    
+
     if (cfConnectingIP) return cfConnectingIP
     if (realIP) return realIP
     if (forwarded) return forwarded.split(',')[0].trim()
-    
+
     return req.ip || 'unknown'
   }
 
@@ -302,8 +334,8 @@ class SecurityMiddleware {
       severity: this.getSeverityForEvent(eventType),
       details: {
         ...details,
-        requestId: context.requestId
-      }
+        requestId: context.requestId,
+      },
     })
   }
 
@@ -316,7 +348,7 @@ class SecurityMiddleware {
     if (!context.userId) return
 
     const action = `${req.method.toLowerCase()}_${req.nextUrl.pathname.replace(/^\/api\//, '').replace(/\//g, '_')}`
-    
+
     await auditTrail.logAction({
       userId: context.userId,
       action,
@@ -333,20 +365,23 @@ class SecurityMiddleware {
       metadata: {
         method: req.method,
         statusCode: res.status,
-        requestId: context.requestId
-      }
+        requestId: context.requestId,
+      },
     })
   }
 
-  private getSeverityForEvent(eventType: string): 'low' | 'medium' | 'high' | 'critical' {
-    const severityMap: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
-      'rate_limit_exceeded': 'medium',
-      'suspicious_activity': 'high',
-      'unauthorized_access': 'high',
-      'malicious_content': 'high',
-      'data_breach_attempt': 'critical',
-      'system_error': 'medium'
-    }
+  private getSeverityForEvent(
+    eventType: string
+  ): 'low' | 'medium' | 'high' | 'critical' {
+    const severityMap: Record<string, 'low' | 'medium' | 'high' | 'critical'> =
+      {
+        rate_limit_exceeded: 'medium',
+        suspicious_activity: 'high',
+        unauthorized_access: 'high',
+        malicious_content: 'high',
+        data_breach_attempt: 'critical',
+        system_error: 'medium',
+      }
 
     return severityMap[eventType] || 'low'
   }
@@ -364,8 +399,8 @@ const defaultSecurityConfig: SecurityConfig = {
   allowedOrigins: [
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     'https://streamvault.app',
-    'https://*.streamvault.app'
-  ]
+    'https://*.streamvault.app',
+  ],
 }
 
 // Export singleton instance
@@ -383,7 +418,7 @@ export function createSecureMiddleware() {
     // Continue with Clerk authentication
     // Protected routes will be handled by Clerk
     const { userId } = auth()
-    
+
     // Add user context to security logging if authenticated
     if (userId) {
       // This would be used for enhanced audit logging
@@ -403,7 +438,7 @@ export const securityConfigSchema = z.object({
   enableSecurityHeaders: z.boolean(),
   trustedProxies: z.array(z.string().ip()),
   blockedIPs: z.array(z.string().ip()),
-  allowedOrigins: z.array(z.string().url())
+  allowedOrigins: z.array(z.string().url()),
 })
 
 export const securityContextSchema = z.object({
@@ -413,5 +448,5 @@ export const securityContextSchema = z.object({
   ipAddress: z.string().ip(),
   userAgent: z.string(),
   sessionId: z.string().optional(),
-  requestId: z.string()
+  requestId: z.string(),
 })
