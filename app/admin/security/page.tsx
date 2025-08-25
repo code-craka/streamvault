@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { SecurityDashboard } from '@/components/security/security-dashboard'
 
 export default async function SecurityPage() {
-  const { userId } = auth()
+  const { userId } = await auth()
   
   if (!userId) {
     redirect('/sign-in')

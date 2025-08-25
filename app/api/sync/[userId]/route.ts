@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId: authUserId } = auth()
+    const { userId: authUserId } = await auth()
     
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -43,7 +43,7 @@ export async function POST(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId: authUserId } = auth()
+    const { userId: authUserId } = await auth()
     
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -83,7 +83,7 @@ export async function DELETE(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId: authUserId } = auth()
+    const { userId: authUserId } = await auth()
     
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

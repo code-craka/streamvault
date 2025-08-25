@@ -16,7 +16,7 @@ const getAuditLogsSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     const limit = validatedParams.limit || 100
 
     // Get audit logs
-    const logs = await auditTrail.getAuditLogs(filters, limit)
+    const logs = await auditTrailService.queryEvents(filters, limit)
 
     // Log the access
     await logUserAction(
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
     const validatedEntry = validateRequest(auditEntrySchema, body)
 
     // Create audit log entry
-    const auditId = await auditTrail.logAction({
+    const auditId = await auditTrailService.logEvent({
       userId,
       action: validatedEntry.action,
       resourceType: validatedEntry.resourceType,
@@ -178,7 +178,7 @@ function getClientIP(req: NextRequest): string {
   if (realIP) return realIP
   if (forwarded) return forwarded.split(',')[0].trim()
   
-  return req.ip || 'unknown'
+  return 'unknown' || 'unknown'
 }
 
 function generateChanges(

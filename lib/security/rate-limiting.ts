@@ -107,7 +107,7 @@ export class RateLimiter {
     if (realIP) return realIP
     if (forwarded) return forwarded.split(',')[0].trim()
     
-    return req.ip || 'unknown'
+    return 'unknown'
   }
 }
 
@@ -222,7 +222,7 @@ function getClientIP(req: NextRequest): string {
   if (realIP) return realIP
   if (forwarded) return forwarded.split(',')[0].trim()
   
-  return req.ip || 'unknown'
+  return 'unknown'
 }
 
 // Rate limiting middleware factory

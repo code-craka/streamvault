@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
       offset: query.offset,
       orderBy: [{ field: query.orderBy, direction: query.orderDirection }],
       where: [
-        ...(query.category ? [{ field: 'category', operator: '==', value: query.category }] : []),
-        ...(query.requiredTier ? [{ field: 'requiredTier', operator: '==', value: query.requiredTier }] : []),
+        ...(query.category ? [{ field: 'category', operator: '==' as const, value: query.category }] : []),
+        ...(query.requiredTier ? [{ field: 'requiredTier', operator: '==' as const, value: query.requiredTier }] : []),
       ],
     })
 

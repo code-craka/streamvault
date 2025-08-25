@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
       offset: query.offset,
       orderBy: [{ field: query.orderBy, direction: query.orderDirection }],
       where: [
-        ...(query.category ? [{ field: 'category', operator: '==', value: query.category }] : []),
-        ...(query.status ? [{ field: 'status', operator: '==', value: query.status }] : []),
+        ...(query.category ? [{ field: 'category', operator: '==' as const, value: query.category }] : []),
+        ...(query.status ? [{ field: 'status', operator: '==' as const, value: query.status }] : []),
       ],
     })
 

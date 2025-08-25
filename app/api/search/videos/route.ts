@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function getOrderByField(sort: string): string {
+function getOrderByField(sort: string): 'createdAt' | 'updatedAt' | 'title' | 'duration' | 'viewCount' {
   switch (sort) {
     case 'popular':
       return 'viewCount'

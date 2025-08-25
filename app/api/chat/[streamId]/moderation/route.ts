@@ -11,7 +11,7 @@ export async function POST(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -20,7 +20,7 @@ export async function POST(
     }
 
     // Check if user has moderation permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     if (!['admin', 'streamer'].includes(userRole)) {
@@ -165,7 +165,7 @@ export async function GET(
   { params }: { params: { streamId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -174,7 +174,7 @@ export async function GET(
     }
 
     // Check if user has moderation permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     if (!['admin', 'streamer'].includes(userRole)) {

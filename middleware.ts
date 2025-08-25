@@ -35,7 +35,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     }
 
     // Get user info for security context
-    const { userId } = auth()
+    const { userId } = await auth()
     const ipAddress = getClientIP(req)
     const userAgent = req.headers.get('user-agent') || ''
 
@@ -83,7 +83,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
           'failed_login',
           'high',
           req,
-          userId,
+          userId || undefined,
           {
             route: req.nextUrl.pathname,
             error: error instanceof Error ? error.message : 'Unknown error'
@@ -98,7 +98,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     const response = NextResponse.next()
     
     const securityContext = {
-      userId,
+      userId: userId || undefined,
       ipAddress,
       userAgent,
       requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -112,7 +112,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     // Log critical security error
     try {
       await logSecurityIncident(
-        'system_error',
+        'suspicious_activity',
         'critical',
         req,
         undefined,
@@ -139,7 +139,7 @@ function getClientIP(req: NextRequest): string {
   if (realIP) return realIP
   if (forwarded) return forwarded.split(',')[0].trim()
   
-  return req.ip || 'unknown'
+  return 'unknown'
 }
 
 export const config = {

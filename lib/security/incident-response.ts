@@ -1,8 +1,8 @@
 import { db } from '@/lib/firebase'
 import { collection, addDoc, query, where, orderBy, limit, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { securityLogger } from './logging'
-import { auditTrail } from './audit-trail'
-import { keyRotationManager } from './key-rotation'
+import { auditTrailService } from './audit-trail'
+import { keyRotationService } from './key-rotation'
 
 export interface SecurityIncident {
   id?: string
@@ -84,7 +84,7 @@ class SecurityIncidentResponseSystem {
             // In production, this would call Clerk API to disable user
             console.log(`Blocking user account: ${userId}`)
             
-            await auditTrail.logAction({
+            await auditTrailService.logEvent({
               userId: 'system',
               action: 'automated_user_block',
               resourceType: 'user',
@@ -113,7 +113,7 @@ class SecurityIncidentResponseSystem {
       description: 'Immediately rotate all signing keys',
       execute: async (incident, params) => {
         try {
-          await keyRotationManager.emergencyKeyRotation()
+          await keyRotationService.emergencyKeyRotation()
           return true
         } catch (error) {
           console.error('Failed to rotate keys:', error)
@@ -165,7 +165,7 @@ class SecurityIncidentResponseSystem {
             // In production, this would invalidate JWT tokens or sessions
             console.log(`Invalidating sessions for user: ${userId}`)
             
-            await auditTrail.logAction({
+            await auditTrailService.logEvent({
               userId: 'system',
               action: 'automated_session_invalidation',
               resourceType: 'user_session',
@@ -448,7 +448,7 @@ class SecurityIncidentResponseSystem {
       }
       
       // Log audit trail
-      await auditTrail.logAction({
+      await auditTrailService.logEvent({
         userId: performedBy || 'system',
         action: 'update_incident_status',
         resourceType: 'security_incident',
@@ -513,7 +513,7 @@ class SecurityIncidentResponseSystem {
     try {
       const docRef = await addDoc(collection(db, this.RESPONSE_RULES_COLLECTION), rule)
       
-      await auditTrail.logAction({
+      await auditTrailService.logEvent({
         userId: 'system',
         action: 'create_incident_response_rule',
         resourceType: 'incident_response_rule',

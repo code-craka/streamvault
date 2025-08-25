@@ -3,7 +3,7 @@ import { clerkMiddleware } from '@clerk/nextjs/server'
 import { rateLimiters, ddosProtection, createRateLimitMiddleware } from './rate-limiting'
 import { securityLogger, logSecurityIncident } from './logging'
 import { validateRequest, sanitizeInput } from './validation'
-import { auditTrail, logUserAction } from './audit-trail'
+import { auditTrailService } from './audit-trail'
 import { z } from 'zod'
 
 export interface SecurityConfig {
@@ -281,7 +281,7 @@ class SecurityMiddleware {
     if (realIP) return realIP
     if (forwarded) return forwarded.split(',')[0].trim()
     
-    return req.ip || 'unknown'
+    return 'unknown'
   }
 
   private generateRequestId(): string {
@@ -317,25 +317,27 @@ class SecurityMiddleware {
 
     const action = `${req.method.toLowerCase()}_${req.nextUrl.pathname.replace(/^\/api\//, '').replace(/\//g, '_')}`
     
-    await auditTrail.logAction({
-      userId: context.userId,
-      action,
-      resourceType: 'api',
-      resourceId: req.nextUrl.pathname,
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      sessionId: context.sessionId,
-      success,
-      severity: success ? 'low' : 'medium',
-      category: 'data_access',
-      complianceRelevant: false,
-      retentionPeriod: 90, // 90 days for API access logs
-      metadata: {
-        method: req.method,
-        statusCode: res.status,
-        requestId: context.requestId
-      }
-    })
+    try {
+      await auditTrailService.logEvent(
+        context.userId,
+        action,
+        'api',
+        {
+          resourceId: req.nextUrl.pathname,
+          outcome: success ? 'success' : 'failure',
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          severity: success ? 'low' : 'medium',
+          category: 'data',
+          metadata: {
+            method: req.method,
+            requestId: context.requestId
+          }
+        }
+      )
+    } catch (error) {
+      console.error('Audit logging failed:', error)
+    }
   }
 
   private getSeverityForEvent(eventType: string): 'low' | 'medium' | 'high' | 'critical' {
@@ -382,7 +384,7 @@ export function createSecureMiddleware() {
 
     // Continue with Clerk authentication
     // Protected routes will be handled by Clerk
-    const { userId } = auth()
+    const { userId } = await auth()
     
     // Add user context to security logging if authenticated
     if (userId) {
