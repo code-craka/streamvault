@@ -246,7 +246,7 @@ export function HLSPlayer({
         clearTimeout(controlsTimeout)
       }
     }
-  }, [playerState.isPlaying])
+  }, [resetControlsTimeout, controlsTimeout])
 
   // Player controls
   const togglePlay = () => {
@@ -369,11 +369,17 @@ export function HLSPlayer({
         {/* Progress Bar */}
         {!isLive && (
           <div className="mb-4">
+            <label htmlFor="progress-bar" className="sr-only">
+              Seek video
+            </label>
             <input
+              id="progress-bar"
               type="range"
               min={0}
               max={playerState.duration || 0}
               value={playerState.currentTime}
+              title="Seek video"
+              aria-label="Seek video"
               onChange={e => handleSeek(Number(e.target.value))}
               className="slider h-1 w-full cursor-pointer appearance-none rounded-lg bg-white/20"
             />
@@ -415,6 +421,9 @@ export function HLSPlayer({
               </Button>
 
               <input
+                id="volume-slider"
+                title="Adjust volume"
+                aria-label="Adjust volume"
                 type="range"
                 min={0}
                 max={1}

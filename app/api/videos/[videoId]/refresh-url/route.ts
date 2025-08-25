@@ -13,20 +13,13 @@ export async function POST(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { videoId } = await params
+    await params
     // Authenticate user
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
-      )
-    }
-
-    if (!videoId) {
-      return NextResponse.json(
-        { error: 'Video ID is required' },
-        { status: 400 }
       )
     }
 
@@ -50,16 +43,16 @@ export async function POST(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Signed URL refresh error:', error)
 
-    if (error.name === 'VideoAccessError') {
+    if (error instanceof Error && error.name === 'VideoAccessError') {
       return NextResponse.json(
         {
           error: error.message,
-          code: error.code,
+          code: (error as any).code,
         },
-        { status: error.statusCode }
+        { status: (error as any).statusCode }
       )
     }
 
@@ -76,7 +69,7 @@ export async function GET(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { videoId } = await params
+    await params
     // Authenticate user
     const { userId } = await auth()
     if (!userId) {
@@ -114,16 +107,16 @@ export async function GET(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Signed URL refresh error:', error)
 
-    if (error.name === 'VideoAccessError') {
+    if (error instanceof Error && error.name === 'VideoAccessError') {
       return NextResponse.json(
         {
           error: error.message,
-          code: error.code,
+          code: (error as any).code,
         },
-        { status: error.statusCode }
+        { status: (error as any).statusCode }
       )
     }
 

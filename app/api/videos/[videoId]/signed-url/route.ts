@@ -54,16 +54,16 @@ export async function GET(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Signed URL generation error:', error)
 
-    if (error.name === 'VideoAccessError') {
+    if (error instanceof Error && error.name === 'VideoAccessError') {
       return NextResponse.json(
         {
           error: error.message,
-          code: error.code,
+          code: (error as any).code,
         },
-        { status: error.statusCode }
+        { status: (error as any).statusCode }
       )
     }
 
@@ -109,16 +109,16 @@ export async function POST(
         refreshToken: result.refreshToken,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Signed URL generation error:', error)
 
-    if (error.name === 'VideoAccessError') {
+    if (error instanceof Error && error.name === 'VideoAccessError') {
       return NextResponse.json(
         {
           error: error.message,
-          code: error.code,
+          code: (error as any).code,
         },
-        { status: error.statusCode }
+        { status: (error as any).statusCode }
       )
     }
 

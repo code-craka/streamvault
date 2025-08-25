@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# PWA files
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /offline
+
+# Static assets
+Allow: /icons/
+Allow: /screenshots/
+
+Sitemap: https://streamvault.app/sitemap.xml

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAllGCSTests } from '@/lib/storage/gcs-test'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🧪 Starting GCS integration tests...')
 
@@ -33,19 +33,19 @@ export async function POST(request: NextRequest) {
     const { testType } = await request.json()
 
     switch (testType) {
-      case 'bucket-access':
+      case 'bucket-access': {
         const { validateBucketAccess } = await import(
           '@/lib/storage/gcs-client'
         )
         const hasAccess = await validateBucketAccess()
         return NextResponse.json({ success: hasAccess, testType })
-
-      case 'bucket-info':
+      }
+      case 'bucket-info': {
         const { getBucketInfo } = await import('@/lib/storage/gcs-client')
         const bucketInfo = await getBucketInfo()
         return NextResponse.json({ success: true, data: bucketInfo, testType })
-
-      case 'file-upload':
+      }
+      case 'file-upload': {
         const { fileUploadService } = await import('@/lib/storage/file-upload')
         const testContent = Buffer.from(
           `Test upload at ${new Date().toISOString()}`
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         await fileUploadService.deleteFile(result.filename)
 
         return NextResponse.json({ success: true, data: result, testType })
-
+      }
       default:
         return NextResponse.json(
           {

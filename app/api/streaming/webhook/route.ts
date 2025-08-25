@@ -21,6 +21,8 @@ const webhookEventSchema = z.object({
   data: z.record(z.any()).optional(),
 })
 
+type WebhookEvent = z.infer<typeof webhookEventSchema>
+
 /**
  * POST /api/streaming/webhook - Handle streaming server webhook events
  * This endpoint receives notifications from the RTMP/streaming server
@@ -58,11 +60,11 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (validatedEvent.event) {
       case 'stream_started':
-        await handleStreamStarted(stream.id, validatedEvent)
+        await handleStreamStarted(stream.id)
         break
 
       case 'stream_stopped':
-        await handleStreamStopped(stream.id, validatedEvent)
+        await handleStreamStopped(stream.id)
         break
 
       case 'stream_error':
@@ -102,10 +104,7 @@ export async function POST(request: NextRequest) {
 /**
  * Handle stream started event
  */
-async function handleStreamStarted(
-  streamId: string,
-  event: any
-): Promise<void> {
+async function handleStreamStarted(streamId: string): Promise<void> {
   try {
     console.log(`Stream ${streamId} started via RTMP`)
 
@@ -135,10 +134,7 @@ async function handleStreamStarted(
 /**
  * Handle stream stopped event
  */
-async function handleStreamStopped(
-  streamId: string,
-  event: any
-): Promise<void> {
+async function handleStreamStopped(streamId: string): Promise<void> {
   try {
     console.log(`Stream ${streamId} stopped via RTMP`)
 
@@ -168,7 +164,10 @@ async function handleStreamStopped(
 /**
  * Handle stream error event
  */
-async function handleStreamError(streamId: string, event: any): Promise<void> {
+async function handleStreamError(
+  streamId: string,
+  event: WebhookEvent
+): Promise<void> {
   try {
     console.error(`Stream ${streamId} encountered an error:`, event.data)
 
@@ -195,7 +194,7 @@ async function handleStreamError(streamId: string, event: any): Promise<void> {
  */
 async function handleStreamHeartbeat(
   streamId: string,
-  event: any
+  event: WebhookEvent
 ): Promise<void> {
   try {
     const healthData = event.data || {}

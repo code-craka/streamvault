@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { signedURLService } from '@/lib/storage/signed-url-service'
 import { checkUserRole } from '@/lib/auth/permissions'
 import { clerkClient } from '@clerk/nextjs/server'
+import { UserRole } from '@/types/auth'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Authenticate user
     const { userId } = await auth()
@@ -17,8 +18,8 @@ export async function POST(request: NextRequest) {
 
     // Check if user has admin permissions
     const user = await (await clerkClient()).users.getUser(userId)
-    const userRole = (user.publicMetadata?.role as string) || 'viewer'
-    const hasPermission = checkUserRole(userRole as any, 'admin')
+    const userRole = (user.publicMetadata?.role as UserRole) || 'viewer'
+    const hasPermission = checkUserRole(userRole, 'admin')
 
     if (!hasPermission) {
       return NextResponse.json(
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Authenticate user
     const { userId } = await auth()
@@ -60,8 +61,8 @@ export async function GET(request: NextRequest) {
 
     // Check if user has admin permissions
     const user = await (await clerkClient()).users.getUser(userId)
-    const userRole = (user.publicMetadata?.role as string) || 'viewer'
-    const hasPermission = checkUserRole(userRole as any, 'admin')
+    const userRole = (user.publicMetadata?.role as UserRole) || 'viewer'
+    const hasPermission = checkUserRole(userRole, 'admin')
 
     if (!hasPermission) {
       return NextResponse.json(

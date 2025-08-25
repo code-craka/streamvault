@@ -4,7 +4,7 @@ import {
   validateFirebaseEnvironment,
 } from '@/lib/firebase/connection-test'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // First validate environment variables
     const envValidation = validateFirebaseEnvironment()
@@ -49,24 +49,27 @@ export async function POST(request: NextRequest) {
 
     let result
     switch (testType) {
-      case 'client':
+      case 'client': {
         const { testClientConnection } = await import(
           '@/lib/firebase/connection-test'
         )
         result = await testClientConnection()
         break
-      case 'admin':
+      }
+      case 'admin': {
         const { testAdminConnection } = await import(
           '@/lib/firebase/connection-test'
         )
         result = await testAdminConnection()
         break
-      case 'crud':
+      }
+      case 'crud': {
         const { testCRUDOperations } = await import(
           '@/lib/firebase/connection-test'
         )
         result = await testCRUDOperations()
         break
+      }
       default:
         return NextResponse.json(
           {
