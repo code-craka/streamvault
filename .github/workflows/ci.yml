@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -104,7 +104,7 @@ jobs:
           fi
 
       - name: 'Upload coverage reports'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: hashFiles('coverage/lcov.info') != ''
         with:
           file: ./coverage/lcov.info
@@ -121,7 +121,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -162,7 +162,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -213,7 +213,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -250,7 +250,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Install pnpm'
         uses: pnpm/action-setup@v4
@@ -286,7 +286,7 @@ jobs:
           echo "✅ Bundle size check passed: $BUNDLE_SIZE bytes"
 
       - name: 'Lighthouse CI'
-        uses: treosh/lighthouse-ci-action@v10
+        uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: './lighthouserc.json'
           uploadArtifacts: true
@@ -304,7 +304,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 'Check deployment readiness'
         run: |
