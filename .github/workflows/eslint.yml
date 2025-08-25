@@ -1,0 +1,113 @@
+# ESLint Security Scanning Workflow
+# This workflow uses ESLint to identify and report on patterns
+# found in ECMAScript/JavaScript/TypeScript code.
+# More details at https://github.com/eslint/eslint
+
+name: ESLint Security Scan
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "main", "develop" ]
+  schedule:
+    # Run weekly on Tuesdays at 2:30 AM UTC
+    - cron: '30 2 * * 2'
+
+jobs:
+  eslint:
+    name: Run ESLint Security Scanning
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # Required for private repositories by github/codeql-action/upload-sarif
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.15.0'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install ESLint SARIF formatter
+        run: pnpm add --save-dev @microsoft/eslint-formatter-sarif
+
+      - name: Run ESLint with SARIF output
+        env:
+          SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
+        run: |
+          pnpm exec eslint . \
+            --format @microsoft/eslint-formatter-sarif \
+            --output-file eslint-results.sarif
+        continue-on-error: true
+
+      - name: Upload ESLint results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: eslint-results.sarif
+          wait-for-processing: true
+
+      - name: Upload ESLint results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eslint-results
+          path: eslint-results.sarif
+          retention-days: 30
+
+  lint-check:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.15.0'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint check
+        run: pnpm run lint:check
+
+      - name: Run TypeScript check
+        run: pnpm run type-check
+
+      - name: Run Prettier check
+        run: pnpm run format:check
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Code Quality Check Failed**\n\nPlease run the following commands to fix issues:\n\n```bash\npnpm run lint\npnpm run format\npnpm run type-check\n```'
+            })
