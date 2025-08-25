@@ -9,7 +9,7 @@ import globals from 'globals';
 
 /** @type {import('typescript-eslint').Config} */
 export default tseslint.config(
-  // Global ignores
+  // 1. Global ignores
   {
     ignores: [
       'node_modules/',
@@ -24,15 +24,18 @@ export default tseslint.config(
     ],
   },
 
-  // Base configurations for all files
+  // 2. Base ESLint rules
   eslint.configs.recommended,
+
+  // 3. TypeScript-specific rules
   ...tseslint.configs.recommended,
 
-  // Configuration for React, React Hooks, and Next.js
+  // 4. React, React Hooks, Next.js config
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
-    // Use the NEW flat-compatible recommended config for React
-    ...reactPlugin.configs.flat.recommended,
+
+    // Use safe spread for React plugin (avoids flat API issues)
+    ...reactPlugin.configs.recommended,
 
     plugins: {
       'react-hooks': hooksPlugin,
@@ -48,28 +51,28 @@ export default tseslint.config(
 
     settings: {
       react: {
-        version: 'detect', // Automatically detects the React version
+        version: 'detect',
       },
     },
 
     rules: {
-      // Start with recommended rules for React Hooks
+      // React Hooks rules
       ...hooksPlugin.configs.recommended.rules,
-      
-      // Your custom rules and overrides
+
+      // General JS/TS rules
       'prefer-const': 'error',
       'no-var': 'error',
 
-      // Warnings for things you want to keep an eye on
+      // Warnings
       'react-hooks/exhaustive-deps': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
 
-      // Rules that are often turned off in modern Next.js/TypeScript projects
+      // Turn off unnecessary rules for Next.js/TS
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/triple-slash-reference': 'off',
-      'react/react-in-jsx-scope': 'off', // Not needed with Next.js/React 17+
-      'react/prop-types': 'off', // Not needed when using TypeScript for props
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
     },
   }
 );
