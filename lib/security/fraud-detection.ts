@@ -1,7 +1,7 @@
 import { db } from '@/lib/firebase'
 import { collection, addDoc, query, where, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore'
 import { securityLogger } from './logging'
-import { auditTrail } from './audit-trail'
+import { auditTrailService } from './audit-trail'
 import Stripe from 'stripe'
 
 export interface FraudSignal {
@@ -464,7 +464,7 @@ class FraudDetectionEngine {
     }
     
     // Audit trail
-    await auditTrail.logAction({
+    await auditTrailService.logEvent({
       userId,
       action: 'fraud_analysis',
       resourceType: 'fraud_detection',

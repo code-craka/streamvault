@@ -20,11 +20,12 @@ export async function GET(request: NextRequest) {
 
     // Add timeframe filter if specified
     if (query.timeframe !== 'all') {
-      const timeframeHours = {
+      const timeframeMap = {
         '1d': 24,
         '7d': 24 * 7,
         '30d': 24 * 30,
-      }[query.timeframe as keyof typeof timeframeHours]
+      }
+      const timeframeHours: number = timeframeMap[query.timeframe as keyof typeof timeframeMap]
 
       if (timeframeHours) {
         const cutoffDate = new Date(Date.now() - timeframeHours * 60 * 60 * 1000)

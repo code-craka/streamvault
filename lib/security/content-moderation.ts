@@ -36,10 +36,10 @@ export interface ModerationAction {
 
 class ContentModerator {
   private config: ContentModerationConfig
-  private profanityList: Set<string>
-  private spamPatterns: RegExp[]
-  private personalInfoPatterns: RegExp[]
-  private linkPattern: RegExp
+  private profanityList!: Set<string>
+  private spamPatterns!: RegExp[]
+  private personalInfoPatterns!: RegExp[]
+  private linkPattern!: RegExp
 
   constructor(config: ContentModerationConfig) {
     this.config = config
@@ -98,7 +98,7 @@ class ContentModerator {
 
       // Media-based moderation (placeholder for AI services)
       if (['image', 'video', 'audio'].includes(contentType)) {
-        await this.moderateMedia(content, contentType, result)
+        await this.moderateMedia(content, contentType as 'image' | 'video' | 'audio', result)
       }
 
       // Determine final action based on results

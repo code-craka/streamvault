@@ -54,16 +54,16 @@ const trackQualitySchema = z.object({
 
 const trackEngagementSchema = z.object({
   action: z.literal('engagement'),
-  streamId: z.string().optional(),
+  streamId: z.string(),
   sessionId: z.string(),
-  eventType: z.string(),
+  eventType: z.enum(['view_start', 'view_end', 'chat_message', 'subscription', 'donation', 'share', 'like']),
   eventData: z.record(z.any()).optional(),
   value: z.number().optional()
 })
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     const body = await request.json()
 
     // Validate request body based on action type
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         validatedData = trackEngagementSchema.parse(body)
         await analyticsService.trackEngagementEvent({
           streamId: validatedData.streamId,
-          userId,
+          userId: userId || undefined,
           timestamp: new Date(),
           eventType: validatedData.eventType,
           sessionId: validatedData.sessionId,
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
 // GET endpoint for retrieving real-time analytics
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },

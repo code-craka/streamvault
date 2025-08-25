@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { CreatorDashboard } from '@/components/dashboard/creator-dashboard'
 
 export default async function CreatorDashboardPage() {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   if (!userId) {
     redirect('/sign-in')

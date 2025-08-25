@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: { streamId: string; messageId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -53,7 +53,7 @@ export async function PATCH(
   { params }: { params: { streamId: string; messageId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -62,7 +62,7 @@ export async function PATCH(
     }
 
     // Get user details to check permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     // Check if user has permission to moderate messages
@@ -155,7 +155,7 @@ export async function DELETE(
   { params }: { params: { streamId: string; messageId: string } }
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -183,7 +183,7 @@ export async function DELETE(
     }
 
     // Get user details to check permissions
-    const user = await clerkClient.users.getUser(userId)
+    const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
     
     // Check permissions: user can delete their own messages, or moderators can delete any
