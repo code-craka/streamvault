@@ -27,9 +27,11 @@ export function isPWAInstallable(): boolean {
 
 // Check if PWA is already installed
 export function isPWAInstalled(): boolean {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-         window.matchMedia('(display-mode: fullscreen)').matches ||
-         (window.navigator as any).standalone === true
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches ||
+    (window.navigator as any).standalone === true
+  )
 }
 
 // Register service worker
@@ -41,7 +43,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+      scope: '/',
     })
 
     console.log('Service Worker registered successfully:', registration)
@@ -51,7 +53,10 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
       const newWorker = registration.installing
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          if (
+            newWorker.state === 'installed' &&
+            navigator.serviceWorker.controller
+          ) {
             // New service worker is available
             showUpdateAvailableNotification()
           }
@@ -72,7 +77,7 @@ function showUpdateAvailableNotification(): void {
     new Notification('StreamVault Update Available', {
       body: 'A new version of StreamVault is available. Refresh to update.',
       icon: '/icons/icon-192x192.png',
-      tag: 'app-update'
+      tag: 'app-update',
     })
   }
 }
@@ -92,7 +97,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return {
     granted: permission === 'granted',
     denied: permission === 'denied',
-    default: permission === 'default'
+    default: permission === 'default',
   }
 }
 
@@ -104,7 +109,7 @@ export async function subscribeToPushNotifications(
   try {
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     })
 
     console.log('Push subscription successful:', subscription)
@@ -117,10 +122,8 @@ export async function subscribeToPushNotifications(
 
 // Convert VAPID key
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4)
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
 
   const rawData = window.atob(base64)
   const outputArray = new Uint8Array(rawData.length)
@@ -137,14 +140,19 @@ export function getPWACapabilities(): PWACapabilities {
     isInstallable: isPWAInstallable(),
     isInstalled: isPWAInstalled(),
     isOnline: navigator.onLine,
-    hasNotificationPermission: 'Notification' in window && Notification.permission === 'granted',
-    supportsBackgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
-    supportsServiceWorker: 'serviceWorker' in navigator
+    hasNotificationPermission:
+      'Notification' in window && Notification.permission === 'granted',
+    supportsBackgroundSync:
+      'serviceWorker' in navigator &&
+      'sync' in window.ServiceWorkerRegistration.prototype,
+    supportsServiceWorker: 'serviceWorker' in navigator,
   }
 }
 
 // Install PWA
-export async function installPWA(deferredPrompt: PWAInstallPrompt): Promise<boolean> {
+export async function installPWA(
+  deferredPrompt: PWAInstallPrompt
+): Promise<boolean> {
   if (!deferredPrompt) {
     console.warn('No install prompt available')
     return false
@@ -164,7 +172,9 @@ export async function installPWA(deferredPrompt: PWAInstallPrompt): Promise<bool
 
 // Check if device is mobile
 export function isMobileDevice(): boolean {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
 }
 
 // Check if device supports touch
@@ -175,13 +185,13 @@ export function supportsTouchGestures(): boolean {
 // Add to home screen guidance
 export function getAddToHomeScreenInstructions(): string {
   const userAgent = navigator.userAgent.toLowerCase()
-  
+
   if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
     return 'Tap the Share button and select "Add to Home Screen"'
   } else if (userAgent.includes('android')) {
     return 'Tap the menu button and select "Add to Home Screen" or "Install App"'
   } else {
-    return 'Look for the install button in your browser\'s address bar'
+    return "Look for the install button in your browser's address bar"
   }
 }
 
@@ -222,9 +232,7 @@ export async function registerBackgroundSync(
 export async function clearPWACache(): Promise<void> {
   if ('caches' in window) {
     const cacheNames = await caches.keys()
-    await Promise.all(
-      cacheNames.map(cacheName => caches.delete(cacheName))
-    )
+    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
     console.log('PWA cache cleared')
   }
 }
@@ -238,7 +246,7 @@ export async function getCacheSize(): Promise<number> {
   for (const cacheName of cacheNames) {
     const cache = await caches.open(cacheName)
     const requests = await cache.keys()
-    
+
     for (const request of requests) {
       const response = await cache.match(request)
       if (response) {
@@ -255,7 +263,7 @@ export async function getCacheSize(): Promise<number> {
 export function formatCacheSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   if (bytes === 0) return '0 Bytes'
-  
+
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i]
 }

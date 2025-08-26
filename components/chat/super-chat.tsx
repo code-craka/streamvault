@@ -6,23 +6,23 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Gift, 
-  DollarSign, 
-  Heart, 
-  Star, 
-  Crown,
-  Zap,
-  X
-} from 'lucide-react'
+import { Gift, DollarSign, Heart, Star, Crown, Zap, X } from 'lucide-react'
 
 interface SuperChatProps {
   streamId: string
-  onSuperChat?: (amount: number, message: string, currency: string) => Promise<void>
+  onSuperChat?: (
+    amount: number,
+    message: string,
+    currency: string
+  ) => Promise<void>
   className?: string
 }
 
-export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) {
+export function SuperChat({
+  streamId,
+  onSuperChat,
+  className,
+}: SuperChatProps) {
   const { user } = useUser()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
@@ -32,17 +32,53 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
 
   // Predefined super chat amounts with colors and durations
   const superChatTiers = [
-    { amount: 2, color: '#1e90ff', duration: 15, icon: Heart, label: 'Support' },
-    { amount: 5, color: '#00ff00', duration: 30, icon: Star, label: 'Appreciate' },
-    { amount: 10, color: '#ffff00', duration: 60, icon: Zap, label: 'Highlight' },
-    { amount: 20, color: '#ff6600', duration: 120, icon: Crown, label: 'Feature' },
-    { amount: 50, color: '#ff0000', duration: 180, icon: Gift, label: 'Celebrate' },
-    { amount: 100, color: '#9400d3', duration: 300, icon: Crown, label: 'Champion' },
+    {
+      amount: 2,
+      color: '#1e90ff',
+      duration: 15,
+      icon: Heart,
+      label: 'Support',
+    },
+    {
+      amount: 5,
+      color: '#00ff00',
+      duration: 30,
+      icon: Star,
+      label: 'Appreciate',
+    },
+    {
+      amount: 10,
+      color: '#ffff00',
+      duration: 60,
+      icon: Zap,
+      label: 'Highlight',
+    },
+    {
+      amount: 20,
+      color: '#ff6600',
+      duration: 120,
+      icon: Crown,
+      label: 'Feature',
+    },
+    {
+      amount: 50,
+      color: '#ff0000',
+      duration: 180,
+      icon: Gift,
+      label: 'Celebrate',
+    },
+    {
+      amount: 100,
+      color: '#9400d3',
+      duration: 300,
+      icon: Crown,
+      label: 'Champion',
+    },
   ]
 
   const handleSuperChat = async () => {
     const amount = selectedAmount || parseFloat(customAmount)
-    
+
     if (!amount || amount < 1 || amount > 500) {
       alert('Please select a valid amount between $1 and $500')
       return
@@ -70,14 +106,19 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
   }
 
   const getTierForAmount = (amount: number) => {
-    return superChatTiers
-      .slice()
-      .reverse()
-      .find(tier => amount >= tier.amount) || superChatTiers[0]
+    return (
+      superChatTiers
+        .slice()
+        .reverse()
+        .find(tier => amount >= tier.amount) || superChatTiers[0]
+    )
   }
 
-  const currentTier = selectedAmount ? getTierForAmount(selectedAmount) : 
-                     customAmount ? getTierForAmount(parseFloat(customAmount)) : null
+  const currentTier = selectedAmount
+    ? getTierForAmount(selectedAmount)
+    : customAmount
+      ? getTierForAmount(parseFloat(customAmount))
+      : null
 
   if (!user) {
     return null
@@ -89,19 +130,19 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className={`bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 hover:from-yellow-600 hover:to-orange-600 ${className}`}
+        className={`border-0 bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 ${className}`}
       >
-        <Gift className="h-4 w-4 mr-2" />
+        <Gift className="mr-2 h-4 w-4" />
         Super Chat
       </Button>
     )
   }
 
   return (
-    <Card className={`p-4 space-y-4 ${className}`}>
+    <Card className={`space-y-4 p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold flex items-center space-x-2">
+        <h3 className="flex items-center space-x-2 font-semibold">
           <Gift className="h-4 w-4" />
           <span>Super Chat</span>
         </h3>
@@ -117,9 +158,9 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
 
       {/* Amount Selection */}
       <div>
-        <p className="text-sm font-medium mb-3">Choose Amount</p>
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          {superChatTiers.map((tier) => {
+        <p className="mb-3 text-sm font-medium">Choose Amount</p>
+        <div className="mb-3 grid grid-cols-3 gap-2">
+          {superChatTiers.map(tier => {
             const Icon = tier.icon
             return (
               <Button
@@ -130,13 +171,14 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
                   setSelectedAmount(tier.amount)
                   setCustomAmount('')
                 }}
-                className="flex flex-col h-auto py-2"
+                className="flex h-auto flex-col py-2"
                 style={{
-                  backgroundColor: selectedAmount === tier.amount ? tier.color : undefined,
+                  backgroundColor:
+                    selectedAmount === tier.amount ? tier.color : undefined,
                   borderColor: tier.color,
                 }}
               >
-                <Icon className="h-3 w-3 mb-1" />
+                <Icon className="mb-1 h-3 w-3" />
                 <span className="text-xs">${tier.amount}</span>
               </Button>
             )
@@ -150,7 +192,7 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
               type="number"
               placeholder="Custom amount ($1-$500)"
               value={customAmount}
-              onChange={(e) => {
+              onChange={e => {
                 setCustomAmount(e.target.value)
                 setSelectedAmount(null)
               }}
@@ -159,7 +201,7 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
               step={0.01}
             />
           </div>
-          <div className="flex items-center px-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center px-2 text-sm">
             USD
           </div>
         </div>
@@ -167,23 +209,24 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
 
       {/* Preview */}
       {currentTier && (
-        <div 
-          className="p-3 rounded-lg border-l-4"
-          style={{ 
+        <div
+          className="rounded-lg border-l-4 p-3"
+          style={{
             borderLeftColor: currentTier.color,
-            backgroundColor: `${currentTier.color}20`
+            backgroundColor: `${currentTier.color}20`,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <Badge 
-              variant="secondary" 
+          <div className="mb-2 flex items-center justify-between">
+            <Badge
+              variant="secondary"
               className="text-xs"
               style={{ backgroundColor: currentTier.color, color: 'white' }}
             >
               {currentTier.label}
             </Badge>
-            <span className="text-xs text-muted-foreground">
-              Highlighted for {Math.floor(currentTier.duration / 60)}m {currentTier.duration % 60}s
+            <span className="text-muted-foreground text-xs">
+              Highlighted for {Math.floor(currentTier.duration / 60)}m{' '}
+              {currentTier.duration % 60}s
             </span>
           </div>
           <p className="text-sm font-medium">
@@ -194,14 +237,14 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
 
       {/* Message Input */}
       <div>
-        <p className="text-sm font-medium mb-2">Your Message</p>
+        <p className="mb-2 text-sm font-medium">Your Message</p>
         <Input
           placeholder="Say something nice... (max 200 characters)"
           value={message}
-          onChange={(e) => setMessage(e.target.value.slice(0, 200))}
+          onChange={e => setMessage(e.target.value.slice(0, 200))}
           maxLength={200}
         />
-        <div className="flex justify-between items-center mt-1 text-xs text-muted-foreground">
+        <div className="text-muted-foreground mt-1 flex items-center justify-between text-xs">
           <span>{message.length}/200</span>
           <span>Your message will be highlighted in chat</span>
         </div>
@@ -218,14 +261,18 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
         </Button>
         <Button
           onClick={handleSuperChat}
-          disabled={isProcessing || (!selectedAmount && !customAmount) || !message.trim()}
+          disabled={
+            isProcessing ||
+            (!selectedAmount && !customAmount) ||
+            !message.trim()
+          }
           className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
         >
           {isProcessing ? (
             'Processing...'
           ) : (
             <>
-              <DollarSign className="h-4 w-4 mr-2" />
+              <DollarSign className="mr-2 h-4 w-4" />
               Send ${selectedAmount || customAmount || 0}
             </>
           )}
@@ -233,7 +280,7 @@ export function SuperChat({ streamId, onSuperChat, className }: SuperChatProps) 
       </div>
 
       {/* Info */}
-      <div className="text-xs text-muted-foreground space-y-1">
+      <div className="text-muted-foreground space-y-1 text-xs">
         <p>• Super Chats are highlighted and pinned in chat</p>
         <p>• Higher amounts stay visible longer</p>
         <p>• Support your favorite creators directly</p>
@@ -257,7 +304,11 @@ interface SuperChatDisplayProps {
   className?: string
 }
 
-export function SuperChatDisplay({ superChat, onDismiss, className }: SuperChatDisplayProps) {
+export function SuperChatDisplay({
+  superChat,
+  onDismiss,
+  className,
+}: SuperChatDisplayProps) {
   const [timeRemaining, setTimeRemaining] = useState(superChat.displayDuration)
 
   // Countdown timer
@@ -277,21 +328,18 @@ export function SuperChatDisplay({ superChat, onDismiss, className }: SuperChatD
   })
 
   return (
-    <div 
-      className={`p-4 rounded-lg border-l-4 shadow-lg animate-in slide-in-from-right ${className}`}
-      style={{ 
+    <div
+      className={`animate-in slide-in-from-right rounded-lg border-l-4 p-4 shadow-lg ${className}`}
+      style={{
         borderLeftColor: superChat.color,
-        background: `linear-gradient(135deg, ${superChat.color}20, ${superChat.color}10)`
+        background: `linear-gradient(135deg, ${superChat.color}20, ${superChat.color}10)`,
       }}
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Gift 
-            className="h-4 w-4" 
-            style={{ color: superChat.color }}
-          />
-          <span className="font-semibold text-sm">{superChat.username}</span>
-          <Badge 
+          <Gift className="h-4 w-4" style={{ color: superChat.color }} />
+          <span className="text-sm font-semibold">{superChat.username}</span>
+          <Badge
             variant="secondary"
             style={{ backgroundColor: superChat.color, color: 'white' }}
             className="text-xs"
@@ -300,8 +348,9 @@ export function SuperChatDisplay({ superChat, onDismiss, className }: SuperChatD
           </Badge>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-muted-foreground">
-            {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+          <span className="text-muted-foreground text-xs">
+            {Math.floor(timeRemaining / 60)}:
+            {(timeRemaining % 60).toString().padStart(2, '0')}
           </span>
           {onDismiss && (
             <Button

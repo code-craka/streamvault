@@ -50,8 +50,14 @@ class ContentModerator {
     // Common profanity words (this would be loaded from a comprehensive database)
     this.profanityList = new Set([
       // Basic profanity - in production, use a comprehensive database
-      'spam', 'scam', 'fake', 'bot', 'hack', 'cheat', 'exploit',
-      ...this.config.customBlockedWords
+      'spam',
+      'scam',
+      'fake',
+      'bot',
+      'hack',
+      'cheat',
+      'exploit',
+      ...this.config.customBlockedWords,
     ])
 
     // Spam detection patterns
@@ -72,7 +78,8 @@ class ContentModerator {
     ]
 
     // Link pattern for filtering
-    this.linkPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
+    this.linkPattern =
+      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
   }
 
   async moderateContent(
@@ -87,7 +94,7 @@ class ContentModerator {
       reasons: [],
       detectedCategories: [],
       suggestedAction: 'approve',
-      filteredContent: content
+      filteredContent: content,
     }
 
     try {
@@ -98,7 +105,11 @@ class ContentModerator {
 
       // Media-based moderation (placeholder for AI services)
       if (['image', 'video', 'audio'].includes(contentType)) {
-        await this.moderateMedia(content, contentType as 'image' | 'video' | 'audio', result)
+        await this.moderateMedia(
+          content,
+          contentType as 'image' | 'video' | 'audio',
+          result
+        )
       }
 
       // Determine final action based on results
@@ -118,16 +129,15 @@ class ContentModerator {
             reasons: result.reasons,
             detectedCategories: result.detectedCategories,
             confidence: result.confidence,
-            originalContent: content.substring(0, 100) // First 100 chars for logging
-          }
+            originalContent: content.substring(0, 100), // First 100 chars for logging
+          },
         })
       }
 
       return result
-
     } catch (error) {
       console.error('Content moderation error:', error)
-      
+
       // Fail safe - reject content if moderation fails
       return {
         approved: false,
@@ -135,12 +145,15 @@ class ContentModerator {
         reasons: ['Moderation system error'],
         detectedCategories: ['system_error'],
         suggestedAction: 'review',
-        filteredContent: content
+        filteredContent: content,
       }
     }
   }
 
-  private async moderateText(content: string, result: ModerationResult): Promise<void> {
+  private async moderateText(
+    content: string,
+    result: ModerationResult
+  ): Promise<void> {
     let filteredContent = content
 
     // Length check
@@ -167,7 +180,7 @@ class ContentModerator {
       if (spamScore > 0.7) {
         result.reasons.push('Spam-like content detected')
         result.detectedCategories.push('spam')
-        result.confidence *= (1 - spamScore)
+        result.confidence *= 1 - spamScore
       }
     }
 
@@ -186,10 +199,11 @@ class ContentModerator {
     if (this.config.enableLinkFiltering) {
       const linksFound = this.detectLinks(content)
       if (linksFound.length > 0) {
-        const unauthorizedLinks = linksFound.filter(link => 
-          !this.config.allowedDomains.some(domain => link.includes(domain))
+        const unauthorizedLinks = linksFound.filter(
+          link =>
+            !this.config.allowedDomains.some(domain => link.includes(domain))
         )
-        
+
         if (unauthorizedLinks.length > 0) {
           result.reasons.push('Unauthorized links detected')
           result.detectedCategories.push('unauthorized_links')
@@ -205,7 +219,7 @@ class ContentModerator {
       if (toxicityScore > 0.8) {
         result.reasons.push('Toxic content detected')
         result.detectedCategories.push('toxicity')
-        result.confidence *= (1 - toxicityScore)
+        result.confidence *= 1 - toxicityScore
       }
     }
 
@@ -222,29 +236,31 @@ class ContentModerator {
     // - Google Cloud Vision API for image moderation
     // - AWS Rekognition for video content analysis
     // - Azure Content Moderator for comprehensive media analysis
-    
+
     try {
       // Simulate AI moderation call
-      const moderationScore = await this.callAIModerationService(content, contentType)
-      
+      const moderationScore = await this.callAIModerationService(
+        content,
+        contentType
+      )
+
       if (moderationScore.inappropriate > 0.8) {
         result.reasons.push(`Inappropriate ${contentType} content detected`)
         result.detectedCategories.push('inappropriate_media')
-        result.confidence *= (1 - moderationScore.inappropriate)
+        result.confidence *= 1 - moderationScore.inappropriate
       }
-      
+
       if (moderationScore.violence > 0.7) {
         result.reasons.push('Violent content detected')
         result.detectedCategories.push('violence')
-        result.confidence *= (1 - moderationScore.violence)
+        result.confidence *= 1 - moderationScore.violence
       }
-      
+
       if (moderationScore.adult > 0.9) {
         result.reasons.push('Adult content detected')
         result.detectedCategories.push('adult_content')
-        result.confidence *= (1 - moderationScore.adult)
+        result.confidence *= 1 - moderationScore.adult
       }
-      
     } catch (error) {
       console.error('AI moderation service error:', error)
       result.reasons.push('Unable to verify media content')
@@ -296,7 +312,7 @@ class ContentModerator {
 
   private detectPersonalInfo(content: string): string[] {
     const detected: string[] = []
-    
+
     this.personalInfoPatterns.forEach((pattern, index) => {
       const matches = content.match(pattern)
       if (matches) {
@@ -304,17 +320,17 @@ class ContentModerator {
         detected.push(types[index] || 'personal_info')
       }
     })
-    
+
     return detected
   }
 
   private filterPersonalInfo(content: string): string {
     let filtered = content
-    
+
     this.personalInfoPatterns.forEach(pattern => {
       filtered = filtered.replace(pattern, '[REDACTED]')
     })
-    
+
     return filtered
   }
 
@@ -333,16 +349,23 @@ class ContentModerator {
     // - Google Perspective API
     // - OpenAI Moderation API
     // - Custom trained models
-    
+
     // Simple keyword-based toxicity detection for now
     const toxicKeywords = [
-      'hate', 'kill', 'die', 'stupid', 'idiot', 'loser', 'trash', 'garbage'
+      'hate',
+      'kill',
+      'die',
+      'stupid',
+      'idiot',
+      'loser',
+      'trash',
+      'garbage',
     ]
-    
+
     const words = content.toLowerCase().split(/\s+/)
     const toxicWords = words.filter(word => toxicKeywords.includes(word))
-    
-    return Math.min(toxicWords.length / words.length * 2, 1)
+
+    return Math.min((toxicWords.length / words.length) * 2, 1)
   }
 
   private async callAIModerationService(
@@ -360,7 +383,7 @@ class ContentModerator {
       inappropriate: Math.random() * 0.3, // Low random score
       violence: Math.random() * 0.2,
       adult: Math.random() * 0.1,
-      spam: Math.random() * 0.4
+      spam: Math.random() * 0.4,
     }
   }
 
@@ -381,18 +404,26 @@ class ContentModerator {
 
     // Override for critical violations
     const criticalCategories = ['personal_info', 'adult_content', 'violence']
-    if (result.detectedCategories.some(cat => criticalCategories.includes(cat))) {
+    if (
+      result.detectedCategories.some(cat => criticalCategories.includes(cat))
+    ) {
       result.approved = false
       result.suggestedAction = 'reject'
     }
   }
 
-  private getSeverityFromAction(action: string): 'low' | 'medium' | 'high' | 'critical' {
+  private getSeverityFromAction(
+    action: string
+  ): 'low' | 'medium' | 'high' | 'critical' {
     switch (action) {
-      case 'reject': return 'high'
-      case 'review': return 'medium'
-      case 'flag': return 'low'
-      default: return 'low'
+      case 'reject':
+        return 'high'
+      case 'review':
+        return 'medium'
+      case 'flag':
+        return 'low'
+      default:
+        return 'low'
     }
   }
 }

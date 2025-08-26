@@ -11,10 +11,7 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { streamId } = params
@@ -36,11 +33,20 @@ export async function POST(
     if (!result.success) {
       return NextResponse.json(
         { error: result.error },
-        { status: result.code === 'STREAM_NOT_FOUND' ? 404 :
-                 result.code === 'UNAUTHORIZED' ? 403 :
-                 result.code === 'STREAM_NOT_ENDED' ? 400 :
-                 result.code === 'RECORDING_NOT_ENABLED' ? 400 :
-                 result.code === 'VOD_ALREADY_EXISTS' ? 409 : 500 }
+        {
+          status:
+            result.code === 'STREAM_NOT_FOUND'
+              ? 404
+              : result.code === 'UNAUTHORIZED'
+                ? 403
+                : result.code === 'STREAM_NOT_ENDED'
+                  ? 400
+                  : result.code === 'RECORDING_NOT_ENABLED'
+                    ? 400
+                    : result.code === 'VOD_ALREADY_EXISTS'
+                      ? 409
+                      : 500,
+        }
       )
     }
 
@@ -50,7 +56,6 @@ export async function POST(
       aiResults: result.data?.aiResults,
       message: 'VOD creation started successfully',
     })
-
   } catch (error) {
     console.error('Failed to create VOD from stream:', error)
     return NextResponse.json(

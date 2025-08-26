@@ -1,6 +1,10 @@
 import Stripe from 'stripe'
 import { clerkClient } from '@clerk/nextjs/server'
-import { SUBSCRIPTION_TIERS, getSubscriptionTier, type SubscriptionTier } from './subscription-tiers'
+import {
+  SUBSCRIPTION_TIERS,
+  getSubscriptionTier,
+  type SubscriptionTier,
+} from './subscription-tiers'
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY is required')
@@ -151,7 +155,9 @@ export class SubscriptionService {
       })
 
       // Update user metadata
-      await (await clerkClient()).users.updateUserMetadata(userId, {
+      await (
+        await clerkClient()
+      ).users.updateUserMetadata(userId, {
         publicMetadata: {
           ...user.publicMetadata,
           subscriptionStatus: 'canceled',
@@ -180,7 +186,9 @@ export class SubscriptionService {
       })
 
       // Update user metadata
-      await (await clerkClient()).users.updateUserMetadata(userId, {
+      await (
+        await clerkClient()
+      ).users.updateUserMetadata(userId, {
         publicMetadata: {
           ...user.publicMetadata,
           subscriptionStatus: 'active',
@@ -195,7 +203,9 @@ export class SubscriptionService {
   /**
    * Update user metadata based on subscription
    */
-  async updateUserSubscription(subscription: Stripe.Subscription): Promise<void> {
+  async updateUserSubscription(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     try {
       const userId = subscription.metadata.userId
       if (!userId) {
@@ -209,7 +219,9 @@ export class SubscriptionService {
         return
       }
 
-      await (await clerkClient()).users.updateUserMetadata(userId, {
+      await (
+        await clerkClient()
+      ).users.updateUserMetadata(userId, {
         publicMetadata: {
           subscriptionTier: tier,
           subscriptionStatus: subscription.status,
@@ -220,7 +232,9 @@ export class SubscriptionService {
         },
       })
 
-      console.log(`Updated user ${userId} subscription to ${tier} (${subscription.status})`)
+      console.log(
+        `Updated user ${userId} subscription to ${tier} (${subscription.status})`
+      )
     } catch (error) {
       console.error('Error updating user subscription:', error)
       throw error
@@ -230,7 +244,9 @@ export class SubscriptionService {
   /**
    * Handle subscription cancellation
    */
-  async handleSubscriptionCancellation(subscription: Stripe.Subscription): Promise<void> {
+  async handleSubscriptionCancellation(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     try {
       const userId = subscription.metadata.userId
       if (!userId) {
@@ -238,7 +254,9 @@ export class SubscriptionService {
         return
       }
 
-      await (await clerkClient()).users.updateUserMetadata(userId, {
+      await (
+        await clerkClient()
+      ).users.updateUserMetadata(userId, {
         publicMetadata: {
           subscriptionTier: null,
           subscriptionStatus: 'canceled',

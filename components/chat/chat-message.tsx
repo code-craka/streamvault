@@ -15,22 +15,22 @@ interface ChatMessageProps {
   className?: string
 }
 
-export function ChatMessageComponent({ 
-  message, 
-  onDelete, 
-  onReport, 
-  className 
+export function ChatMessageComponent({
+  message,
+  onDelete,
+  onReport,
+  className,
 }: ChatMessageProps) {
   const { user } = useUser()
   const [showActions, setShowActions] = useState(false)
 
   const canDelete = () => {
     if (!user) return false
-    
+
     const userRole = user.publicMetadata?.role as string
     const isMessageOwner = user.id === message.userId
     const isModerator = ['admin', 'streamer'].includes(userRole)
-    
+
     return isMessageOwner || isModerator
   }
 
@@ -41,21 +41,21 @@ export function ChatMessageComponent({
   const getUserRoleBadge = () => {
     if (message.metadata.isStreamer) {
       return (
-        <Badge variant="destructive" className="text-xs ml-2">
+        <Badge variant="destructive" className="ml-2 text-xs">
           Streamer
         </Badge>
       )
     }
     if (message.metadata.isModerator) {
       return (
-        <Badge variant="secondary" className="text-xs ml-2">
+        <Badge variant="secondary" className="ml-2 text-xs">
           Mod
         </Badge>
       )
     }
     if (message.metadata.isPremium) {
       return (
-        <Badge variant="outline" className="text-xs ml-2">
+        <Badge variant="outline" className="ml-2 text-xs">
           {message.metadata.subscriptionTier?.toUpperCase() || 'Premium'}
         </Badge>
       )
@@ -90,7 +90,7 @@ export function ChatMessageComponent({
   const renderMessageContent = () => {
     if (message.isDeleted) {
       return (
-        <p className="text-sm italic text-muted-foreground">
+        <p className="text-muted-foreground text-sm italic">
           [Message deleted by {message.deletedBy}]
         </p>
       )
@@ -98,7 +98,7 @@ export function ChatMessageComponent({
 
     // Process message for mentions and links
     let content = message.message
-    
+
     // Highlight mentions
     message.metadata.mentions.forEach(mention => {
       content = content.replace(
@@ -116,8 +116,8 @@ export function ChatMessageComponent({
     })
 
     return (
-      <p 
-        className="text-sm break-words"
+      <p
+        className="break-words text-sm"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     )
@@ -127,13 +127,13 @@ export function ChatMessageComponent({
     if (message.metadata.emotes.length === 0) return null
 
     return (
-      <div className="flex flex-wrap gap-1 mt-1">
+      <div className="mt-1 flex flex-wrap gap-1">
         {message.metadata.emotes.map((emote, index) => (
           <img
             key={index}
             src={emote.emoteUrl}
             alt={emote.emoteName}
-            className="h-6 w-6 inline-block"
+            className="inline-block h-6 w-6"
             title={emote.emoteName}
           />
         ))}
@@ -145,12 +145,12 @@ export function ChatMessageComponent({
     if (message.metadata.moderationFlags.length === 0) return null
 
     return (
-      <div className="flex flex-wrap gap-1 mt-1">
+      <div className="mt-1 flex flex-wrap gap-1">
         {message.metadata.moderationFlags.map((flag, index) => (
           <Badge
             key={index}
             variant="outline"
-            className="text-xs text-orange-400 border-orange-400"
+            className="border-orange-400 text-xs text-orange-400"
           >
             {flag.type} ({Math.round(flag.confidence * 100)}%)
           </Badge>
@@ -161,25 +161,25 @@ export function ChatMessageComponent({
 
   return (
     <div
-      className={`group relative p-3 rounded-lg transition-colors hover:bg-muted/50 ${getMessagePriorityClass()} ${className}`}
+      className={`hover:bg-muted/50 group relative rounded-lg p-3 transition-colors ${getMessagePriorityClass()} ${className}`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Message Header */}
-      <div className="flex items-center justify-between mb-1">
+      <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className={`font-semibold text-sm ${getUsernameColor()}`}>
+          <span className={`text-sm font-semibold ${getUsernameColor()}`}>
             {message.username}
           </span>
           {getUserRoleBadge()}
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {formatTimestamp()}
           </span>
         </div>
 
         {/* Action Buttons */}
         {showActions && (
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100">
             {canReport() && (
               <Button
                 variant="ghost"
@@ -196,7 +196,7 @@ export function ChatMessageComponent({
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete?.(message.id)}
-                className="h-6 w-6 p-0 hover:bg-destructive/20 hover:text-destructive"
+                className="hover:bg-destructive/20 hover:text-destructive h-6 w-6 p-0"
                 title="Delete message"
               >
                 <Trash2 className="h-3 w-3" />
@@ -214,18 +214,20 @@ export function ChatMessageComponent({
       </div>
 
       {/* Super Chat Indicator */}
-      {message.messageType === 'super_chat' && message.metadata.superChatAmount && (
-        <div className="mt-2 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-yellow-400">
-              Super Chat
-            </span>
-            <span className="text-sm font-bold text-yellow-400">
-              ${message.metadata.superChatAmount} {message.metadata.superChatCurrency || 'USD'}
-            </span>
+      {message.messageType === 'super_chat' &&
+        message.metadata.superChatAmount && (
+          <div className="mt-2 rounded border border-yellow-500/30 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-yellow-400">
+                Super Chat
+              </span>
+              <span className="text-sm font-bold text-yellow-400">
+                ${message.metadata.superChatAmount}{' '}
+                {message.metadata.superChatCurrency || 'USD'}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   )
 }

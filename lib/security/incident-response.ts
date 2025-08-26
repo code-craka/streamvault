@@ -1,15 +1,37 @@
 import { db } from '@/lib/firebase'
-import { collection, addDoc, query, where, orderBy, limit, getDocs, doc, updateDoc } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  doc,
+  updateDoc,
+} from 'firebase/firestore'
 import { securityLogger } from './logging'
 import { auditTrailService } from './audit-trail'
 import { keyRotationService } from './key-rotation'
 
 export interface SecurityIncident {
   id?: string
-  type: 'data_breach' | 'account_takeover' | 'ddos_attack' | 'malware_detection' | 
-        'unauthorized_access' | 'privilege_escalation' | 'fraud_detection' | 'system_compromise'
+  type:
+    | 'data_breach'
+    | 'account_takeover'
+    | 'ddos_attack'
+    | 'malware_detection'
+    | 'unauthorized_access'
+    | 'privilege_escalation'
+    | 'fraud_detection'
+    | 'system_compromise'
   severity: 'low' | 'medium' | 'high' | 'critical'
-  status: 'detected' | 'investigating' | 'contained' | 'resolved' | 'false_positive'
+  status:
+    | 'detected'
+    | 'investigating'
+    | 'contained'
+    | 'resolved'
+    | 'false_positive'
   detectedAt: number
   resolvedAt?: number
   affectedUsers: string[]
@@ -59,14 +81,17 @@ export interface IncidentResponseRule {
 export interface AutomatedAction {
   name: string
   description: string
-  execute: (incident: SecurityIncident, parameters: Record<string, any>) => Promise<boolean>
+  execute: (
+    incident: SecurityIncident,
+    parameters: Record<string, any>
+  ) => Promise<boolean>
 }
 
 class SecurityIncidentResponseSystem {
   private readonly INCIDENTS_COLLECTION = 'security_incidents'
   private readonly RESPONSE_RULES_COLLECTION = 'incident_response_rules'
   private readonly RESPONSE_LOG_COLLECTION = 'incident_response_logs'
-  
+
   private automatedActions: Map<string, AutomatedAction> = new Map()
 
   constructor() {
@@ -83,7 +108,7 @@ class SecurityIncidentResponseSystem {
           for (const userId of incident.affectedUsers) {
             // In production, this would call Clerk API to disable user
             console.log(`Blocking user account: ${userId}`)
-            
+
             await auditTrailService.logEvent({
               userId: 'system',
               action: 'automated_user_block',
@@ -96,7 +121,10 @@ class SecurityIncidentResponseSystem {
               category: 'security',
               complianceRelevant: true,
               retentionPeriod: 2555,
-              metadata: { incidentId: incident.id, reason: 'security_incident' }
+              metadata: {
+                incidentId: incident.id,
+                reason: 'security_incident',
+              },
             })
           }
           return true
@@ -104,7 +132,7 @@ class SecurityIncidentResponseSystem {
           console.error('Failed to block user:', error)
           return false
         }
-      }
+      },
     })
 
     // Rotate signing keys
@@ -119,7 +147,7 @@ class SecurityIncidentResponseSystem {
           console.error('Failed to rotate keys:', error)
           return false
         }
-      }
+      },
     })
 
     // Block IP addresses
@@ -129,11 +157,11 @@ class SecurityIncidentResponseSystem {
       execute: async (incident, params) => {
         try {
           const suspiciousIPs = params.ipAddresses || []
-          
+
           for (const ip of suspiciousIPs) {
             // In production, this would update firewall rules or CDN settings
             console.log(`Blocking IP address: ${ip}`)
-            
+
             await securityLogger.logSecurityEvent({
               eventType: 'system_configuration',
               ipAddress: 'system',
@@ -143,8 +171,8 @@ class SecurityIncidentResponseSystem {
               details: {
                 action: 'ip_blocked',
                 blockedIP: ip,
-                incidentId: incident.id
-              }
+                incidentId: incident.id,
+              },
             })
           }
           return true
@@ -152,7 +180,7 @@ class SecurityIncidentResponseSystem {
           console.error('Failed to block IPs:', error)
           return false
         }
-      }
+      },
     })
 
     // Invalidate sessions
@@ -164,7 +192,7 @@ class SecurityIncidentResponseSystem {
           for (const userId of incident.affectedUsers) {
             // In production, this would invalidate JWT tokens or sessions
             console.log(`Invalidating sessions for user: ${userId}`)
-            
+
             await auditTrailService.logEvent({
               userId: 'system',
               action: 'automated_session_invalidation',
@@ -177,7 +205,7 @@ class SecurityIncidentResponseSystem {
               category: 'security',
               complianceRelevant: true,
               retentionPeriod: 2190,
-              metadata: { incidentId: incident.id }
+              metadata: { incidentId: incident.id },
             })
           }
           return true
@@ -185,7 +213,7 @@ class SecurityIncidentResponseSystem {
           console.error('Failed to invalidate sessions:', error)
           return false
         }
-      }
+      },
     })
 
     // Enable enhanced monitoring
@@ -196,7 +224,7 @@ class SecurityIncidentResponseSystem {
         try {
           // In production, this would adjust monitoring thresholds
           console.log('Enhanced monitoring enabled')
-          
+
           await securityLogger.logSecurityEvent({
             eventType: 'system_configuration',
             ipAddress: 'system',
@@ -206,15 +234,15 @@ class SecurityIncidentResponseSystem {
             details: {
               action: 'enhanced_monitoring_enabled',
               incidentId: incident.id,
-              duration: params.duration || '24h'
-            }
+              duration: params.duration || '24h',
+            },
           })
           return true
         } catch (error) {
           console.error('Failed to enable enhanced monitoring:', error)
           return false
         }
-      }
+      },
     })
 
     // Send alerts
@@ -225,19 +253,19 @@ class SecurityIncidentResponseSystem {
         try {
           // In production, this would send emails, Slack messages, PagerDuty alerts, etc.
           console.log(`Sending security alert for incident: ${incident.id}`)
-          
+
           const alertChannels = params.channels || ['email', 'slack']
-          
+
           for (const channel of alertChannels) {
             console.log(`Alert sent via ${channel}`)
           }
-          
+
           return true
         } catch (error) {
           console.error('Failed to send alerts:', error)
           return false
         }
-      }
+      },
     })
 
     // Quarantine files
@@ -247,18 +275,18 @@ class SecurityIncidentResponseSystem {
       execute: async (incident, params) => {
         try {
           const suspiciousFiles = params.files || []
-          
+
           for (const file of suspiciousFiles) {
             // In production, this would move files to quarantine bucket
             console.log(`Quarantining file: ${file}`)
           }
-          
+
           return true
         } catch (error) {
           console.error('Failed to quarantine files:', error)
           return false
         }
-      }
+      },
     })
   }
 
@@ -282,11 +310,14 @@ class SecurityIncidentResponseSystem {
         automatedActions: [],
         manualActions: [],
         containmentMeasures: [],
-        metadata
+        metadata,
       }
 
       // Store incident
-      const docRef = await addDoc(collection(db, this.INCIDENTS_COLLECTION), incident)
+      const docRef = await addDoc(
+        collection(db, this.INCIDENTS_COLLECTION),
+        incident
+      )
       const incidentWithId = { ...incident, id: docRef.id }
 
       // Log security event
@@ -301,100 +332,129 @@ class SecurityIncidentResponseSystem {
           incidentType: type,
           indicatorCount: indicators.length,
           affectedUserCount: affectedUsers.length,
-          affectedSystemCount: affectedSystems.length
-        }
+          affectedSystemCount: affectedSystems.length,
+        },
       })
 
       // Trigger automated response
       await this.triggerAutomatedResponse(incidentWithId)
 
       return incidentWithId
-
     } catch (error) {
       console.error('Failed to detect incident:', error)
       throw error
     }
   }
 
-  private async triggerAutomatedResponse(incident: SecurityIncident): Promise<void> {
+  private async triggerAutomatedResponse(
+    incident: SecurityIncident
+  ): Promise<void> {
     try {
       // Get applicable response rules
       const rules = await this.getApplicableRules(incident)
-      
+
       for (const rule of rules) {
         console.log(`Executing automated response rule: ${rule.name}`)
-        
+
         for (const actionConfig of rule.automatedActions) {
           // Add delay if specified
           if (actionConfig.delay) {
-            await new Promise(resolve => setTimeout(resolve, actionConfig.delay))
+            await new Promise(resolve =>
+              setTimeout(resolve, actionConfig.delay)
+            )
           }
-          
+
           const action = this.automatedActions.get(actionConfig.action)
           if (action) {
             try {
-              const success = await action.execute(incident, actionConfig.parameters)
-              
+              const success = await action.execute(
+                incident,
+                actionConfig.parameters
+              )
+
               const automatedAction = {
                 action: actionConfig.action,
                 timestamp: Date.now(),
                 success,
-                details: actionConfig.parameters
+                details: actionConfig.parameters,
               }
-              
+
               // Update incident with automated action
               if (incident.id) {
                 await this.addAutomatedAction(incident.id, automatedAction)
               }
-              
-              console.log(`Automated action ${actionConfig.action}: ${success ? 'SUCCESS' : 'FAILED'}`)
-              
+
+              console.log(
+                `Automated action ${actionConfig.action}: ${success ? 'SUCCESS' : 'FAILED'}`
+              )
             } catch (error) {
-              console.error(`Automated action ${actionConfig.action} failed:`, error)
-              
+              console.error(
+                `Automated action ${actionConfig.action} failed:`,
+                error
+              )
+
               if (incident.id) {
                 await this.addAutomatedAction(incident.id, {
                   action: actionConfig.action,
                   timestamp: Date.now(),
                   success: false,
-                  details: { error: error instanceof Error ? error.message : 'Unknown error' }
+                  details: {
+                    error:
+                      error instanceof Error ? error.message : 'Unknown error',
+                  },
                 })
               }
             }
           }
         }
       }
-      
     } catch (error) {
       console.error('Failed to trigger automated response:', error)
     }
   }
 
-  private async getApplicableRules(incident: SecurityIncident): Promise<IncidentResponseRule[]> {
+  private async getApplicableRules(
+    incident: SecurityIncident
+  ): Promise<IncidentResponseRule[]> {
     try {
       const rulesRef = collection(db, this.RESPONSE_RULES_COLLECTION)
-      const q = query(rulesRef, where('enabled', '==', true), orderBy('priority', 'desc'))
-      
+      const q = query(
+        rulesRef,
+        where('enabled', '==', true),
+        orderBy('priority', 'desc')
+      )
+
       const snapshot = await getDocs(q)
-      const allRules = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IncidentResponseRule))
-      
+      const allRules = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as IncidentResponseRule
+      )
+
       // Filter rules that match the incident
       return allRules.filter(rule => {
-        return rule.triggerConditions.eventType === incident.type &&
-               this.severityMatches(rule.triggerConditions.severity, incident.severity)
+        return (
+          rule.triggerConditions.eventType === incident.type &&
+          this.severityMatches(
+            rule.triggerConditions.severity,
+            incident.severity
+          )
+        )
       })
-      
     } catch (error) {
       console.error('Failed to get applicable rules:', error)
       return []
     }
   }
 
-  private severityMatches(ruleSeverity: string, incidentSeverity: string): boolean {
+  private severityMatches(
+    ruleSeverity: string,
+    incidentSeverity: string
+  ): boolean {
     const severityLevels = { low: 1, medium: 2, high: 3, critical: 4 }
-    const ruleLevel = severityLevels[ruleSeverity as keyof typeof severityLevels] || 0
-    const incidentLevel = severityLevels[incidentSeverity as keyof typeof severityLevels] || 0
-    
+    const ruleLevel =
+      severityLevels[ruleSeverity as keyof typeof severityLevels] || 0
+    const incidentLevel =
+      severityLevels[incidentSeverity as keyof typeof severityLevels] || 0
+
     return incidentLevel >= ruleLevel
   }
 
@@ -404,11 +464,10 @@ class SecurityIncidentResponseSystem {
   ): Promise<void> {
     try {
       const incidentRef = doc(db, this.INCIDENTS_COLLECTION, incidentId)
-      
+
       // In a real implementation, you'd use arrayUnion to add to the automatedActions array
       // This is a simplified version
       console.log(`Adding automated action to incident ${incidentId}:`, action)
-      
     } catch (error) {
       console.error('Failed to add automated action:', error)
     }
@@ -422,31 +481,34 @@ class SecurityIncidentResponseSystem {
   ): Promise<void> {
     try {
       const incidentRef = doc(db, this.INCIDENTS_COLLECTION, incidentId)
-      
+
       const updateData: any = {
         status,
-        lastUpdated: Date.now()
+        lastUpdated: Date.now(),
       }
-      
+
       if (status === 'resolved') {
         updateData.resolvedAt = Date.now()
       }
-      
+
       await updateDoc(incidentRef, updateData)
-      
+
       // Add manual action if provided
       if (notes && performedBy) {
         const manualAction = {
           action: `status_change_to_${status}`,
           performedBy,
           timestamp: Date.now(),
-          notes
+          notes,
         }
-        
+
         // In production, you'd add this to the manualActions array
-        console.log(`Manual action added to incident ${incidentId}:`, manualAction)
+        console.log(
+          `Manual action added to incident ${incidentId}:`,
+          manualAction
+        )
       }
-      
+
       // Log audit trail
       await auditTrailService.logEvent({
         userId: performedBy || 'system',
@@ -460,9 +522,8 @@ class SecurityIncidentResponseSystem {
         category: 'security',
         complianceRelevant: true,
         retentionPeriod: 2555,
-        metadata: { newStatus: status, notes }
+        metadata: { newStatus: status, notes },
       })
-      
     } catch (error) {
       console.error('Failed to update incident status:', error)
       throw error
@@ -498,21 +559,28 @@ class SecurityIncidentResponseSystem {
       }
 
       const snapshot = await getDocs(q)
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as SecurityIncident))
-
+      return snapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as SecurityIncident
+      )
     } catch (error) {
       console.error('Failed to get incidents:', error)
       return []
     }
   }
 
-  async createResponseRule(rule: Omit<IncidentResponseRule, 'id'>): Promise<string> {
+  async createResponseRule(
+    rule: Omit<IncidentResponseRule, 'id'>
+  ): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, this.RESPONSE_RULES_COLLECTION), rule)
-      
+      const docRef = await addDoc(
+        collection(db, this.RESPONSE_RULES_COLLECTION),
+        rule
+      )
+
       await auditTrailService.logEvent({
         userId: 'system',
         action: 'create_incident_response_rule',
@@ -525,11 +593,10 @@ class SecurityIncidentResponseSystem {
         category: 'system_configuration',
         complianceRelevant: true,
         retentionPeriod: 2555,
-        metadata: { ruleName: rule.name }
+        metadata: { ruleName: rule.name },
       })
-      
+
       return docRef.id
-      
     } catch (error) {
       console.error('Failed to create response rule:', error)
       throw error
@@ -565,5 +632,10 @@ export async function updateIncident(
   notes?: string,
   performedBy?: string
 ): Promise<void> {
-  return incidentResponseSystem.updateIncidentStatus(incidentId, status, notes, performedBy)
+  return incidentResponseSystem.updateIncidentStatus(
+    incidentId,
+    status,
+    notes,
+    performedBy
+  )
 }

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { ChatService } from '@/lib/database/chat-service'
-import { createChatMessageSchema, chatMessageQuerySchema } from '@/lib/validations/chat'
+import {
+  createChatMessageSchema,
+  chatMessageQuerySchema,
+} from '@/lib/validations/chat'
 import { z } from 'zod'
 
 const chatService = new ChatService()
@@ -14,18 +17,21 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
     const queryParams = {
       streamId: params.streamId,
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50,
-      before: searchParams.get('before') ? new Date(searchParams.get('before')!) : undefined,
-      after: searchParams.get('after') ? new Date(searchParams.get('after')!) : undefined,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 50,
+      before: searchParams.get('before')
+        ? new Date(searchParams.get('before')!)
+        : undefined,
+      after: searchParams.get('after')
+        ? new Date(searchParams.get('after')!)
+        : undefined,
       includeDeleted: searchParams.get('includeDeleted') === 'true',
     }
 
@@ -39,7 +45,7 @@ export async function GET(
     }
 
     const result = await chatService.getStreamMessages(validation.data)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to fetch messages' },
@@ -68,10 +74,7 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -107,10 +110,13 @@ export async function POST(
       )
     }
 
-    return NextResponse.json({
-      message: result.data,
-      success: true,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        message: result.data,
+        success: true,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error sending chat message:', error)
     return NextResponse.json(
@@ -128,10 +134,7 @@ export async function DELETE(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user has permission to delete messages

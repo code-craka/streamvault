@@ -8,21 +8,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Upload, 
-  X, 
-  CheckCircle, 
-  AlertCircle, 
-  FileVideo, 
+import {
+  Upload,
+  X,
+  CheckCircle,
+  AlertCircle,
+  FileVideo,
   Loader2,
   Sparkles,
   Eye,
   Lock,
-  Globe
+  Globe,
 } from 'lucide-react'
 
 interface UploadFormData {
@@ -55,22 +61,30 @@ const CATEGORIES = [
 ]
 
 const SUBSCRIPTION_TIERS = [
-  { value: 'basic', label: 'Basic (Free)', description: 'Available to all users' },
-  { value: 'premium', label: 'Premium', description: 'Requires Premium subscription' },
+  {
+    value: 'basic',
+    label: 'Basic (Free)',
+    description: 'Available to all users',
+  },
+  {
+    value: 'premium',
+    label: 'Premium',
+    description: 'Requires Premium subscription',
+  },
   { value: 'pro', label: 'Pro', description: 'Requires Pro subscription' },
 ]
 
 export function VideoUploadForm() {
   const { user } = useUser()
   const router = useRouter()
-  
+
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [tagInput, setTagInput] = useState('')
-  
+
   const [formData, setFormData] = useState<UploadFormData>({
     title: '',
     description: '',
@@ -100,7 +114,7 @@ export function VideoUploadForm() {
 
       setFile(selectedFile)
       setUploadError(null)
-      
+
       // Auto-generate title from filename if empty
       if (!formData.title) {
         const fileName = selectedFile.name.replace(/\.[^/.]+$/, '')
@@ -114,7 +128,7 @@ export function VideoUploadForm() {
     const droppedFile = event.dataTransfer.files[0]
     if (droppedFile) {
       const fakeEvent = {
-        target: { files: [droppedFile] }
+        target: { files: [droppedFile] },
       } as React.ChangeEvent<HTMLInputElement>
       handleFileSelect(fakeEvent)
     }
@@ -128,7 +142,7 @@ export function VideoUploadForm() {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
       setFormData(prev => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()]
+        tags: [...prev.tags, tagInput.trim()],
       }))
       setTagInput('')
     }
@@ -137,7 +151,7 @@ export function VideoUploadForm() {
   const removeTag = (tag: string) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter(t => t !== tag)
+      tags: prev.tags.filter(t => t !== tag),
     }))
   }
 
@@ -150,7 +164,7 @@ export function VideoUploadForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    
+
     if (!file) {
       setUploadError('Please select a video file')
       return
@@ -207,7 +221,6 @@ export function VideoUploadForm() {
       setTimeout(() => {
         router.push('/library/my-videos')
       }, 2000)
-
     } catch (error) {
       console.error('Upload failed:', error)
       setUploadError(error instanceof Error ? error.message : 'Upload failed')
@@ -228,17 +241,17 @@ export function VideoUploadForm() {
       <Card>
         <CardContent className="p-12 text-center">
           <div className="space-y-4">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+            <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
             <h3 className="text-xl font-semibold">Upload Successful!</h3>
             <p className="text-gray-600">
-              Your video has been uploaded and is being processed. 
+              Your video has been uploaded and is being processed.
               {formData.enableAIProcessing && ' AI enhancement is in progress.'}
             </p>
             <div className="space-y-2">
               <p className="text-sm text-gray-500">
                 Redirecting to your videos...
               </p>
-              <Progress value={100} className="w-64 mx-auto" />
+              <Progress value={100} className="mx-auto w-64" />
             </div>
           </div>
         </CardContent>
@@ -252,21 +265,21 @@ export function VideoUploadForm() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Upload className="w-5 h-5" />
+            <Upload className="h-5 w-5" />
             <span>Upload Video</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {!file ? (
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400 transition-colors cursor-pointer"
+              className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-12 text-center transition-colors hover:border-gray-400"
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => document.getElementById('file-input')?.click()}
             >
-              <FileVideo className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-medium mb-2">Drop your video here</p>
-              <p className="text-gray-500 mb-4">or click to browse</p>
+              <FileVideo className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p className="mb-2 text-lg font-medium">Drop your video here</p>
+              <p className="mb-4 text-gray-500">or click to browse</p>
               <p className="text-sm text-gray-400">
                 Supports MP4, MOV, AVI, MKV up to 2GB
               </p>
@@ -279,12 +292,14 @@ export function VideoUploadForm() {
               />
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
               <div className="flex items-center space-x-3">
-                <FileVideo className="w-8 h-8 text-blue-500" />
+                <FileVideo className="h-8 w-8 text-blue-500" />
                 <div>
                   <p className="font-medium">{file.name}</p>
-                  <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatFileSize(file.size)}
+                  </p>
                 </div>
               </div>
               <Button
@@ -293,15 +308,15 @@ export function VideoUploadForm() {
                 size="sm"
                 onClick={() => setFile(null)}
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
           )}
 
           {uploadError && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 text-red-500" />
-              <p className="text-red-700 text-sm">{uploadError}</p>
+            <div className="mt-4 flex items-center space-x-2 rounded-lg border border-red-200 bg-red-50 p-3">
+              <AlertCircle className="h-4 w-4 text-red-500" />
+              <p className="text-sm text-red-700">{uploadError}</p>
             </div>
           )}
 
@@ -329,7 +344,7 @@ export function VideoUploadForm() {
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => updateFormData('title', e.target.value)}
+              onChange={e => updateFormData('title', e.target.value)}
               placeholder="Enter video title"
               required
             />
@@ -341,7 +356,7 @@ export function VideoUploadForm() {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => updateFormData('description', e.target.value)}
+              onChange={e => updateFormData('description', e.target.value)}
               placeholder="Describe your video..."
               rows={4}
             />
@@ -352,13 +367,13 @@ export function VideoUploadForm() {
             <Label htmlFor="category">Category</Label>
             <Select
               value={formData.category}
-              onValueChange={(value) => updateFormData('category', value)}
+              onValueChange={value => updateFormData('category', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((category) => (
+                {CATEGORIES.map(category => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>
@@ -375,8 +390,10 @@ export function VideoUploadForm() {
                 <Input
                   placeholder="Add tags..."
                   value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyPress={e =>
+                    e.key === 'Enter' && (e.preventDefault(), addTag())
+                  }
                 />
                 <Button type="button" onClick={addTag} size="sm">
                   Add
@@ -384,11 +401,15 @@ export function VideoUploadForm() {
               </div>
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="cursor-pointer">
+                  {formData.tags.map(tag => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="cursor-pointer"
+                    >
                       {tag}
                       <X
-                        className="w-3 h-3 ml-1"
+                        className="ml-1 h-3 w-3"
                         onClick={() => removeTag(tag)}
                       />
                     </Badge>
@@ -409,32 +430,38 @@ export function VideoUploadForm() {
           {/* Visibility */}
           <div>
             <Label>Visibility</Label>
-            <div className="grid grid-cols-3 gap-2 mt-2">
+            <div className="mt-2 grid grid-cols-3 gap-2">
               <Button
                 type="button"
-                variant={formData.visibility === 'public' ? 'default' : 'outline'}
+                variant={
+                  formData.visibility === 'public' ? 'default' : 'outline'
+                }
                 onClick={() => updateFormData('visibility', 'public')}
                 className="flex items-center space-x-2"
               >
-                <Globe className="w-4 h-4" />
+                <Globe className="h-4 w-4" />
                 <span>Public</span>
               </Button>
               <Button
                 type="button"
-                variant={formData.visibility === 'unlisted' ? 'default' : 'outline'}
+                variant={
+                  formData.visibility === 'unlisted' ? 'default' : 'outline'
+                }
                 onClick={() => updateFormData('visibility', 'unlisted')}
                 className="flex items-center space-x-2"
               >
-                <Eye className="w-4 h-4" />
+                <Eye className="h-4 w-4" />
                 <span>Unlisted</span>
               </Button>
               <Button
                 type="button"
-                variant={formData.visibility === 'private' ? 'default' : 'outline'}
+                variant={
+                  formData.visibility === 'private' ? 'default' : 'outline'
+                }
                 onClick={() => updateFormData('visibility', 'private')}
                 className="flex items-center space-x-2"
               >
-                <Lock className="w-4 h-4" />
+                <Lock className="h-4 w-4" />
                 <span>Private</span>
               </Button>
             </div>
@@ -445,17 +472,21 @@ export function VideoUploadForm() {
             <Label>Required Subscription</Label>
             <Select
               value={formData.requiredTier}
-              onValueChange={(value) => updateFormData('requiredTier', value as any)}
+              onValueChange={value =>
+                updateFormData('requiredTier', value as any)
+              }
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {SUBSCRIPTION_TIERS.map((tier) => (
+                {SUBSCRIPTION_TIERS.map(tier => (
                   <SelectItem key={tier.value} value={tier.value}>
                     <div>
                       <div className="font-medium">{tier.label}</div>
-                      <div className="text-xs text-gray-500">{tier.description}</div>
+                      <div className="text-xs text-gray-500">
+                        {tier.description}
+                      </div>
                     </div>
                   </SelectItem>
                 ))}
@@ -469,7 +500,7 @@ export function VideoUploadForm() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="h-5 w-5" />
             <span>AI Processing</span>
           </CardTitle>
         </CardHeader>
@@ -484,7 +515,9 @@ export function VideoUploadForm() {
             <Switch
               id="ai-processing"
               checked={formData.enableAIProcessing}
-              onCheckedChange={(checked) => updateFormData('enableAIProcessing', checked)}
+              onCheckedChange={checked =>
+                updateFormData('enableAIProcessing', checked)
+              }
             />
           </div>
 
@@ -498,7 +531,9 @@ export function VideoUploadForm() {
             <Switch
               id="auto-publish"
               checked={formData.autoPublish}
-              onCheckedChange={(checked) => updateFormData('autoPublish', checked)}
+              onCheckedChange={checked =>
+                updateFormData('autoPublish', checked)
+              }
             />
           </div>
         </CardContent>
@@ -520,12 +555,12 @@ export function VideoUploadForm() {
         >
           {uploading ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Uploading...
             </>
           ) : (
             <>
-              <Upload className="w-4 h-4 mr-2" />
+              <Upload className="mr-2 h-4 w-4" />
               Upload Video
             </>
           )}

@@ -20,7 +20,7 @@ export default async function LibraryPage() {
 
         {/* VOD Library */}
         <Suspense fallback={<LibraryLoadingSkeleton />}>
-          <VODLibrary 
+          <VODLibrary
             showFilters={true}
             showSearch={true}
             showCategories={true}
@@ -38,7 +38,7 @@ function LibraryLoadingSkeleton() {
       {/* Filters skeleton */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-10" />
             ))}
@@ -47,12 +47,12 @@ function LibraryLoadingSkeleton() {
       </Card>
 
       {/* Grid skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 12 }).map((_, i) => (
           <Card key={i}>
             <CardContent className="p-0">
               <Skeleton className="aspect-video w-full" />
-              <div className="p-4 space-y-2">
+              <div className="space-y-2 p-4">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
                 <div className="flex justify-between">

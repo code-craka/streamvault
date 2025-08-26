@@ -21,12 +21,12 @@ interface ChatInputProps {
   className?: string
 }
 
-export function ChatInput({ 
-  streamId, 
-  onSendMessage, 
+export function ChatInput({
+  streamId,
+  onSendMessage,
   disabled = false,
   rateLimitInfo,
-  className 
+  className,
 }: ChatInputProps) {
   const { user } = useUser()
   const [message, setMessage] = useState('')
@@ -34,22 +34,22 @@ export function ChatInput({
   const [error, setError] = useState<string | null>(null)
   const [isRateLimited, setIsRateLimited] = useState(false)
   const [rateLimitCooldown, setRateLimitCooldown] = useState(0)
-  
+
   const inputRef = useRef<HTMLInputElement>(null)
   const rateLimitTimerRef = useRef<NodeJS.Timeout>()
 
   // Get user's rate limit based on subscription tier
   const getRateLimit = () => {
     if (!user) return 1000 // 1 message per second for unauthenticated
-    
+
     const tier = user.publicMetadata?.subscriptionTier as string
     const role = user.publicMetadata?.role as string
-    
+
     // Streamers and admins have higher limits
     if (['streamer', 'admin'].includes(role)) {
       return 200 // 5 messages per second
     }
-    
+
     switch (tier) {
       case 'pro':
         return 200 // 5 messages per second
@@ -100,7 +100,9 @@ export function ChatInput({
   }
 
   // Validate message before sending
-  const validateMessage = (text: string): { valid: boolean; error?: string } => {
+  const validateMessage = (
+    text: string
+  ): { valid: boolean; error?: string } => {
     if (!text.trim()) {
       return { valid: false, error: 'Message cannot be empty' }
     }
@@ -112,7 +114,10 @@ export function ChatInput({
     // Check for spam (repeated characters)
     const repeatedCharPattern = /(.)\1{10,}/
     if (repeatedCharPattern.test(text)) {
-      return { valid: false, error: 'Message contains too many repeated characters' }
+      return {
+        valid: false,
+        error: 'Message contains too many repeated characters',
+      }
     }
 
     // Check for excessive caps
@@ -154,7 +159,7 @@ export function ChatInput({
       await onSendMessage(schemaValidation.data)
       setMessage('')
       applyRateLimit()
-      
+
       // Focus back to input
       setTimeout(() => {
         inputRef.current?.focus()
@@ -185,15 +190,23 @@ export function ChatInput({
   // Get user's subscription tier for display
   const getSubscriptionBadge = () => {
     if (!user) return null
-    
+
     const tier = user.publicMetadata?.subscriptionTier as string
     const role = user.publicMetadata?.role as string
-    
+
     if (role === 'streamer') {
-      return <Badge variant="destructive" className="text-xs">Streamer</Badge>
+      return (
+        <Badge variant="destructive" className="text-xs">
+          Streamer
+        </Badge>
+      )
     }
     if (role === 'admin') {
-      return <Badge variant="secondary" className="text-xs">Admin</Badge>
+      return (
+        <Badge variant="secondary" className="text-xs">
+          Admin
+        </Badge>
+      )
     }
     if (tier) {
       return (
@@ -216,8 +229,8 @@ export function ChatInput({
 
   if (!user) {
     return (
-      <div className={`p-4 border-t bg-muted/50 ${className}`}>
-        <p className="text-center text-muted-foreground">
+      <div className={`bg-muted/50 border-t p-4 ${className}`}>
+        <p className="text-muted-foreground text-center">
           Please sign in to join the chat
         </p>
       </div>
@@ -225,7 +238,7 @@ export function ChatInput({
   }
 
   return (
-    <div className={`p-4 border-t space-y-3 ${className}`}>
+    <div className={`space-y-3 border-t p-4 ${className}`}>
       {/* User Info */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -234,52 +247,55 @@ export function ChatInput({
           </span>
           {getSubscriptionBadge()}
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           Rate limit: {getRateLimit() / 1000}s cooldown
         </div>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="p-2 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
+        <div className="bg-destructive/10 border-destructive/20 text-destructive rounded border p-2 text-sm">
           {error}
         </div>
       )}
 
       {/* Rate Limit Warning */}
       {isRateLimited && (
-        <div className="p-2 bg-orange-500/10 border border-orange-500/20 rounded text-sm text-orange-600">
-          Rate limited. Please wait {rateLimitCooldown}s before sending another message.
+        <div className="rounded border border-orange-500/20 bg-orange-500/10 p-2 text-sm text-orange-600">
+          Rate limited. Please wait {rateLimitCooldown}s before sending another
+          message.
         </div>
       )}
 
       {/* Message Input */}
       <div className="flex space-x-2">
-        <div className="flex-1 relative">
+        <div className="relative flex-1">
           <Input
             ref={inputRef}
             value={message}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder={
-              isRateLimited 
-                ? `Rate limited (${rateLimitCooldown}s)...` 
+              isRateLimited
+                ? `Rate limited (${rateLimitCooldown}s)...`
                 : 'Type a message...'
             }
             disabled={disabled || isSending || isRateLimited}
             className="pr-12"
             maxLength={500}
           />
-          
+
           {/* Character Count */}
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <span className={`text-xs ${
-              message.length > 450 
-                ? 'text-destructive' 
-                : message.length > 400 
-                ? 'text-orange-500' 
-                : 'text-muted-foreground'
-            }`}>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 transform">
+            <span
+              className={`text-xs ${
+                message.length > 450
+                  ? 'text-destructive'
+                  : message.length > 400
+                    ? 'text-orange-500'
+                    : 'text-muted-foreground'
+              }`}
+            >
               {message.length}/500
             </span>
           </div>
@@ -326,7 +342,7 @@ export function ChatInput({
       </div>
 
       {/* Input Help Text */}
-      <div className="flex justify-between items-center text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex items-center justify-between text-xs">
         <span>Press Enter to send, Shift+Enter for new line</span>
         <span>Max 500 characters</span>
       </div>

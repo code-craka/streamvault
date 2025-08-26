@@ -125,7 +125,9 @@ describe('/api/ai/content-analysis', () => {
   describe('POST /api/ai/content-analysis', () => {
     it('should process video analysis request successfully', async () => {
       const { aiContentEnhancement } = require('@/lib/ai/content-enhancement')
-      aiContentEnhancement.processUploadedVideo.mockResolvedValue(mockAnalysisResult)
+      aiContentEnhancement.processUploadedVideo.mockResolvedValue(
+        mockAnalysisResult
+      )
 
       const requestBody = {
         videoId: 'test-video-123',
@@ -137,13 +139,16 @@ describe('/api/ai/content-analysis', () => {
         },
       }
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -168,10 +173,13 @@ describe('/api/ai/content-analysis', () => {
       const { auth } = require('@clerk/nextjs/server')
       auth.mockReturnValue({ userId: null })
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify({}),
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -186,13 +194,16 @@ describe('/api/ai/content-analysis', () => {
         // Missing required fields
       }
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(invalidRequestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(invalidRequestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -218,13 +229,16 @@ describe('/api/ai/content-analysis', () => {
         },
       }
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -238,7 +252,9 @@ describe('/api/ai/content-analysis', () => {
   describe('GET /api/ai/content-analysis', () => {
     it('should retrieve stored analysis successfully', async () => {
       const { aiContentEnhancement } = require('@/lib/ai/content-enhancement')
-      aiContentEnhancement.getStoredAnalysis.mockResolvedValue(mockAnalysisResult)
+      aiContentEnhancement.getStoredAnalysis.mockResolvedValue(
+        mockAnalysisResult
+      )
 
       const request = new NextRequest(
         'http://localhost:3000/api/ai/content-analysis?videoId=test-video-123'
@@ -251,11 +267,15 @@ describe('/api/ai/content-analysis', () => {
       expect(data.success).toBe(true)
       expect(data.analysis).toEqual(mockAnalysisResult)
 
-      expect(aiContentEnhancement.getStoredAnalysis).toHaveBeenCalledWith('test-video-123')
+      expect(aiContentEnhancement.getStoredAnalysis).toHaveBeenCalledWith(
+        'test-video-123'
+      )
     })
 
     it('should return 400 when videoId is missing', async () => {
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis')
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis'
+      )
 
       const response = await GET(request)
       const data = await response.json()
@@ -297,13 +317,16 @@ describe('/api/ai/content-analysis', () => {
 
   describe('error handling', () => {
     it('should handle malformed JSON gracefully', async () => {
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: 'invalid json',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: 'invalid json',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -328,13 +351,16 @@ describe('/api/ai/content-analysis', () => {
         },
       }
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -348,7 +374,9 @@ describe('/api/ai/content-analysis', () => {
   describe('performance', () => {
     it('should respond within reasonable time limits', async () => {
       const { aiContentEnhancement } = require('@/lib/ai/content-enhancement')
-      aiContentEnhancement.processUploadedVideo.mockResolvedValue(mockAnalysisResult)
+      aiContentEnhancement.processUploadedVideo.mockResolvedValue(
+        mockAnalysisResult
+      )
 
       const requestBody = {
         videoId: 'test-video-123',
@@ -362,13 +390,16 @@ describe('/api/ai/content-analysis', () => {
 
       const startTime = Date.now()
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       await response.json()
@@ -394,13 +425,16 @@ describe('/api/ai/content-analysis', () => {
         },
       }
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()
@@ -421,15 +455,20 @@ describe('/api/ai/content-analysis', () => {
       }
 
       const { aiContentEnhancement } = require('@/lib/ai/content-enhancement')
-      aiContentEnhancement.processUploadedVideo.mockResolvedValue(mockAnalysisResult)
+      aiContentEnhancement.processUploadedVideo.mockResolvedValue(
+        mockAnalysisResult
+      )
 
-      const request = new NextRequest('http://localhost:3000/api/ai/content-analysis', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const request = new NextRequest(
+        'http://localhost:3000/api/ai/content-analysis',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
       const response = await POST(request)
       const data = await response.json()

@@ -5,7 +5,13 @@ import { useUser } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { VODCard } from './vod-card'
@@ -123,7 +129,6 @@ export function VODLibrary({
       }
 
       setHasMore(newVods.length === limit)
-
     } catch (error) {
       console.error('Failed to load VODs:', error)
       setError(error instanceof Error ? error.message : 'Failed to load VODs')
@@ -159,7 +164,7 @@ export function VODLibrary({
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`
     }
@@ -171,7 +176,7 @@ export function VODLibrary({
       <Card>
         <CardContent className="p-6">
           <div className="text-center">
-            <p className="text-red-500 mb-4">{error}</p>
+            <p className="mb-4 text-red-500">{error}</p>
             <Button onClick={() => loadVODs(true)}>Try Again</Button>
           </div>
         </CardContent>
@@ -187,7 +192,7 @@ export function VODLibrary({
           {userId ? 'My Videos' : 'Video Library'}
         </h2>
         {userId && user?.id === userId && (
-          <Button onClick={() => window.location.href = '/upload'}>
+          <Button onClick={() => (window.location.href = '/upload')}>
             Upload Video
           </Button>
         )}
@@ -197,14 +202,14 @@ export function VODLibrary({
       {showFilters && (
         <Card>
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               {/* Search */}
               {showSearch && (
                 <div>
                   <Input
                     placeholder="Search videos..."
                     value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    onChange={e => handleFilterChange('search', e.target.value)}
                   />
                 </div>
               )}
@@ -214,14 +219,16 @@ export function VODLibrary({
                 <div>
                   <Select
                     value={filters.category}
-                    onValueChange={(value) => handleFilterChange('category', value)}
+                    onValueChange={value =>
+                      handleFilterChange('category', value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">All Categories</SelectItem>
-                      {categories.map((category) => (
+                      {categories.map(category => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -235,14 +242,16 @@ export function VODLibrary({
               <div>
                 <Select
                   value={filters.requiredTier}
-                  onValueChange={(value) => handleFilterChange('requiredTier', value)}
+                  onValueChange={value =>
+                    handleFilterChange('requiredTier', value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="All Tiers" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">All Tiers</SelectItem>
-                    {subscriptionTiers.map((tier) => (
+                    {subscriptionTiers.map(tier => (
                       <SelectItem key={tier.value} value={tier.value}>
                         {tier.label}
                       </SelectItem>
@@ -255,7 +264,9 @@ export function VODLibrary({
               <div>
                 <Select
                   value={filters.sortBy}
-                  onValueChange={(value) => handleFilterChange('sortBy', value as any)}
+                  onValueChange={value =>
+                    handleFilterChange('sortBy', value as any)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -275,7 +286,9 @@ export function VODLibrary({
               <div className="mt-4">
                 <Select
                   value={filters.status}
-                  onValueChange={(value) => handleFilterChange('status', value as any)}
+                  onValueChange={value =>
+                    handleFilterChange('status', value as any)
+                  }
                 >
                   <SelectTrigger className="w-48">
                     <SelectValue />
@@ -293,8 +306,8 @@ export function VODLibrary({
       )}
 
       {/* VOD Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {vods.map((vod) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {vods.map(vod => (
           <VODCard
             key={vod.id}
             vod={vod}
@@ -303,12 +316,13 @@ export function VODLibrary({
         ))}
 
         {/* Loading skeletons */}
-        {loading && vods.length === 0 && (
+        {loading &&
+          vods.length === 0 &&
           Array.from({ length: 8 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-0">
                 <Skeleton className="aspect-video w-full" />
-                <div className="p-4 space-y-2">
+                <div className="space-y-2 p-4">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
                   <div className="flex justify-between">
@@ -318,8 +332,7 @@ export function VODLibrary({
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
+          ))}
       </div>
 
       {/* Empty State */}
@@ -330,13 +343,12 @@ export function VODLibrary({
               <div className="text-6xl">📹</div>
               <h3 className="text-xl font-semibold">No videos found</h3>
               <p className="text-gray-500">
-                {userId 
+                {userId
                   ? "You haven't uploaded any videos yet."
-                  : "No videos match your current filters."
-                }
+                  : 'No videos match your current filters.'}
               </p>
               {userId && user?.id === userId && (
-                <Button onClick={() => window.location.href = '/upload'}>
+                <Button onClick={() => (window.location.href = '/upload')}>
                   Upload Your First Video
                 </Button>
               )}
@@ -358,7 +370,7 @@ export function VODLibrary({
       {loading && vods.length > 0 && (
         <div className="text-center">
           <div className="inline-flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+            <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-blue-600" />
             <span>Loading more videos...</span>
           </div>
         </div>

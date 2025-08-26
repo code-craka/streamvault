@@ -62,36 +62,48 @@ export class OfflineManager {
   private openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.DB_NAME, this.DB_VERSION)
-      
+
       request.onerror = () => reject(request.error)
       request.onsuccess = () => resolve(request.result)
-      
-      request.onupgradeneeded = (event) => {
+
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result
-        
+
         // Create object stores
         if (!db.objectStoreNames.contains('offlineVideos')) {
-          const videoStore = db.createObjectStore('offlineVideos', { keyPath: 'videoId' })
+          const videoStore = db.createObjectStore('offlineVideos', {
+            keyPath: 'videoId',
+          })
           videoStore.createIndex('expiresAt', 'expiresAt', { unique: false })
-          videoStore.createIndex('downloadedAt', 'downloadedAt', { unique: false })
+          videoStore.createIndex('downloadedAt', 'downloadedAt', {
+            unique: false,
+          })
         }
-        
+
         if (!db.objectStoreNames.contains('watchProgress')) {
           db.createObjectStore('watchProgress', { keyPath: 'videoId' })
         }
-        
+
         if (!db.objectStoreNames.contains('analytics')) {
-          const analyticsStore = db.createObjectStore('analytics', { keyPath: 'id', autoIncrement: true })
+          const analyticsStore = db.createObjectStore('analytics', {
+            keyPath: 'id',
+            autoIncrement: true,
+          })
           analyticsStore.createIndex('synced', 'synced', { unique: false })
-          analyticsStore.createIndex('timestamp', 'timestamp', { unique: false })
+          analyticsStore.createIndex('timestamp', 'timestamp', {
+            unique: false,
+          })
         }
-        
+
         if (!db.objectStoreNames.contains('userActivity')) {
-          const activityStore = db.createObjectStore('userActivity', { keyPath: 'id', autoIncrement: true })
+          const activityStore = db.createObjectStore('userActivity', {
+            keyPath: 'id',
+            autoIncrement: true,
+          })
           activityStore.createIndex('synced', 'synced', { unique: false })
           activityStore.createIndex('timestamp', 'timestamp', { unique: false })
         }
-        
+
         if (!db.objectStoreNames.contains('downloadQueue')) {
           db.createObjectStore('downloadQueue', { keyPath: 'videoId' })
         }
@@ -116,9 +128,11 @@ export class OfflineManager {
 
       // Add to download queue
       await this.addToDownloadQueue(videoId, quality, 'downloading')
-      
+
       // Get signed URL for download
-      const response = await fetch(`/api/videos/${videoId}/signed-url?download=true&quality=${quality}`)
+      const response = await fetch(
+        `/api/videos/${videoId}/signed-url?download=true&quality=${quality}`
+      )
       if (!response.ok) {
         throw new Error('Failed to get download URL')
       }
@@ -131,9 +145,11 @@ export class OfflineManager {
         throw new Error('Failed to download video')
       }
 
-      const contentLength = parseInt(videoResponse.headers.get('content-length') || '0')
+      const contentLength = parseInt(
+        videoResponse.headers.get('content-length') || '0'
+      )
       const reader = videoResponse.body?.getReader()
-      
+
       if (!reader) {
         throw new Error('Failed to read video stream')
       }
@@ -143,9 +159,9 @@ export class OfflineManager {
 
       while (true) {
         const { done, value } = await reader.read()
-        
+
         if (done) break
-        
+
         chunks.push(value)
         receivedLength += value.length
 
@@ -154,9 +170,9 @@ export class OfflineManager {
         const progressData: DownloadProgress = {
           videoId,
           progress,
-          status: 'downloading'
+          status: 'downloading',
         }
-        
+
         onProgress?.(progressData)
         await this.updateDownloadProgress(videoId, progressData)
       }
@@ -177,34 +193,34 @@ export class OfflineManager {
         thumbnailUrl: metadata.thumbnailUrl,
         creatorName: metadata.creatorName,
         blob: videoBlob,
-        url: videoUrl
+        url: videoUrl,
       }
 
       await this.storeOfflineVideo(offlineVideo)
-      
+
       // Update download queue
       await this.updateDownloadProgress(videoId, {
         videoId,
         progress: 100,
-        status: 'completed'
+        status: 'completed',
       })
 
       // Track analytics
       await this.trackAnalytics('video_downloaded', videoId, {
         quality,
         size: videoBlob.size,
-        downloadDuration: Date.now() - offlineVideo.downloadedAt.getTime()
+        downloadDuration: Date.now() - offlineVideo.downloadedAt.getTime(),
       })
 
       return true
     } catch (error) {
       console.error('Video download failed:', error)
-      
+
       await this.updateDownloadProgress(videoId, {
         videoId,
         progress: 0,
         status: 'failed',
-        error: error instanceof Error ? error.message : 'Download failed'
+        error: error instanceof Error ? error.message : 'Download failed',
       })
 
       return false
@@ -305,7 +321,7 @@ export class OfflineManager {
     const progress: DownloadProgress = {
       videoId,
       progress: 0,
-      status
+      status,
     }
 
     return new Promise((resolve, reject) => {
@@ -347,7 +363,7 @@ export class OfflineManager {
       currentTime,
       duration,
       watchedAt: new Date(),
-      synced: false
+      synced: false,
     }
 
     return new Promise((resolve, reject) => {
@@ -387,7 +403,7 @@ export class OfflineManager {
       userId: 'current-user', // This should be replaced with actual user ID
       timestamp: new Date(),
       data,
-      synced: false
+      synced: false,
     }
 
     return new Promise((resolve, reject) => {
@@ -412,7 +428,7 @@ export class OfflineManager {
       action,
       timestamp: new Date(),
       data,
-      synced: false
+      synced: false,
     }
 
     return new Promise((resolve, reject) => {
@@ -431,7 +447,7 @@ export class OfflineManager {
       const estimate = await navigator.storage.estimate()
       return {
         used: estimate.usage || 0,
-        quota: estimate.quota || 0
+        quota: estimate.quota || 0,
       }
     }
 
@@ -443,7 +459,7 @@ export class OfflineManager {
     const limits = {
       basic: 0,
       premium: 10,
-      pro: -1 // unlimited
+      pro: -1, // unlimited
     }
 
     const limit = limits[subscriptionTier as keyof typeof limits] ?? 0
@@ -455,7 +471,7 @@ export class OfflineManager {
     const limits = {
       basic: 0,
       premium: 10,
-      pro: -1 // unlimited
+      pro: -1, // unlimited
     }
 
     return limits[subscriptionTier as keyof typeof limits] ?? 0

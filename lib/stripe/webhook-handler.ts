@@ -40,15 +40,21 @@ export class StripeWebhookHandler {
     try {
       switch (event.type) {
         case 'customer.subscription.created':
-          await this.handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+          await this.handleSubscriptionCreated(
+            event.data.object as Stripe.Subscription
+          )
           break
 
         case 'customer.subscription.updated':
-          await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+          await this.handleSubscriptionUpdated(
+            event.data.object as Stripe.Subscription
+          )
           break
 
         case 'customer.subscription.deleted':
-          await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+          await this.handleSubscriptionDeleted(
+            event.data.object as Stripe.Subscription
+          )
           break
 
         case 'invoice.payment_succeeded':
@@ -60,11 +66,15 @@ export class StripeWebhookHandler {
           break
 
         case 'customer.subscription.trial_will_end':
-          await this.handleTrialWillEnd(event.data.object as Stripe.Subscription)
+          await this.handleTrialWillEnd(
+            event.data.object as Stripe.Subscription
+          )
           break
 
         case 'checkout.session.completed':
-          await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session)
+          await this.handleCheckoutCompleted(
+            event.data.object as Stripe.Checkout.Session
+          )
           break
 
         default:
@@ -81,10 +91,12 @@ export class StripeWebhookHandler {
   /**
    * Handle subscription creation
    */
-  private async handleSubscriptionCreated(subscription: Stripe.Subscription): Promise<void> {
+  private async handleSubscriptionCreated(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     console.log(`Subscription created: ${subscription.id}`)
     await subscriptionService.updateUserSubscription(subscription)
-    
+
     // Log subscription creation for analytics
     await this.logSubscriptionEvent('created', subscription)
   }
@@ -92,10 +104,12 @@ export class StripeWebhookHandler {
   /**
    * Handle subscription updates
    */
-  private async handleSubscriptionUpdated(subscription: Stripe.Subscription): Promise<void> {
+  private async handleSubscriptionUpdated(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     console.log(`Subscription updated: ${subscription.id}`)
     await subscriptionService.updateUserSubscription(subscription)
-    
+
     // Log subscription update for analytics
     await this.logSubscriptionEvent('updated', subscription)
   }
@@ -103,10 +117,12 @@ export class StripeWebhookHandler {
   /**
    * Handle subscription deletion/cancellation
    */
-  private async handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
+  private async handleSubscriptionDeleted(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     console.log(`Subscription deleted: ${subscription.id}`)
     await subscriptionService.handleSubscriptionCancellation(subscription)
-    
+
     // Log subscription cancellation for analytics
     await this.logSubscriptionEvent('deleted', subscription)
   }
@@ -116,16 +132,16 @@ export class StripeWebhookHandler {
    */
   private async handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
     console.log(`Payment succeeded for invoice: ${invoice.id}`)
-    
+
     if (invoice.subscription) {
       // Retrieve the subscription to get updated information
       const subscription = await stripe.subscriptions.retrieve(
         invoice.subscription as string
       )
-      
+
       // Update user subscription status
       await subscriptionService.updateUserSubscription(subscription)
-      
+
       // Log successful payment for analytics
       await this.logPaymentEvent('succeeded', invoice)
     }
@@ -136,19 +152,19 @@ export class StripeWebhookHandler {
    */
   private async handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
     console.log(`Payment failed for invoice: ${invoice.id}`)
-    
+
     if (invoice.subscription) {
       // Retrieve the subscription to get updated information
       const subscription = await stripe.subscriptions.retrieve(
         invoice.subscription as string
       )
-      
+
       // Update user subscription status (will be 'past_due')
       await subscriptionService.updateUserSubscription(subscription)
-      
+
       // Log failed payment for analytics
       await this.logPaymentEvent('failed', invoice)
-      
+
       // TODO: Send notification to user about failed payment
       await this.notifyUserPaymentFailed(subscription)
     }
@@ -157,9 +173,11 @@ export class StripeWebhookHandler {
   /**
    * Handle trial ending soon
    */
-  private async handleTrialWillEnd(subscription: Stripe.Subscription): Promise<void> {
+  private async handleTrialWillEnd(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     console.log(`Trial will end for subscription: ${subscription.id}`)
-    
+
     // TODO: Send notification to user about trial ending
     await this.notifyUserTrialEnding(subscription)
   }
@@ -167,18 +185,20 @@ export class StripeWebhookHandler {
   /**
    * Handle completed checkout session
    */
-  private async handleCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
+  private async handleCheckoutCompleted(
+    session: Stripe.Checkout.Session
+  ): Promise<void> {
     console.log(`Checkout completed: ${session.id}`)
-    
+
     if (session.subscription) {
       // Retrieve the subscription to get full information
       const subscription = await stripe.subscriptions.retrieve(
         session.subscription as string
       )
-      
+
       // Update user subscription
       await subscriptionService.updateUserSubscription(subscription)
-      
+
       // Log checkout completion for analytics
       await this.logCheckoutEvent('completed', session)
     }
@@ -204,7 +224,7 @@ export class StripeWebhookHandler {
         amount: subscription.items.data[0]?.price?.unit_amount || 0,
         currency: subscription.items.data[0]?.price?.currency || 'usd',
       }
-      
+
       console.log('Subscription event logged:', eventData)
       // await analyticsService.logEvent(eventData)
     } catch (error) {
@@ -230,7 +250,7 @@ export class StripeWebhookHandler {
         currency: invoice.currency,
         timestamp: new Date(),
       }
-      
+
       console.log('Payment event logged:', eventData)
       // await analyticsService.logEvent(eventData)
     } catch (error) {
@@ -256,7 +276,7 @@ export class StripeWebhookHandler {
         currency: session.currency,
         timestamp: new Date(),
       }
-      
+
       console.log('Checkout event logged:', eventData)
       // await analyticsService.logEvent(eventData)
     } catch (error) {
@@ -267,17 +287,21 @@ export class StripeWebhookHandler {
   /**
    * Notify user about failed payment
    */
-  private async notifyUserPaymentFailed(subscription: Stripe.Subscription): Promise<void> {
+  private async notifyUserPaymentFailed(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     try {
       const userId = subscription.metadata.userId
       if (!userId) return
 
       // TODO: Implement notification system (email, in-app notification, etc.)
-      console.log(`Should notify user ${userId} about failed payment for subscription ${subscription.id}`)
-      
+      console.log(
+        `Should notify user ${userId} about failed payment for subscription ${subscription.id}`
+      )
+
       // Example: Send email notification
       // await emailService.sendPaymentFailedNotification(userId, subscription)
-      
+
       // Example: Create in-app notification
       // await notificationService.createNotification(userId, {
       //   type: 'payment_failed',
@@ -293,14 +317,18 @@ export class StripeWebhookHandler {
   /**
    * Notify user about trial ending
    */
-  private async notifyUserTrialEnding(subscription: Stripe.Subscription): Promise<void> {
+  private async notifyUserTrialEnding(
+    subscription: Stripe.Subscription
+  ): Promise<void> {
     try {
       const userId = subscription.metadata.userId
       if (!userId) return
 
       // TODO: Implement notification system
-      console.log(`Should notify user ${userId} about trial ending for subscription ${subscription.id}`)
-      
+      console.log(
+        `Should notify user ${userId} about trial ending for subscription ${subscription.id}`
+      )
+
       // Example: Send email notification
       // await emailService.sendTrialEndingNotification(userId, subscription)
     } catch (error) {

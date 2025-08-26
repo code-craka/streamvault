@@ -113,8 +113,14 @@ export class AdvancedContentAnalysis {
           endTime,
           duration,
           type: this.classifySceneType(audioFeatures[i], visualFeatures[i]),
-          confidence: this.calculateSceneConfidence(audioFeatures[i], visualFeatures[i]),
-          description: await this.generateSceneDescription(audioFeatures[i], visualFeatures[i]),
+          confidence: this.calculateSceneConfidence(
+            audioFeatures[i],
+            visualFeatures[i]
+          ),
+          description: await this.generateSceneDescription(
+            audioFeatures[i],
+            visualFeatures[i]
+          ),
           keyFrames: await this.extractKeyFrames(videoPath, startTime, endTime),
           audioFeatures: audioFeatures[i],
           visualFeatures: visualFeatures[i],
@@ -141,7 +147,11 @@ export class AdvancedContentAnalysis {
     const highlights: Highlight[] = []
 
     for (const scene of scenes) {
-      const highlightScore = this.calculateHighlightScore(scene, transcription, engagementData)
+      const highlightScore = this.calculateHighlightScore(
+        scene,
+        transcription,
+        engagementData
+      )
 
       if (highlightScore > 0.7) {
         const highlight: Highlight = {
@@ -163,9 +173,7 @@ export class AdvancedContentAnalysis {
     }
 
     // Sort by confidence and return top 10
-    return highlights
-      .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, 10)
+    return highlights.sort((a, b) => b.confidence - a.confidence).slice(0, 10)
   }
 
   /**
@@ -191,7 +199,10 @@ export class AdvancedContentAnalysis {
       analyticsData
     )
 
-    const overallScore = this.calculateOverallScore(qualityMetrics, engagementMetrics)
+    const overallScore = this.calculateOverallScore(
+      qualityMetrics,
+      engagementMetrics
+    )
 
     return {
       overallScore,
@@ -205,7 +216,9 @@ export class AdvancedContentAnalysis {
   /**
    * Analyze audio features of video segments
    */
-  private async analyzeAudioFeatures(videoPath: string): Promise<AudioFeatures[]> {
+  private async analyzeAudioFeatures(
+    videoPath: string
+  ): Promise<AudioFeatures[]> {
     // Mock implementation - in production would use audio analysis libraries
     return [
       {
@@ -222,7 +235,9 @@ export class AdvancedContentAnalysis {
   /**
    * Analyze visual features of video segments
    */
-  private async analyzeVisualFeatures(videoPath: string): Promise<VisualFeatures[]> {
+  private async analyzeVisualFeatures(
+    videoPath: string
+  ): Promise<VisualFeatures[]> {
     // Mock implementation - in production would use computer vision
     return [
       {
@@ -247,10 +262,14 @@ export class AdvancedContentAnalysis {
   /**
    * Classify scene type based on features
    */
-  private classifySceneType(audio: AudioFeatures, visual: VisualFeatures): Scene['type'] {
+  private classifySceneType(
+    audio: AudioFeatures,
+    visual: VisualFeatures
+  ): Scene['type'] {
     if (audio.musicDetected && visual.motionIntensity > 0.7) return 'action'
     if (audio.speechRate > 100 && visual.faceCount > 0) return 'dialogue'
-    if (visual.motionIntensity < 0.3 && audio.silenceRatio > 0.3) return 'transition'
+    if (visual.motionIntensity < 0.3 && audio.silenceRatio > 0.3)
+      return 'transition'
     if (audio.volume > 0.8 && visual.motionIntensity > 0.6) return 'highlight'
     return 'dialogue'
   }
@@ -258,7 +277,10 @@ export class AdvancedContentAnalysis {
   /**
    * Calculate confidence score for scene classification
    */
-  private calculateSceneConfidence(audio: AudioFeatures, visual: VisualFeatures): number {
+  private calculateSceneConfidence(
+    audio: AudioFeatures,
+    visual: VisualFeatures
+  ): number {
     // Simple confidence calculation based on feature strength
     const audioConfidence = (audio.volume + (1 - audio.silenceRatio)) / 2
     const visualConfidence = (visual.motionIntensity + visual.brightness) / 2
@@ -275,11 +297,12 @@ export class AdvancedContentAnalysis {
     const descriptions = []
 
     if (audio.musicDetected) descriptions.push('background music')
-    if (visual.faceCount > 0) descriptions.push(`${visual.faceCount} person(s) visible`)
+    if (visual.faceCount > 0)
+      descriptions.push(`${visual.faceCount} person(s) visible`)
     if (visual.motionIntensity > 0.7) descriptions.push('high motion')
     if (audio.speechRate > 150) descriptions.push('fast-paced dialogue')
 
-    return descriptions.length > 0 
+    return descriptions.length > 0
       ? descriptions.join(', ')
       : 'General content scene'
   }
@@ -335,7 +358,10 @@ export class AdvancedContentAnalysis {
   /**
    * Generate title for highlight
    */
-  private async generateHighlightTitle(scene: Scene, transcription?: string): Promise<string> {
+  private async generateHighlightTitle(
+    scene: Scene,
+    transcription?: string
+  ): Promise<string> {
     const titles = {
       action: 'Exciting Moment',
       dialogue: 'Key Discussion',
@@ -351,7 +377,9 @@ export class AdvancedContentAnalysis {
   /**
    * Map scene type to highlight type
    */
-  private mapSceneTypeToHighlightType(sceneType: Scene['type']): Highlight['type'] {
+  private mapSceneTypeToHighlightType(
+    sceneType: Scene['type']
+  ): Highlight['type'] {
     const mapping = {
       action: 'action' as const,
       dialogue: 'educational' as const,
@@ -367,7 +395,10 @@ export class AdvancedContentAnalysis {
   /**
    * Generate tags for highlight
    */
-  private async generateHighlightTags(scene: Scene, transcription?: string): Promise<string[]> {
+  private async generateHighlightTags(
+    scene: Scene,
+    transcription?: string
+  ): Promise<string[]> {
     const tags = []
 
     if (scene.audioFeatures.musicDetected) tags.push('music')
@@ -381,7 +412,10 @@ export class AdvancedContentAnalysis {
   /**
    * Calculate engagement score for scene
    */
-  private calculateEngagementScore(scene: Scene, engagement?: EngagementMetrics): number {
+  private calculateEngagementScore(
+    scene: Scene,
+    engagement?: EngagementMetrics
+  ): number {
     if (!engagement) return 0.5
 
     const timeIndex = Math.floor(scene.startTime / 10)
@@ -391,12 +425,15 @@ export class AdvancedContentAnalysis {
   /**
    * Analyze content quality metrics
    */
-  private async analyzeContentQuality(videoPath: string, scenes: Scene[]): Promise<QualityMetrics> {
+  private async analyzeContentQuality(
+    videoPath: string,
+    scenes: Scene[]
+  ): Promise<QualityMetrics> {
     // Mock implementation - in production would analyze actual video quality
     return {
       videoQuality: 0.85,
-      audioQuality: 0.90,
-      contentClarity: 0.80,
+      audioQuality: 0.9,
+      contentClarity: 0.8,
       pacing: 0.75,
       visualAppeal: 0.82,
     }
@@ -433,7 +470,8 @@ export class AdvancedContentAnalysis {
         type: 'audio',
         priority: 'high',
         title: 'Improve Audio Quality',
-        description: 'Audio quality is below optimal levels. Consider using better microphones or audio processing.',
+        description:
+          'Audio quality is below optimal levels. Consider using better microphones or audio processing.',
         impact: 'Better audio quality can increase viewer retention by 15-20%',
         actionable: true,
         estimatedImprovement: 0.18,
@@ -446,7 +484,8 @@ export class AdvancedContentAnalysis {
         type: 'content',
         priority: 'medium',
         title: 'Optimize Content Pacing',
-        description: 'Content pacing could be improved. Consider varying the rhythm and adding more dynamic segments.',
+        description:
+          'Content pacing could be improved. Consider varying the rhythm and adding more dynamic segments.',
         impact: 'Better pacing can reduce drop-off rates by 10-15%',
         actionable: true,
         estimatedImprovement: 0.12,
@@ -459,7 +498,8 @@ export class AdvancedContentAnalysis {
         type: 'engagement',
         priority: 'high',
         title: 'Increase Viewer Retention',
-        description: 'Completion rate is below average. Consider adding hooks, previews, and interactive elements.',
+        description:
+          'Completion rate is below average. Consider adding hooks, previews, and interactive elements.',
         impact: 'Improved retention can boost overall engagement by 20-25%',
         actionable: true,
         estimatedImprovement: 0.22,
@@ -483,7 +523,8 @@ export class AdvancedContentAnalysis {
         currentValue: engagement.averageWatchTime,
         benchmarkValue: 240,
         trend: engagement.averageWatchTime > 200 ? 'improving' : 'declining',
-        recommendation: 'Focus on creating more engaging openings to hook viewers early',
+        recommendation:
+          'Focus on creating more engaging openings to hook viewers early',
       },
       {
         metric: 'Completion Rate',
@@ -498,14 +539,17 @@ export class AdvancedContentAnalysis {
   /**
    * Calculate overall content score
    */
-  private calculateOverallScore(quality: QualityMetrics, engagement: EngagementMetrics): number {
-    const qualityScore = (
-      quality.videoQuality +
-      quality.audioQuality +
-      quality.contentClarity +
-      quality.pacing +
-      quality.visualAppeal
-    ) / 5
+  private calculateOverallScore(
+    quality: QualityMetrics,
+    engagement: EngagementMetrics
+  ): number {
+    const qualityScore =
+      (quality.videoQuality +
+        quality.audioQuality +
+        quality.contentClarity +
+        quality.pacing +
+        quality.visualAppeal) /
+      5
 
     const engagementScore = engagement.completionRate
 

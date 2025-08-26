@@ -1,6 +1,6 @@
 /**
  * AI Content Enhancement Usage Examples
- * 
+ *
  * This file demonstrates how to use the AI content enhancement features
  * in the StreamVault platform.
  */
@@ -30,11 +30,13 @@ export async function processVideoWithAI() {
     console.log('- Description:', metadata.description)
     console.log('- Tags:', metadata.tags.join(', '))
     console.log('- Category:', metadata.category)
-    console.log('- AI Confidence:', Math.round(metadata.aiGenerated.confidence * 100) + '%')
+    console.log(
+      '- AI Confidence:',
+      Math.round(metadata.aiGenerated.confidence * 100) + '%'
+    )
     console.log('- Thumbnails generated:', metadata.thumbnails.length)
 
     return metadata
-
   } catch (error) {
     console.error('AI processing failed:', error)
     throw error
@@ -57,7 +59,7 @@ export async function generateVideoThumbnails() {
         width: 1280,
         height: 720,
         quality: 85,
-        format: 'jpeg'
+        format: 'jpeg',
       }
     )
 
@@ -71,7 +73,6 @@ export async function generateVideoThumbnails() {
     })
 
     return thumbnails
-
   } catch (error) {
     console.error('Thumbnail generation failed:', error)
     throw error
@@ -84,11 +85,12 @@ export async function analyzeVideoQuality() {
   const videoPath = '/path/to/video.mp4'
   const metadata = {
     title: 'How to Build Amazing Web Applications with Next.js',
-    description: 'Learn how to create modern web applications using Next.js, React, and TypeScript. Subscribe for more tutorials!',
+    description:
+      'Learn how to create modern web applications using Next.js, React, and TypeScript. Subscribe for more tutorials!',
     tags: ['nextjs', 'react', 'typescript', 'tutorial', 'web development'],
     thumbnails: ['https://example.com/thumb1.jpg'],
     captions: true,
-    audioDescription: false
+    audioDescription: false,
   }
 
   try {
@@ -101,7 +103,9 @@ export async function analyzeVideoQuality() {
     )
 
     console.log('Quality Analysis Results:')
-    console.log(`- Overall Score: ${Math.round(analysis.overall * 100)}% (${analysis.score.grade})`)
+    console.log(
+      `- Overall Score: ${Math.round(analysis.overall * 100)}% (${analysis.score.grade})`
+    )
     console.log('- Breakdown:')
     console.log(`  Technical: ${analysis.score.breakdown.technical}%`)
     console.log(`  Engagement: ${analysis.score.breakdown.engagement}%`)
@@ -110,13 +114,14 @@ export async function analyzeVideoQuality() {
 
     console.log('\nTop Improvement Suggestions:')
     analysis.suggestions.slice(0, 3).forEach((suggestion, index) => {
-      console.log(`${index + 1}. [${suggestion.priority.toUpperCase()}] ${suggestion.issue}`)
+      console.log(
+        `${index + 1}. [${suggestion.priority.toUpperCase()}] ${suggestion.issue}`
+      )
       console.log(`   Suggestion: ${suggestion.suggestion}`)
       console.log(`   Impact: ${Math.round(suggestion.impact * 100)}%`)
     })
 
     return analysis
-
   } catch (error) {
     console.error('Quality analysis failed:', error)
     throw error
@@ -142,11 +147,12 @@ export async function generateRecommendations() {
       console.log(`${index + 1}. ${video.title}`)
       console.log(`   Category: ${video.category}`)
       console.log(`   Tags: ${video.tags.slice(0, 3).join(', ')}`)
-      console.log(`   AI Confidence: ${Math.round(video.aiGenerated.confidence * 100)}%`)
+      console.log(
+        `   AI Confidence: ${Math.round(video.aiGenerated.confidence * 100)}%`
+      )
     })
 
     return recommendations
-
   } catch (error) {
     console.error('Recommendation generation failed:', error)
     throw error
@@ -155,20 +161,30 @@ export async function generateRecommendations() {
 
 // Example 5: Analyze thumbnail quality
 export async function analyzeThumbnailQuality() {
-  const thumbnailUrl = 'https://storage.googleapis.com/streamvault-videos/thumbnails/example.jpg'
+  const thumbnailUrl =
+    'https://storage.googleapis.com/streamvault-videos/thumbnails/example.jpg'
 
   try {
     console.log('Analyzing thumbnail quality...')
 
-    const analysis = await thumbnailGenerator.analyzeThumbnailQuality(thumbnailUrl)
+    const analysis =
+      await thumbnailGenerator.analyzeThumbnailQuality(thumbnailUrl)
 
     console.log('Thumbnail Analysis Results:')
     console.log(`- Quality Score: ${Math.round(analysis.score * 100)}%`)
     console.log('- Improvements needed:')
-    console.log(`  Brightness: ${analysis.improvements.brightness > 0 ? '+' + Math.round(analysis.improvements.brightness * 100) + '%' : 'Good'}`)
-    console.log(`  Contrast: ${analysis.improvements.contrast > 0 ? '+' + Math.round(analysis.improvements.contrast * 100) + '%' : 'Good'}`)
-    console.log(`  Sharpness: ${analysis.improvements.sharpness > 0 ? '+' + Math.round(analysis.improvements.sharpness * 100) + '%' : 'Good'}`)
-    console.log(`  Composition: ${analysis.improvements.composition > 0 ? '+' + Math.round(analysis.improvements.composition * 100) + '%' : 'Good'}`)
+    console.log(
+      `  Brightness: ${analysis.improvements.brightness > 0 ? '+' + Math.round(analysis.improvements.brightness * 100) + '%' : 'Good'}`
+    )
+    console.log(
+      `  Contrast: ${analysis.improvements.contrast > 0 ? '+' + Math.round(analysis.improvements.contrast * 100) + '%' : 'Good'}`
+    )
+    console.log(
+      `  Sharpness: ${analysis.improvements.sharpness > 0 ? '+' + Math.round(analysis.improvements.sharpness * 100) + '%' : 'Good'}`
+    )
+    console.log(
+      `  Composition: ${analysis.improvements.composition > 0 ? '+' + Math.round(analysis.improvements.composition * 100) + '%' : 'Good'}`
+    )
 
     if (analysis.suggestions.length > 0) {
       console.log('\nSuggestions:')
@@ -178,7 +194,6 @@ export async function analyzeThumbnailQuality() {
     }
 
     return analysis
-
   } catch (error) {
     console.error('Thumbnail analysis failed:', error)
     throw error
@@ -198,7 +213,7 @@ export async function useContentEnhancementAPI() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer your-auth-token'
+        Authorization: 'Bearer your-auth-token',
       },
       body: JSON.stringify({
         videoId,
@@ -207,9 +222,9 @@ export async function useContentEnhancementAPI() {
           generateThumbnails: true,
           generateMetadata: true,
           analyzeQuality: true,
-          generateRecommendations: false
-        }
-      })
+          generateRecommendations: false,
+        },
+      }),
     })
 
     if (!response.ok) {
@@ -222,19 +237,23 @@ export async function useContentEnhancementAPI() {
       console.log('API Enhancement Results:')
       console.log('- Video ID:', result.data.videoId)
       console.log('- Metadata generated:', !!result.data.metadata)
-      console.log('- Thumbnails generated:', result.data.thumbnails?.length || 0)
+      console.log(
+        '- Thumbnails generated:',
+        result.data.thumbnails?.length || 0
+      )
       console.log('- Quality analyzed:', !!result.data.qualityAnalysis)
-      
+
       if (result.data.qualityAnalysis) {
         console.log(`- Quality Grade: ${result.data.qualityAnalysis.grade}`)
-        console.log(`- Overall Score: ${Math.round(result.data.qualityAnalysis.overall * 100)}%`)
+        console.log(
+          `- Overall Score: ${Math.round(result.data.qualityAnalysis.overall * 100)}%`
+        )
       }
     } else {
       console.error('API enhancement failed:', result.error)
     }
 
     return result
-
   } catch (error) {
     console.error('API request failed:', error)
     throw error

@@ -5,12 +5,9 @@ import { subscriptionService } from '@/lib/stripe/subscription-service'
 export async function POST() {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     await subscriptionService.cancelSubscription(userId)
@@ -21,7 +18,7 @@ export async function POST() {
     })
   } catch (error) {
     console.error('Subscription cancellation error:', error)
-    
+
     return NextResponse.json(
       { error: 'Failed to cancel subscription' },
       { status: 500 }

@@ -1,10 +1,10 @@
-import { 
-  validateRequest, 
-  sanitizeInput, 
+import {
+  validateRequest,
+  sanitizeInput,
   validateAndSanitize,
   createStreamSchema,
   chatMessageSchema,
-  securityEventSchema
+  securityEventSchema,
 } from '@/lib/security/validation'
 
 describe('Security Validation', () => {
@@ -14,7 +14,7 @@ describe('Security Validation', () => {
         title: 'Test Stream',
         description: 'A test stream',
         category: 'gaming',
-        isPrivate: false
+        isPrivate: false,
       }
 
       const result = validateRequest(createStreamSchema, validData)
@@ -24,17 +24,18 @@ describe('Security Validation', () => {
     it('should throw error for invalid data', () => {
       const invalidData = {
         title: '', // Empty title should fail
-        category: 'gaming'
+        category: 'gaming',
       }
 
-      expect(() => validateRequest(createStreamSchema, invalidData))
-        .toThrow('Validation failed')
+      expect(() => validateRequest(createStreamSchema, invalidData)).toThrow(
+        'Validation failed'
+      )
     })
 
     it('should validate chat messages', () => {
       const validMessage = {
         message: 'Hello world!',
-        streamId: 'stream123'
+        streamId: 'stream123',
       }
 
       const result = validateRequest(chatMessageSchema, validMessage)
@@ -44,11 +45,12 @@ describe('Security Validation', () => {
     it('should reject malicious chat messages', () => {
       const maliciousMessage = {
         message: 'Hello <script>alert("xss")</script>',
-        streamId: 'stream123'
+        streamId: 'stream123',
       }
 
-      expect(() => validateRequest(chatMessageSchema, maliciousMessage))
-        .toThrow('Invalid content detected')
+      expect(() =>
+        validateRequest(chatMessageSchema, maliciousMessage)
+      ).toThrow('Invalid content detected')
     })
   })
 
@@ -82,7 +84,7 @@ describe('Security Validation', () => {
     it('should validate and sanitize data', () => {
       const data = {
         message: 'Hello <script>alert("xss")</script> world',
-        streamId: 'stream123'
+        streamId: 'stream123',
       }
 
       const result = validateAndSanitize(chatMessageSchema, data)
@@ -95,7 +97,7 @@ describe('Security Validation', () => {
         title: 'Test <script>alert(1)</script>',
         description: 'Safe description',
         category: 'gaming',
-        tags: ['tag1', 'tag2<script>alert(1)</script>']
+        tags: ['tag1', 'tag2<script>alert(1)</script>'],
       }
 
       const result = validateAndSanitize(createStreamSchema, data)
@@ -114,7 +116,7 @@ describe('Security Validation', () => {
         userAgent: 'Mozilla/5.0...',
         timestamp: Date.now(),
         severity: 'low',
-        details: { success: true }
+        details: { success: true },
       }
 
       const result = validateRequest(securityEventSchema, validEvent)
@@ -127,11 +129,12 @@ describe('Security Validation', () => {
         ipAddress: 'invalid-ip',
         userAgent: 'Mozilla/5.0...',
         timestamp: Date.now(),
-        severity: 'low'
+        severity: 'low',
       }
 
-      expect(() => validateRequest(securityEventSchema, invalidEvent))
-        .toThrow('Invalid IP address')
+      expect(() => validateRequest(securityEventSchema, invalidEvent)).toThrow(
+        'Invalid IP address'
+      )
     })
 
     it('should reject invalid event types', () => {
@@ -140,11 +143,10 @@ describe('Security Validation', () => {
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0...',
         timestamp: Date.now(),
-        severity: 'low'
+        severity: 'low',
       }
 
-      expect(() => validateRequest(securityEventSchema, invalidEvent))
-        .toThrow()
+      expect(() => validateRequest(securityEventSchema, invalidEvent)).toThrow()
     })
   })
 })

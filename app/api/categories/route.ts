@@ -8,23 +8,23 @@ export async function GET(request: NextRequest) {
   try {
     // Get all public VODs to calculate category statistics
     const result = await vodService.getPublicVODs({ limit: 10000 })
-    
+
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     const vods = result.data || []
 
     // Calculate category statistics
-    const categoryStats = new Map<string, {
-      name: string
-      videoCount: number
-      trending: boolean
-      description: string
-    }>()
+    const categoryStats = new Map<
+      string,
+      {
+        name: string
+        videoCount: number
+        trending: boolean
+        description: string
+      }
+    >()
 
     // Predefined category descriptions
     const categoryDescriptions: Record<string, string> = {
@@ -52,9 +52,10 @@ export async function GET(request: NextRequest) {
           name: vod.category,
           videoCount: 0,
           trending: false,
-          description: categoryDescriptions[vod.category] || `${vod.category} content`,
+          description:
+            categoryDescriptions[vod.category] || `${vod.category} content`,
         }
-        
+
         existing.videoCount++
         categoryStats.set(vod.category, existing)
       }
@@ -63,17 +64,20 @@ export async function GET(request: NextRequest) {
     // Determine trending categories (categories with recent uploads)
     const recentThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
     const recentVods = vods.filter(vod => vod.createdAt > recentThreshold)
-    
+
     const recentCategoryCounts = new Map<string, number>()
     recentVods.forEach(vod => {
       if (vod.category) {
-        recentCategoryCounts.set(vod.category, (recentCategoryCounts.get(vod.category) || 0) + 1)
+        recentCategoryCounts.set(
+          vod.category,
+          (recentCategoryCounts.get(vod.category) || 0) + 1
+        )
       }
     })
 
     // Mark top 3 categories with recent activity as trending
     const trendingCategories = Array.from(recentCategoryCounts.entries())
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
       .map(([category]) => category)
 
@@ -98,7 +102,6 @@ export async function GET(request: NextRequest) {
       categories,
       total: categories.length,
     })
-
   } catch (error) {
     console.error('Failed to get categories:', error)
     return NextResponse.json(

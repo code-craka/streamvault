@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
     const { searchParams } = new URL(request.url)
-    
+
     const querySchema = z.object({
       limit: z.string().transform(val => parseInt(val) || 20),
       userId: z.string().optional(),
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (!targetUserId) {
       // For non-authenticated users, return popular content
       const popularResult = await vodService.getPopularVODs(query.limit)
-      
+
       if (!popularResult.success) {
         return NextResponse.json(
           { error: popularResult.error },
@@ -39,16 +39,18 @@ export async function GET(request: NextRequest) {
 
     // Get user's viewing history and preferences
     const userPreferences = await getUserPreferences(targetUserId)
-    
+
     // Generate recommendations based on user preferences
-    const recommendations = await generateRecommendations(userPreferences, query.limit)
+    const recommendations = await generateRecommendations(
+      userPreferences,
+      query.limit
+    )
 
     return NextResponse.json({
       vods: recommendations,
       total: recommendations.length,
       type: 'personalized',
     })
-
   } catch (error) {
     console.error('Failed to get recommendations:', error)
     return NextResponse.json(
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
 async function getUserPreferences(userId: string) {
   // In a real implementation, this would analyze user's viewing history,
   // liked videos, subscriptions, etc. to determine preferences
-  
+
   // For now, we'll return some default preferences
   return {
     preferredCategories: ['Technology', 'Education', 'Gaming'],
@@ -93,8 +95,11 @@ async function generateRecommendations(preferences: any, limit: number) {
 
   // Shuffle array
   for (let i = uniqueRecommendations.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [uniqueRecommendations[i], uniqueRecommendations[j]] = [uniqueRecommendations[j], uniqueRecommendations[i]]
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[uniqueRecommendations[i], uniqueRecommendations[j]] = [
+      uniqueRecommendations[j],
+      uniqueRecommendations[i],
+    ]
   }
 
   return uniqueRecommendations.slice(0, limit)

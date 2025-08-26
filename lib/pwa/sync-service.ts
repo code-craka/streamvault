@@ -48,7 +48,13 @@ export interface SyncResult {
   errors: string[]
 }
 
-import { OfflineManager, type WatchProgress, type AnalyticsData, type UserActivity, type VideoQuality } from './offline-manager'
+import {
+  OfflineManager,
+  type WatchProgress,
+  type AnalyticsData,
+  type UserActivity,
+  type VideoQuality,
+} from './offline-manager'
 
 export class SyncService {
   private offlineManager: OfflineManager
@@ -64,7 +70,8 @@ export class SyncService {
     // Generate a unique device ID
     let deviceId = localStorage.getItem('streamvault-device-id')
     if (!deviceId) {
-      deviceId = 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now()
+      deviceId =
+        'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now()
       localStorage.setItem('streamvault-device-id', deviceId)
     }
     return deviceId
@@ -86,19 +93,23 @@ export class SyncService {
           watchProgress: 0,
           preferences: false,
           analytics: 0,
-          userActivity: 0
+          userActivity: 0,
         },
-        errors: []
+        errors: [],
       }
 
       // Get local data
       const localData = await this.getLocalSyncData(userId)
-      
+
       // Get remote data
       const remoteData = await this.getRemoteSyncData(userId)
 
       // Resolve conflicts and merge data
-      const mergedData = await this.resolveConflicts(localData, remoteData, result)
+      const mergedData = await this.resolveConflicts(
+        localData,
+        remoteData,
+        result
+      )
 
       // Upload merged data to server
       await this.uploadSyncData(userId, mergedData)
@@ -117,9 +128,9 @@ export class SyncService {
           watchProgress: 0,
           preferences: false,
           analytics: 0,
-          userActivity: 0
+          userActivity: 0,
         },
-        errors: [error instanceof Error ? error.message : 'Sync failed']
+        errors: [error instanceof Error ? error.message : 'Sync failed'],
       }
     } finally {
       this.syncInProgress = false
@@ -143,8 +154,8 @@ export class SyncService {
         preferences,
         downloadedVideos,
         analytics,
-        userActivity
-      }
+        userActivity,
+      },
     }
   }
 
@@ -153,8 +164,8 @@ export class SyncService {
     try {
       const response = await fetch(`/api/sync/${userId}`, {
         headers: {
-          'Authorization': `Bearer ${await this.getAuthToken()}`
-        }
+          Authorization: `Bearer ${await this.getAuthToken()}`,
+        },
       })
 
       if (!response.ok) {
@@ -177,9 +188,9 @@ export class SyncService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await this.getAuthToken()}`
+        Authorization: `Bearer ${await this.getAuthToken()}`,
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
 
     if (!response.ok) {
@@ -206,14 +217,14 @@ export class SyncService {
         preferences: localData.data.preferences,
         downloadedVideos: localData.data.downloadedVideos,
         analytics: localData.data.analytics,
-        userActivity: localData.data.userActivity
-      }
+        userActivity: localData.data.userActivity,
+      },
     }
 
     // Merge watch progress (use most recent for each video)
     const allVideoIds = new Set([
       ...Object.keys(localData.data.watchProgress),
-      ...Object.keys(remoteData.data.watchProgress)
+      ...Object.keys(remoteData.data.watchProgress),
     ])
 
     for (const videoId of allVideoIds) {
@@ -234,7 +245,7 @@ export class SyncService {
             field: `watchProgress.${videoId}`,
             localValue: localProgress,
             remoteValue: remoteProgress,
-            timestamp: remoteProgress.watchedAt
+            timestamp: remoteProgress.watchedAt,
           })
         } else {
           // Same timestamp, use the one with more progress
@@ -253,7 +264,7 @@ export class SyncService {
         localData.data.preferences,
         remoteData.data.preferences
       )
-      
+
       if (conflicts.length > 0) {
         result.conflicts.push(...conflicts)
         // For now, use remote preferences if there are conflicts
@@ -264,12 +275,12 @@ export class SyncService {
     // Merge analytics and user activity (combine all)
     mergedData.data.analytics = [
       ...localData.data.analytics,
-      ...remoteData.data.analytics
+      ...remoteData.data.analytics,
     ]
 
     mergedData.data.userActivity = [
       ...localData.data.userActivity,
-      ...remoteData.data.userActivity
+      ...remoteData.data.userActivity,
     ]
 
     return mergedData
@@ -288,7 +299,7 @@ export class SyncService {
         field: 'preferences.theme',
         localValue: local.theme,
         remoteValue: remote.theme,
-        timestamp
+        timestamp,
       })
     }
 
@@ -297,7 +308,7 @@ export class SyncService {
         field: 'preferences.language',
         localValue: local.language,
         remoteValue: remote.language,
-        timestamp
+        timestamp,
       })
     }
 
@@ -306,7 +317,7 @@ export class SyncService {
         field: 'preferences.autoplay',
         localValue: local.autoplay,
         remoteValue: remote.autoplay,
-        timestamp
+        timestamp,
       })
     }
 
@@ -315,7 +326,7 @@ export class SyncService {
         field: 'preferences.quality',
         localValue: local.quality,
         remoteValue: remote.quality,
-        timestamp
+        timestamp,
       })
     }
 
@@ -323,7 +334,10 @@ export class SyncService {
   }
 
   // Update local data with merged results
-  private async updateLocalData(data: SyncData, result: SyncResult): Promise<void> {
+  private async updateLocalData(
+    data: SyncData,
+    result: SyncResult
+  ): Promise<void> {
     // Update watch progress
     for (const [videoId, progress] of Object.entries(data.data.watchProgress)) {
       await this.offlineManager.saveWatchProgress(
@@ -392,16 +406,18 @@ export class SyncService {
       notifications: {
         newVideos: true,
         liveStreams: true,
-        comments: false
+        comments: false,
       },
       privacy: {
         shareWatchHistory: true,
-        showOnlineStatus: true
-      }
+        showOnlineStatus: true,
+      },
     }
   }
 
-  private async saveLocalPreferences(preferences: UserPreferences): Promise<void> {
+  private async saveLocalPreferences(
+    preferences: UserPreferences
+  ): Promise<void> {
     localStorage.setItem('streamvault-preferences', JSON.stringify(preferences))
   }
 
@@ -424,7 +440,9 @@ export class SyncService {
     // Mark analytics as synced in IndexedDB
   }
 
-  private async markUserActivityAsSynced(activity: UserActivity): Promise<void> {
+  private async markUserActivityAsSynced(
+    activity: UserActivity
+  ): Promise<void> {
     // Mark user activity as synced in IndexedDB
   }
 
@@ -440,7 +458,8 @@ export class SyncService {
 
     const lastSyncTime = new Date(lastSync)
     const now = new Date()
-    const hoursSinceLastSync = (now.getTime() - lastSyncTime.getTime()) / (1000 * 60 * 60)
+    const hoursSinceLastSync =
+      (now.getTime() - lastSyncTime.getTime()) / (1000 * 60 * 60)
 
     return hoursSinceLastSync >= 1 // Sync every hour
   }

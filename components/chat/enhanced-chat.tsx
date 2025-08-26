@@ -9,14 +9,14 @@ import { EmotePicker } from './custom-emote'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  MessageCircle, 
-  Gift, 
-  BarChart3, 
+import {
+  MessageCircle,
+  Gift,
+  BarChart3,
   Smile,
   TrendingUp,
   Heart,
-  Zap
+  Zap,
 } from 'lucide-react'
 
 interface EnhancedChatProps {
@@ -25,10 +25,10 @@ interface EnhancedChatProps {
   className?: string
 }
 
-export function EnhancedChat({ 
-  streamId, 
-  showModerationTools = false, 
-  className 
+export function EnhancedChat({
+  streamId,
+  showModerationTools = false,
+  className,
 }: EnhancedChatProps) {
   const { user } = useUser()
   const [activeTab, setActiveTab] = useState('chat')
@@ -42,7 +42,11 @@ export function EnhancedChat({
   }
 
   // Handle super chat
-  const handleSuperChat = async (amount: number, message: string, currency: string) => {
+  const handleSuperChat = async (
+    amount: number,
+    message: string,
+    currency: string
+  ) => {
     try {
       const response = await fetch(`/api/chat/${streamId}/super-chat`, {
         method: 'POST',
@@ -62,7 +66,7 @@ export function EnhancedChat({
       }
 
       const result = await response.json()
-      
+
       // Add to active super chats display
       const superChat = {
         id: result.superChat.id,
@@ -81,7 +85,6 @@ export function EnhancedChat({
       setTimeout(() => {
         setActiveSuperChats(prev => prev.filter(sc => sc.id !== superChat.id))
       }, result.superChat.displayDuration * 1000)
-
     } catch (error) {
       console.error('Super chat error:', error)
       throw error
@@ -89,7 +92,11 @@ export function EnhancedChat({
   }
 
   // Handle poll creation
-  const handleCreatePoll = async (question: string, options: string[], duration: number) => {
+  const handleCreatePoll = async (
+    question: string,
+    options: string[],
+    duration: number
+  ) => {
     try {
       const response = await fetch(`/api/chat/${streamId}/polls`, {
         method: 'POST',
@@ -107,7 +114,6 @@ export function EnhancedChat({
         const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to create poll')
       }
-
     } catch (error) {
       console.error('Poll creation error:', error)
       throw error
@@ -117,21 +123,23 @@ export function EnhancedChat({
   // Handle poll voting
   const handleVote = async (pollId: string, optionId: string) => {
     try {
-      const response = await fetch(`/api/chat/${streamId}/polls/${pollId}/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          optionId,
-        }),
-      })
+      const response = await fetch(
+        `/api/chat/${streamId}/polls/${pollId}/vote`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            optionId,
+          }),
+        }
+      )
 
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to vote')
       }
-
     } catch (error) {
       console.error('Voting error:', error)
       throw error
@@ -154,7 +162,7 @@ export function EnhancedChat({
       {/* Active Super Chats Display */}
       {activeSuperChats.length > 0 && (
         <div className="space-y-2">
-          {activeSuperChats.map((superChat) => (
+          {activeSuperChats.map(superChat => (
             <SuperChatDisplay
               key={superChat.id}
               superChat={superChat}
@@ -172,7 +180,10 @@ export function EnhancedChat({
               <MessageCircle className="h-3 w-3" />
               <span className="hidden sm:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="superchat" className="flex items-center space-x-1">
+            <TabsTrigger
+              value="superchat"
+              className="flex items-center space-x-1"
+            >
               <Gift className="h-3 w-3" />
               <span className="hidden sm:inline">Super Chat</span>
             </TabsTrigger>
@@ -195,10 +206,7 @@ export function EnhancedChat({
           </TabsContent>
 
           <TabsContent value="superchat" className="mt-0 p-4">
-            <SuperChat
-              streamId={streamId}
-              onSuperChat={handleSuperChat}
-            />
+            <SuperChat streamId={streamId} onSuperChat={handleSuperChat} />
           </TabsContent>
 
           <TabsContent value="polls" className="mt-0 p-4">
@@ -219,56 +227,61 @@ export function EnhancedChat({
       </Card>
 
       {/* Chat Analytics (for streamers/admins) */}
-      {user && ['admin', 'streamer'].includes(user.publicMetadata?.role as string) && (
-        <Card className="p-4">
-          <h3 className="font-semibold mb-3 flex items-center space-x-2">
-            <TrendingUp className="h-4 w-4" />
-            <span>Chat Analytics</span>
-          </h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500">0</div>
-              <div className="text-xs text-muted-foreground">Messages/min</div>
+      {user &&
+        ['admin', 'streamer'].includes(user.publicMetadata?.role as string) && (
+          <Card className="p-4">
+            <h3 className="mb-3 flex items-center space-x-2 font-semibold">
+              <TrendingUp className="h-4 w-4" />
+              <span>Chat Analytics</span>
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-500">0</div>
+                <div className="text-muted-foreground text-xs">
+                  Messages/min
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-500">0</div>
+                <div className="text-muted-foreground text-xs">
+                  Active Users
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-500">$0</div>
+                <div className="text-muted-foreground text-xs">Super Chat</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-500">😊</div>
+                <div className="text-muted-foreground text-xs">Sentiment</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">0</div>
-              <div className="text-xs text-muted-foreground">Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-500">$0</div>
-              <div className="text-xs text-muted-foreground">Super Chat</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-500">😊</div>
-              <div className="text-xs text-muted-foreground">Sentiment</div>
-            </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
       {/* Engagement Features */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-3 flex items-center space-x-2">
+        <h3 className="mb-3 flex items-center space-x-2 font-semibold">
           <Heart className="h-4 w-4" />
           <span>Engagement</span>
         </h3>
-        
+
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" size="sm" className="justify-start">
-            <Heart className="h-3 w-3 mr-2" />
+            <Heart className="mr-2 h-3 w-3" />
             React
           </Button>
           <Button variant="outline" size="sm" className="justify-start">
-            <Zap className="h-3 w-3 mr-2" />
+            <Zap className="mr-2 h-3 w-3" />
             Hype
           </Button>
           <Button variant="outline" size="sm" className="justify-start">
-            <Gift className="h-3 w-3 mr-2" />
+            <Gift className="mr-2 h-3 w-3" />
             Gift Sub
           </Button>
           <Button variant="outline" size="sm" className="justify-start">
-            <BarChart3 className="h-3 w-3 mr-2" />
+            <BarChart3 className="mr-2 h-3 w-3" />
             Quick Poll
           </Button>
         </div>

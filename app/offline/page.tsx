@@ -5,15 +5,16 @@ import { WifiOff, RefreshCw, Download, Play } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Offline - StreamVault',
-  description: 'You are currently offline. Access your downloaded content or try reconnecting.',
+  description:
+    'You are currently offline. Access your downloaded content or try reconnecting.',
 }
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <Card className="max-w-md w-full p-8 text-center space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <Card className="w-full max-w-md space-y-6 p-8 text-center">
         <div className="flex justify-center">
-          <div className="p-4 bg-gray-100 rounded-full">
+          <div className="rounded-full bg-gray-100 p-4">
             <WifiOff className="h-12 w-12 text-gray-600" />
           </div>
         </div>
@@ -21,14 +22,15 @@ export default function OfflinePage() {
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-gray-900">You're Offline</h1>
           <p className="text-gray-600">
-            No internet connection detected. You can still access your downloaded content or try reconnecting.
+            No internet connection detected. You can still access your
+            downloaded content or try reconnecting.
           </p>
         </div>
 
         <div className="space-y-4">
           <Button
             onClick={() => window.location.reload()}
-            className="w-full flex items-center justify-center space-x-2"
+            className="flex w-full items-center justify-center space-x-2"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Try Again</span>
@@ -36,16 +38,16 @@ export default function OfflinePage() {
 
           <Button
             variant="outline"
-            onClick={() => window.location.href = '/library?offline=true'}
-            className="w-full flex items-center justify-center space-x-2"
+            onClick={() => (window.location.href = '/library?offline=true')}
+            className="flex w-full items-center justify-center space-x-2"
           >
             <Download className="h-4 w-4" />
             <span>View Downloaded Videos</span>
           </Button>
         </div>
 
-        <div className="pt-4 border-t border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-3">Offline Features</h3>
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="mb-3 font-semibold text-gray-900">Offline Features</h3>
           <div className="space-y-2 text-sm text-gray-600">
             <div className="flex items-center space-x-2">
               <Play className="h-4 w-4" />

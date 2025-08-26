@@ -18,14 +18,11 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    
+
     // Validate vote data
     const validation = voteSchema.safeParse(body)
     if (!validation.success) {
@@ -40,10 +37,7 @@ export async function POST(
     // Get poll
     const poll = polls.get(params.pollId)
     if (!poll) {
-      return NextResponse.json(
-        { error: 'Poll not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Poll not found' }, { status: 404 })
     }
 
     // Check if poll is still active
@@ -63,7 +57,7 @@ export async function POST(
     }
 
     // Check if user has already voted
-    const hasVoted = poll.options.some((option: any) => 
+    const hasVoted = poll.options.some((option: any) =>
       option.voters.includes(userId)
     )
 
@@ -75,12 +69,11 @@ export async function POST(
     }
 
     // Find the option
-    const optionIndex = poll.options.findIndex((option: any) => option.id === optionId)
+    const optionIndex = poll.options.findIndex(
+      (option: any) => option.id === optionId
+    )
     if (optionIndex === -1) {
-      return NextResponse.json(
-        { error: 'Invalid option' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid option' }, { status: 400 })
     }
 
     // Add vote
@@ -113,19 +106,13 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get poll
     const poll = polls.get(params.pollId)
     if (!poll) {
-      return NextResponse.json(
-        { error: 'Poll not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Poll not found' }, { status: 404 })
     }
 
     // Check if poll belongs to the stream
@@ -137,7 +124,7 @@ export async function GET(
     }
 
     // Check if user has voted
-    const userVote = poll.options.find((option: any) => 
+    const userVote = poll.options.find((option: any) =>
       option.voters.includes(userId)
     )
 

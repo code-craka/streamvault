@@ -83,7 +83,10 @@ export class CDNCacheManager {
     }
 
     if (config.bypassCache) {
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+      response.headers.set(
+        'Cache-Control',
+        'no-cache, no-store, must-revalidate'
+      )
       response.headers.set('Pragma', 'no-cache')
       response.headers.set('Expires', '0')
       return response
@@ -94,7 +97,7 @@ export class CDNCacheManager {
 
     // Set Cloudflare-specific headers
     response.headers.set('CF-Cache-Tag', this.generateCacheTag(strategy))
-    
+
     if (config.varyHeaders) {
       response.headers.set('Vary', config.varyHeaders.join(', '))
     }
@@ -110,7 +113,10 @@ export class CDNCacheManager {
     }
 
     // Add public/private based on cache key
-    if (config.cacheKey?.includes('authorization') || config.cacheKey?.includes('user-id')) {
+    if (
+      config.cacheKey?.includes('authorization') ||
+      config.cacheKey?.includes('user-id')
+    ) {
       directives.push('private')
     } else {
       directives.push('public')
@@ -150,7 +156,7 @@ export class CDNCacheManager {
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.cloudflareApiToken}`,
+            Authorization: `Bearer ${this.cloudflareApiToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(purgeData),
@@ -193,7 +199,7 @@ export class CDNCacheManager {
         `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/analytics/dashboard?${params}`,
         {
           headers: {
-            'Authorization': `Bearer ${this.cloudflareApiToken}`,
+            Authorization: `Bearer ${this.cloudflareApiToken}`,
             'Content-Type': 'application/json',
           },
         }
@@ -214,7 +220,7 @@ export class CDNCacheManager {
    * Preload critical resources
    */
   public async preloadResources(urls: string[]): Promise<void> {
-    const preloadPromises = urls.map(async (url) => {
+    const preloadPromises = urls.map(async url => {
       try {
         await fetch(url, { method: 'HEAD' })
       } catch (error) {
@@ -237,9 +243,12 @@ export function getCacheStrategy(path: string): keyof CacheStrategy {
 
 export function shouldBypassCache(request: Request): boolean {
   const url = new URL(request.url)
-  
+
   // Bypass cache for authenticated API requests
-  if (url.pathname.startsWith('/api/') && request.headers.get('authorization')) {
+  if (
+    url.pathname.startsWith('/api/') &&
+    request.headers.get('authorization')
+  ) {
     return true
   }
 
@@ -263,7 +272,7 @@ export function withCacheHeaders(
   return async (request: Request): Promise<Response> => {
     const response = await handler(request)
     const url = new URL(request.url)
-    
+
     if (shouldBypassCache(request)) {
       return response
     }

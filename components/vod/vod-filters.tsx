@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
@@ -107,7 +113,10 @@ export function VODFilters({
   }
 
   const removeTag = (tag: string) => {
-    updateFilter('tags', filters.tags.filter(t => t !== tag))
+    updateFilter(
+      'tags',
+      filters.tags.filter(t => t !== tag)
+    )
   }
 
   const formatDuration = (minutes: number): string => {
@@ -134,11 +143,13 @@ export function VODFilters({
   }
 
   return (
-    <Card className={`transition-all duration-200 ${isOpen ? 'shadow-lg' : ''}`}>
+    <Card
+      className={`transition-all duration-200 ${isOpen ? 'shadow-lg' : ''}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
-            <Filter className="w-5 h-5" />
+            <Filter className="h-5 w-5" />
             <span>Filters</span>
             {hasActiveFilters() && (
               <Badge variant="secondary" className="ml-2">
@@ -154,16 +165,16 @@ export function VODFilters({
                 onClick={onReset}
                 className="text-xs"
               >
-                <RotateCcw className="w-3 h-3 mr-1" />
+                <RotateCcw className="mr-1 h-3 w-3" />
                 Reset
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-            >
-              {isOpen ? <X className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
+            <Button variant="ghost" size="sm" onClick={onToggle}>
+              {isOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Filter className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -178,18 +189,22 @@ export function VODFilters({
               id="search"
               placeholder="Search videos..."
               value={filters.search}
-              onChange={(e) => updateFilter('search', e.target.value)}
+              onChange={e => updateFilter('search', e.target.value)}
             />
           </div>
 
           {/* Categories */}
           <div>
             <Label>Categories</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {CATEGORIES.map((category) => (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {CATEGORIES.map(category => (
                 <Badge
                   key={category}
-                  variant={filters.categories.includes(category) ? 'default' : 'outline'}
+                  variant={
+                    filters.categories.includes(category)
+                      ? 'default'
+                      : 'outline'
+                  }
                   className="cursor-pointer hover:bg-opacity-80"
                   onClick={() => toggleCategory(category)}
                 >
@@ -202,11 +217,15 @@ export function VODFilters({
           {/* Subscription Tiers */}
           <div>
             <Label>Subscription Tiers</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {SUBSCRIPTION_TIERS.map((tier) => (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SUBSCRIPTION_TIERS.map(tier => (
                 <Badge
                   key={tier.value}
-                  variant={filters.requiredTiers.includes(tier.value) ? 'default' : 'outline'}
+                  variant={
+                    filters.requiredTiers.includes(tier.value)
+                      ? 'default'
+                      : 'outline'
+                  }
                   className="cursor-pointer hover:bg-opacity-80"
                   onClick={() => toggleTier(tier.value)}
                 >
@@ -221,7 +240,7 @@ export function VODFilters({
             <Label>Duration Range</Label>
             <div className="mt-2 space-y-3">
               <div>
-                <div className="flex justify-between text-sm text-gray-500 mb-2">
+                <div className="mb-2 flex justify-between text-sm text-gray-500">
                   <span>Min: {formatDuration(filters.minDuration)}</span>
                   <span>Max: {formatDuration(filters.maxDuration)}</span>
                 </div>
@@ -245,29 +264,37 @@ export function VODFilters({
           {/* Date Range */}
           <div>
             <Label>Date Range</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="mt-2 grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="start-date" className="text-xs">From</Label>
+                <Label htmlFor="start-date" className="text-xs">
+                  From
+                </Label>
                 <Input
                   id="start-date"
                   type="date"
                   value={filters.dateRange.start}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    start: e.target.value
-                  })}
+                  onChange={e =>
+                    updateFilter('dateRange', {
+                      ...filters.dateRange,
+                      start: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="end-date" className="text-xs">To</Label>
+                <Label htmlFor="end-date" className="text-xs">
+                  To
+                </Label>
                 <Input
                   id="end-date"
                   type="date"
                   value={filters.dateRange.end}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    end: e.target.value
-                  })}
+                  onChange={e =>
+                    updateFilter('dateRange', {
+                      ...filters.dateRange,
+                      end: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -282,14 +309,16 @@ export function VODFilters({
               min="0"
               placeholder="0"
               value={filters.minViews || ''}
-              onChange={(e) => updateFilter('minViews', parseInt(e.target.value) || 0)}
+              onChange={e =>
+                updateFilter('minViews', parseInt(e.target.value) || 0)
+              }
             />
           </div>
 
           {/* Content Features */}
           <div>
             <Label>Content Features</Label>
-            <div className="space-y-3 mt-2">
+            <div className="mt-2 space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="has-transcription" className="text-sm">
                   Has Transcription
@@ -297,7 +326,9 @@ export function VODFilters({
                 <Switch
                   id="has-transcription"
                   checked={filters.hasTranscription}
-                  onCheckedChange={(checked) => updateFilter('hasTranscription', checked)}
+                  onCheckedChange={checked =>
+                    updateFilter('hasTranscription', checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -307,7 +338,9 @@ export function VODFilters({
                 <Switch
                   id="has-highlights"
                   checked={filters.hasHighlights}
-                  onCheckedChange={(checked) => updateFilter('hasHighlights', checked)}
+                  onCheckedChange={checked =>
+                    updateFilter('hasHighlights', checked)
+                  }
                 />
               </div>
             </div>
@@ -321,8 +354,8 @@ export function VODFilters({
                 <Input
                   placeholder="Add tag..."
                   value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && addTag()}
                 />
                 <Button onClick={addTag} size="sm">
                   Add
@@ -330,11 +363,15 @@ export function VODFilters({
               </div>
               {filters.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {filters.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="cursor-pointer">
+                  {filters.tags.map(tag => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="cursor-pointer"
+                    >
                       {tag}
                       <X
-                        className="w-3 h-3 ml-1"
+                        className="ml-1 h-3 w-3"
                         onClick={() => removeTag(tag)}
                       />
                     </Badge>
@@ -347,16 +384,16 @@ export function VODFilters({
           {/* Sort Options */}
           <div>
             <Label>Sort By</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="mt-2 grid grid-cols-2 gap-2">
               <Select
                 value={filters.sortBy}
-                onValueChange={(value) => updateFilter('sortBy', value as any)}
+                onValueChange={value => updateFilter('sortBy', value as any)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
+                  {SORT_OPTIONS.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -365,7 +402,9 @@ export function VODFilters({
               </Select>
               <Select
                 value={filters.sortDirection}
-                onValueChange={(value) => updateFilter('sortDirection', value as any)}
+                onValueChange={value =>
+                  updateFilter('sortDirection', value as any)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />

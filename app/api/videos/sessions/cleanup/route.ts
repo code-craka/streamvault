@@ -38,7 +38,6 @@ export async function POST(_request: NextRequest) {
         message: `Successfully cleaned up ${cleanedCount} expired sessions`,
       },
     })
-
   } catch (error) {
     console.error('Session cleanup error:', error)
 
@@ -80,7 +79,6 @@ export async function GET(_request: NextRequest) {
         lastCleanup: new Date().toISOString(),
       },
     })
-
   } catch (error) {
     console.error('Session cleanup status error:', error)
 

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { apiAuthService, APIPermissions, type APIPermission } from '@/lib/api/auth-service'
+import {
+  apiAuthService,
+  APIPermissions,
+  type APIPermission,
+} from '@/lib/api/auth-service'
 
 // Create API client schema
 const CreateAPIClientSchema = z.object({
   name: z.string().min(1).max(100),
-  permissions: z.array(z.enum(Object.keys(APIPermissions) as [APIPermission, ...APIPermission[]])),
+  permissions: z.array(
+    z.enum(Object.keys(APIPermissions) as [APIPermission, ...APIPermission[]])
+  ),
   rateLimit: z.object({
     requestsPerMinute: z.number().min(1).max(10000),
     requestsPerHour: z.number().min(1).max(100000),
@@ -43,20 +49,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -82,15 +91,17 @@ export async function GET(request: NextRequest) {
       lastUsedAt: c.lastUsedAt,
     }))
 
-    return NextResponse.json({
-      data: sanitizedClients,
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: sanitizedClients,
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
@@ -129,20 +140,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -162,36 +176,39 @@ export async function POST(request: NextRequest) {
       instanceId
     )
 
-    return NextResponse.json({
-      data: {
-        id: result.client.id,
-        name: result.client.name,
-        apiKey: result.apiKey,
-        secret: result.secret, // Only returned once during creation
-        permissions: result.client.permissions,
-        rateLimit: result.client.rateLimit,
-        instanceId: result.client.instanceId,
-        createdAt: result.client.createdAt,
+    return NextResponse.json(
+      {
+        data: {
+          id: result.client.id,
+          name: result.client.name,
+          apiKey: result.apiKey,
+          secret: result.secret, // Only returned once during creation
+          permissions: result.client.permissions,
+          rateLimit: result.client.rateLimit,
+          instanceId: result.client.instanceId,
+          createdAt: result.client.createdAt,
+        },
+        message: 'API client created successfully',
+        warning:
+          'Store the API key and secret securely. The secret will not be shown again.',
       },
-      message: 'API client created successfully',
-      warning: 'Store the API key and secret securely. The secret will not be shown again.',
-    }, {
-      status: 201,
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+      {
+        status: 201,
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request body', 
+        {
+          error: 'Invalid request body',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )

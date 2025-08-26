@@ -6,13 +6,13 @@ import { doc, setDoc } from 'firebase/firestore'
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const subscriptionData = await request.json()
-    
+
     // Validate subscription data
     if (!subscriptionData.endpoint || !subscriptionData.keys) {
       return NextResponse.json(
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       endpoint: subscriptionData.endpoint,
       keys: subscriptionData.keys,
       subscribedAt: new Date(),
-      active: true
+      active: true,
     })
 
     return NextResponse.json({ success: true })
@@ -43,16 +43,20 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Mark subscription as inactive
-    await setDoc(doc(db, 'pushSubscriptions', userId), {
-      active: false,
-      unsubscribedAt: new Date()
-    }, { merge: true })
+    await setDoc(
+      doc(db, 'pushSubscriptions', userId),
+      {
+        active: false,
+        unsubscribedAt: new Date(),
+      },
+      { merge: true }
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -15,17 +15,26 @@ const generateSessionId = (): string => {
 const getDeviceInfo = () => {
   const userAgent = navigator.userAgent
   let deviceType: 'desktop' | 'mobile' | 'tablet' = 'desktop'
-  
+
   if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
     deviceType = 'tablet'
-  } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)) {
+  } else if (
+    /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(
+      userAgent
+    )
+  ) {
     deviceType = 'mobile'
   }
 
-  const browser = userAgent.includes('Chrome') ? 'Chrome' :
-                 userAgent.includes('Firefox') ? 'Firefox' :
-                 userAgent.includes('Safari') ? 'Safari' :
-                 userAgent.includes('Edge') ? 'Edge' : 'Unknown'
+  const browser = userAgent.includes('Chrome')
+    ? 'Chrome'
+    : userAgent.includes('Firefox')
+      ? 'Firefox'
+      : userAgent.includes('Safari')
+        ? 'Safari'
+        : userAgent.includes('Edge')
+          ? 'Edge'
+          : 'Unknown'
 
   return { deviceType, browser }
 }
@@ -42,7 +51,7 @@ export function useViewerAnalytics(streamId: string | null) {
 
     try {
       const deviceInfo = getDeviceInfo()
-      
+
       // Get location if available (would need geolocation API)
       let location
       if (navigator.geolocation) {
@@ -59,9 +68,9 @@ export function useViewerAnalytics(streamId: string | null) {
           sessionId: sessionIdRef.current,
           deviceInfo: {
             ...deviceInfo,
-            location
-          }
-        })
+            location,
+          },
+        }),
       })
 
       hasJoinedRef.current = true
@@ -75,7 +84,7 @@ export function useViewerAnalytics(streamId: string | null) {
 
     try {
       const duration = Math.floor((Date.now() - startTimeRef.current) / 1000)
-      
+
       await fetch('/api/analytics/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,8 +92,8 @@ export function useViewerAnalytics(streamId: string | null) {
           action: 'viewer_leave',
           streamId,
           sessionId: sessionIdRef.current,
-          duration
-        })
+          duration,
+        }),
       })
 
       hasJoinedRef.current = false
@@ -93,55 +102,61 @@ export function useViewerAnalytics(streamId: string | null) {
     }
   }, [streamId])
 
-  const trackQualityChange = useCallback(async (
-    newQuality: string,
-    bufferingEvent?: boolean,
-    bufferingDuration?: number
-  ) => {
-    if (!streamId) return
+  const trackQualityChange = useCallback(
+    async (
+      newQuality: string,
+      bufferingEvent?: boolean,
+      bufferingDuration?: number
+    ) => {
+      if (!streamId) return
 
-    try {
-      await fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'quality_change',
-          streamId,
-          sessionId: sessionIdRef.current,
-          newQuality,
-          bufferingEvent,
-          bufferingDuration
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'quality_change',
+            streamId,
+            sessionId: sessionIdRef.current,
+            newQuality,
+            bufferingEvent,
+            bufferingDuration,
+          }),
         })
-      })
-    } catch (error) {
-      console.error('Error tracking quality change:', error)
-    }
-  }, [streamId])
+      } catch (error) {
+        console.error('Error tracking quality change:', error)
+      }
+    },
+    [streamId]
+  )
 
-  const trackEngagement = useCallback(async (
-    eventType: string,
-    eventData?: Record<string, any>,
-    value?: number
-  ) => {
-    if (!streamId) return
+  const trackEngagement = useCallback(
+    async (
+      eventType: string,
+      eventData?: Record<string, any>,
+      value?: number
+    ) => {
+      if (!streamId) return
 
-    try {
-      await fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'engagement',
-          streamId,
-          sessionId: sessionIdRef.current,
-          eventType,
-          eventData,
-          value
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'engagement',
+            streamId,
+            sessionId: sessionIdRef.current,
+            eventType,
+            eventData,
+            value,
+          }),
         })
-      })
-    } catch (error) {
-      console.error('Error tracking engagement:', error)
-    }
-  }, [streamId])
+      } catch (error) {
+        console.error('Error tracking engagement:', error)
+      }
+    },
+    [streamId]
+  )
 
   // Track viewer join on mount
   useEffect(() => {
@@ -167,44 +182,48 @@ export function useViewerAnalytics(streamId: string | null) {
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [trackEngagement])
 
   return {
     sessionId: sessionIdRef.current,
     trackQualityChange,
-    trackEngagement
+    trackEngagement,
   }
 }
 
 // Hook for tracking chat analytics
 export function useChatAnalytics(streamId: string | null) {
-  const trackChatMessage = useCallback(async (
-    messageId: string,
-    messageData: {
-      messageLength: number
-      containsEmotes: boolean
-      sentiment?: 'positive' | 'negative' | 'neutral'
-      engagementScore: number
-    }
-  ) => {
-    if (!streamId) return
+  const trackChatMessage = useCallback(
+    async (
+      messageId: string,
+      messageData: {
+        messageLength: number
+        containsEmotes: boolean
+        sentiment?: 'positive' | 'negative' | 'neutral'
+        engagementScore: number
+      }
+    ) => {
+      if (!streamId) return
 
-    try {
-      await fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'chat_message',
-          streamId,
-          messageId,
-          messageData
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'chat_message',
+            streamId,
+            messageId,
+            messageData,
+          }),
         })
-      })
-    } catch (error) {
-      console.error('Error tracking chat message:', error)
-    }
-  }, [streamId])
+      } catch (error) {
+        console.error('Error tracking chat message:', error)
+      }
+    },
+    [streamId]
+  )
 
   return { trackChatMessage }
 }
@@ -228,14 +247,15 @@ export function useRealtimeAnalytics(streamId: string | null) {
     // Subscribe to real-time updates
     const unsubscribe = analyticsService.subscribeToRealtimeAnalytics(
       streamId,
-      (data) => {
+      data => {
         setAnalytics(data)
         setLoading(false)
       }
     )
 
     // Initial fetch
-    analyticsService.getRealtimeAnalytics(streamId)
+    analyticsService
+      .getRealtimeAnalytics(streamId)
       .then(data => {
         if (data) {
           setAnalytics(data)
@@ -277,7 +297,7 @@ export function useCreatorAnalytics(
     const params = new URLSearchParams({
       period,
       ...(startDate && { startDate: startDate.toISOString() }),
-      ...(endDate && { endDate: endDate.toISOString() })
+      ...(endDate && { endDate: endDate.toISOString() }),
     })
 
     fetch(`/api/analytics/creator/${creatorId}?${params}`)
@@ -304,7 +324,7 @@ export function useCreatorAnalytics(
     const params = new URLSearchParams({
       period,
       ...(startDate && { startDate: startDate.toISOString() }),
-      ...(endDate && { endDate: endDate.toISOString() })
+      ...(endDate && { endDate: endDate.toISOString() }),
     })
 
     fetch(`/api/analytics/creator/${creatorId}?${params}`)

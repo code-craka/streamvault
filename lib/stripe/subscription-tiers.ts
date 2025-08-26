@@ -18,7 +18,10 @@ export interface SubscriptionTierConfig {
   limits: SubscriptionLimits
 }
 
-export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, SubscriptionTierConfig> = {
+export const SUBSCRIPTION_TIERS: Record<
+  SubscriptionTier,
+  SubscriptionTierConfig
+> = {
   basic: {
     name: 'Basic',
     price: 9.99,
@@ -119,7 +122,9 @@ export function hasFeatureAccess(
   return tierHierarchy[userTier] >= tierHierarchy[requiredTier]
 }
 
-export function getSubscriptionLimits(tier: SubscriptionTier | null): SubscriptionLimits {
+export function getSubscriptionLimits(
+  tier: SubscriptionTier | null
+): SubscriptionLimits {
   if (!tier) return SUBSCRIPTION_TIERS.basic.limits
   return SUBSCRIPTION_TIERS[tier].limits
 }

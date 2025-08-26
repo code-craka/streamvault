@@ -1,14 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface APIEndpoint {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -23,11 +35,14 @@ interface APIEndpoint {
   }[]
   requestBody?: {
     type: string
-    properties: Record<string, {
-      type: string
-      required: boolean
-      description: string
-    }>
+    properties: Record<
+      string,
+      {
+        type: string
+        required: boolean
+        description: string
+      }
+    >
   }
   responses: {
     status: number
@@ -43,10 +58,30 @@ const API_ENDPOINTS: APIEndpoint[] = [
     description: 'Get list of streams with pagination and filtering',
     permissions: ['stream:read'],
     parameters: [
-      { name: 'page', type: 'number', required: false, description: 'Page number (default: 1)' },
-      { name: 'limit', type: 'number', required: false, description: 'Items per page (default: 20, max: 100)' },
-      { name: 'status', type: 'string', required: false, description: 'Filter by status (active, inactive, ended)' },
-      { name: 'category', type: 'string', required: false, description: 'Filter by category' },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: 'Page number (default: 1)',
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: 'Items per page (default: 20, max: 100)',
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: 'Filter by status (active, inactive, ended)',
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: 'Filter by category',
+      },
     ],
     responses: [
       {
@@ -59,18 +94,18 @@ const API_ENDPOINTS: APIEndpoint[] = [
               title: 'My Live Stream',
               description: 'A great live stream',
               status: 'active',
-              createdAt: '2024-01-01T00:00:00Z'
-            }
+              createdAt: '2024-01-01T00:00:00Z',
+            },
           ],
           pagination: {
             page: 1,
             limit: 20,
             total: 100,
-            totalPages: 5
-          }
-        }
-      }
-    ]
+            totalPages: 5,
+          },
+        },
+      },
+    ],
   },
   {
     method: 'POST',
@@ -80,12 +115,32 @@ const API_ENDPOINTS: APIEndpoint[] = [
     requestBody: {
       type: 'object',
       properties: {
-        title: { type: 'string', required: true, description: 'Stream title (1-200 characters)' },
-        description: { type: 'string', required: false, description: 'Stream description (max 1000 characters)' },
-        category: { type: 'string', required: false, description: 'Stream category' },
-        isPrivate: { type: 'boolean', required: false, description: 'Whether stream is private (default: false)' },
-        scheduledStartTime: { type: 'string', required: false, description: 'ISO datetime for scheduled streams' },
-      }
+        title: {
+          type: 'string',
+          required: true,
+          description: 'Stream title (1-200 characters)',
+        },
+        description: {
+          type: 'string',
+          required: false,
+          description: 'Stream description (max 1000 characters)',
+        },
+        category: {
+          type: 'string',
+          required: false,
+          description: 'Stream category',
+        },
+        isPrivate: {
+          type: 'boolean',
+          required: false,
+          description: 'Whether stream is private (default: false)',
+        },
+        scheduledStartTime: {
+          type: 'string',
+          required: false,
+          description: 'ISO datetime for scheduled streams',
+        },
+      },
     },
     responses: [
       {
@@ -98,12 +153,12 @@ const API_ENDPOINTS: APIEndpoint[] = [
             status: 'inactive',
             streamKey: 'sk_live_...',
             rtmpUrl: 'rtmp://ingest.streamvault.app/live',
-            createdAt: '2024-01-01T00:00:00Z'
+            createdAt: '2024-01-01T00:00:00Z',
           },
-          message: 'Stream created successfully'
-        }
-      }
-    ]
+          message: 'Stream created successfully',
+        },
+      },
+    ],
   },
   {
     method: 'GET',
@@ -121,20 +176,22 @@ const API_ENDPOINTS: APIEndpoint[] = [
               branding: {
                 primaryColor: '#3B82F6',
                 secondaryColor: '#10B981',
-                companyName: 'My Company'
+                companyName: 'My Company',
               },
               isActive: true,
-              createdAt: '2024-01-01T00:00:00Z'
-            }
-          ]
-        }
-      }
-    ]
-  }
+              createdAt: '2024-01-01T00:00:00Z',
+            },
+          ],
+        },
+      },
+    ],
+  },
 ]
 
 export function APIDocumentation() {
-  const [selectedEndpoint, setSelectedEndpoint] = useState<APIEndpoint>(API_ENDPOINTS[0])
+  const [selectedEndpoint, setSelectedEndpoint] = useState<APIEndpoint>(
+    API_ENDPOINTS[0]
+  )
   const [apiKey, setApiKey] = useState('')
   const [testRequest, setTestRequest] = useState('')
   const [testResponse, setTestResponse] = useState('')
@@ -162,11 +219,17 @@ export function APIDocumentation() {
       const response = await fetch(url, options)
       const data = await response.json()
 
-      setTestResponse(JSON.stringify({
-        status: response.status,
-        headers: Object.fromEntries(response.headers.entries()),
-        body: data
-      }, null, 2))
+      setTestResponse(
+        JSON.stringify(
+          {
+            status: response.status,
+            headers: Object.fromEntries(response.headers.entries()),
+            body: data,
+          },
+          null,
+          2
+        )
+      )
     } catch (error) {
       setTestResponse(`Error: ${error}`)
     }
@@ -175,13 +238,16 @@ export function APIDocumentation() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">StreamVault API Documentation</h1>
+        <h1 className="mb-2 text-3xl font-bold">
+          StreamVault API Documentation
+        </h1>
         <p className="text-gray-600">
-          Comprehensive API documentation for integrating with StreamVault's streaming platform.
+          Comprehensive API documentation for integrating with StreamVault's
+          streaming platform.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Endpoint List */}
         <div className="lg:col-span-1">
           <Card>
@@ -196,23 +262,31 @@ export function APIDocumentation() {
                 <button
                   key={index}
                   onClick={() => setSelectedEndpoint(endpoint)}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  className={`w-full rounded-lg border p-3 text-left transition-colors ${
                     selectedEndpoint === endpoint
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant={
-                      endpoint.method === 'GET' ? 'default' :
-                      endpoint.method === 'POST' ? 'secondary' :
-                      endpoint.method === 'PUT' ? 'outline' : 'destructive'
-                    }>
+                  <div className="mb-1 flex items-center gap-2">
+                    <Badge
+                      variant={
+                        endpoint.method === 'GET'
+                          ? 'default'
+                          : endpoint.method === 'POST'
+                            ? 'secondary'
+                            : endpoint.method === 'PUT'
+                              ? 'outline'
+                              : 'destructive'
+                      }
+                    >
                       {endpoint.method}
                     </Badge>
                     <code className="text-sm">{endpoint.path}</code>
                   </div>
-                  <p className="text-sm text-gray-600">{endpoint.description}</p>
+                  <p className="text-sm text-gray-600">
+                    {endpoint.description}
+                  </p>
                 </button>
               ))}
             </CardContent>
@@ -231,23 +305,31 @@ export function APIDocumentation() {
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <Badge variant={
-                      selectedEndpoint.method === 'GET' ? 'default' :
-                      selectedEndpoint.method === 'POST' ? 'secondary' :
-                      selectedEndpoint.method === 'PUT' ? 'outline' : 'destructive'
-                    }>
+                    <Badge
+                      variant={
+                        selectedEndpoint.method === 'GET'
+                          ? 'default'
+                          : selectedEndpoint.method === 'POST'
+                            ? 'secondary'
+                            : selectedEndpoint.method === 'PUT'
+                              ? 'outline'
+                              : 'destructive'
+                      }
+                    >
                       {selectedEndpoint.method}
                     </Badge>
                     <code className="text-lg">{selectedEndpoint.path}</code>
                   </div>
-                  <CardDescription>{selectedEndpoint.description}</CardDescription>
+                  <CardDescription>
+                    {selectedEndpoint.description}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Permissions */}
                   <div>
-                    <h3 className="font-semibold mb-2">Required Permissions</h3>
+                    <h3 className="mb-2 font-semibold">Required Permissions</h3>
                     <div className="flex gap-2">
-                      {selectedEndpoint.permissions.map((permission) => (
+                      {selectedEndpoint.permissions.map(permission => (
                         <Badge key={permission} variant="outline">
                           {permission}
                         </Badge>
@@ -258,22 +340,29 @@ export function APIDocumentation() {
                   {/* Parameters */}
                   {selectedEndpoint.parameters && (
                     <div>
-                      <h3 className="font-semibold mb-2">Parameters</h3>
+                      <h3 className="mb-2 font-semibold">Parameters</h3>
                       <div className="space-y-2">
-                        {selectedEndpoint.parameters.map((param) => (
-                          <div key={param.name} className="border rounded p-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <code className="font-mono text-sm">{param.name}</code>
+                        {selectedEndpoint.parameters.map(param => (
+                          <div key={param.name} className="rounded border p-3">
+                            <div className="mb-1 flex items-center gap-2">
+                              <code className="font-mono text-sm">
+                                {param.name}
+                              </code>
                               <Badge variant="outline" className="text-xs">
                                 {param.type}
                               </Badge>
                               {param.required && (
-                                <Badge variant="destructive" className="text-xs">
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
                                   required
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600">{param.description}</p>
+                            <p className="text-sm text-gray-600">
+                              {param.description}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -283,22 +372,29 @@ export function APIDocumentation() {
                   {/* Request Body */}
                   {selectedEndpoint.requestBody && (
                     <div>
-                      <h3 className="font-semibold mb-2">Request Body</h3>
+                      <h3 className="mb-2 font-semibold">Request Body</h3>
                       <div className="space-y-2">
-                        {Object.entries(selectedEndpoint.requestBody.properties).map(([key, prop]) => (
-                          <div key={key} className="border rounded p-3">
-                            <div className="flex items-center gap-2 mb-1">
+                        {Object.entries(
+                          selectedEndpoint.requestBody.properties
+                        ).map(([key, prop]) => (
+                          <div key={key} className="rounded border p-3">
+                            <div className="mb-1 flex items-center gap-2">
                               <code className="font-mono text-sm">{key}</code>
                               <Badge variant="outline" className="text-xs">
                                 {prop.type}
                               </Badge>
                               {prop.required && (
-                                <Badge variant="destructive" className="text-xs">
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
                                   required
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600">{prop.description}</p>
+                            <p className="text-sm text-gray-600">
+                              {prop.description}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -307,17 +403,28 @@ export function APIDocumentation() {
 
                   {/* Responses */}
                   <div>
-                    <h3 className="font-semibold mb-2">Responses</h3>
+                    <h3 className="mb-2 font-semibold">Responses</h3>
                     <div className="space-y-4">
-                      {selectedEndpoint.responses.map((response) => (
-                        <div key={response.status} className="border rounded p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={response.status < 300 ? 'default' : 'destructive'}>
+                      {selectedEndpoint.responses.map(response => (
+                        <div
+                          key={response.status}
+                          className="rounded border p-4"
+                        >
+                          <div className="mb-2 flex items-center gap-2">
+                            <Badge
+                              variant={
+                                response.status < 300
+                                  ? 'default'
+                                  : 'destructive'
+                              }
+                            >
                               {response.status}
                             </Badge>
-                            <span className="text-sm">{response.description}</span>
+                            <span className="text-sm">
+                              {response.description}
+                            </span>
                           </div>
-                          <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+                          <pre className="overflow-x-auto rounded bg-gray-100 p-3 text-sm">
                             {JSON.stringify(response.example, null, 2)}
                           </pre>
                         </div>
@@ -344,7 +451,7 @@ export function APIDocumentation() {
                       type="password"
                       placeholder="sk_live_..."
                       value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
+                      onChange={e => setApiKey(e.target.value)}
                     />
                   </div>
 
@@ -355,7 +462,7 @@ export function APIDocumentation() {
                         id="request-body"
                         placeholder="Enter JSON request body..."
                         value={testRequest}
-                        onChange={(e) => setTestRequest(e.target.value)}
+                        onChange={e => setTestRequest(e.target.value)}
                         rows={6}
                       />
                     </div>
@@ -368,7 +475,7 @@ export function APIDocumentation() {
                   {testResponse && (
                     <div>
                       <Label>Response</Label>
-                      <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto max-h-96">
+                      <pre className="max-h-96 overflow-x-auto rounded bg-gray-100 p-4 text-sm">
                         {testResponse}
                       </pre>
                     </div>
@@ -390,36 +497,42 @@ export function APIDocumentation() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h3 className="font-semibold mb-2">API Key Authentication</h3>
-            <p className="text-sm text-gray-600 mb-2">
+            <h3 className="mb-2 font-semibold">API Key Authentication</h3>
+            <p className="mb-2 text-sm text-gray-600">
               Include your API key in the request headers:
             </p>
-            <pre className="bg-gray-100 p-3 rounded text-sm">
-{`curl -H "X-API-Key: sk_live_your_api_key_here" \\
+            <pre className="rounded bg-gray-100 p-3 text-sm">
+              {`curl -H "X-API-Key: sk_live_your_api_key_here" \\
      -H "Content-Type: application/json" \\
      https://streamvault.app/api/v1/streams`}
             </pre>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Rate Limiting</h3>
+            <h3 className="mb-2 font-semibold">Rate Limiting</h3>
             <p className="text-sm text-gray-600">
-              API requests are rate limited based on your client configuration. 
+              API requests are rate limited based on your client configuration.
               Rate limit information is included in response headers:
             </p>
-            <ul className="text-sm text-gray-600 list-disc list-inside mt-2">
-              <li><code>X-RateLimit-Remaining</code>: Requests remaining in current window</li>
-              <li><code>X-RateLimit-Reset</code>: When the rate limit window resets</li>
+            <ul className="mt-2 list-inside list-disc text-sm text-gray-600">
+              <li>
+                <code>X-RateLimit-Remaining</code>: Requests remaining in
+                current window
+              </li>
+              <li>
+                <code>X-RateLimit-Reset</code>: When the rate limit window
+                resets
+              </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Error Handling</h3>
+            <h3 className="mb-2 font-semibold">Error Handling</h3>
             <p className="text-sm text-gray-600">
               All errors return a consistent JSON format with error codes:
             </p>
-            <pre className="bg-gray-100 p-3 rounded text-sm">
-{`{
+            <pre className="rounded bg-gray-100 p-3 text-sm">
+              {`{
   "error": "Human readable error message",
   "code": "MACHINE_READABLE_ERROR_CODE",
   "details": {} // Additional error details when available

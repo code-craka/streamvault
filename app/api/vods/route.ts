@@ -10,20 +10,37 @@ const vodService = new VODService()
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const querySchema = z.object({
       search: z.string().optional(),
       category: z.string().optional(),
       requiredTier: z.enum(['basic', 'premium', 'pro']).optional(),
       limit: z.string().transform(val => parseInt(val) || 20),
       offset: z.string().transform(val => parseInt(val) || 0),
-      orderBy: z.enum(['createdAt', 'viewCount', 'duration', 'title']).default('createdAt'),
+      orderBy: z
+        .enum(['createdAt', 'viewCount', 'duration', 'title'])
+        .default('createdAt'),
       orderDirection: z.enum(['asc', 'desc']).default('desc'),
-      minDuration: z.string().transform(val => parseInt(val) || 0).optional(),
-      maxDuration: z.string().transform(val => parseInt(val) || Infinity).optional(),
-      hasTranscription: z.string().transform(val => val === 'true').optional(),
-      hasHighlights: z.string().transform(val => val === 'true').optional(),
-      minViews: z.string().transform(val => parseInt(val) || 0).optional(),
+      minDuration: z
+        .string()
+        .transform(val => parseInt(val) || 0)
+        .optional(),
+      maxDuration: z
+        .string()
+        .transform(val => parseInt(val) || Infinity)
+        .optional(),
+      hasTranscription: z
+        .string()
+        .transform(val => val === 'true')
+        .optional(),
+      hasHighlights: z
+        .string()
+        .transform(val => val === 'true')
+        .optional(),
+      minViews: z
+        .string()
+        .transform(val => parseInt(val) || 0)
+        .optional(),
       tags: z.string().optional(),
     })
 
@@ -43,32 +60,29 @@ export async function GET(request: NextRequest) {
     const result = await vodService.searchVODs(queryInput)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     let vods = result.data || []
 
     // Apply additional filters
     if (query.minDuration || query.maxDuration !== Infinity) {
-      vods = vods.filter(vod => 
-        vod.duration >= query.minDuration! && 
-        vod.duration <= query.maxDuration!
+      vods = vods.filter(
+        vod =>
+          vod.duration >= query.minDuration! &&
+          vod.duration <= query.maxDuration!
       )
     }
 
     if (query.hasTranscription) {
-      vods = vods.filter(vod => 
-        vod.metadata.aiGenerated?.transcription
-      )
+      vods = vods.filter(vod => vod.metadata.aiGenerated?.transcription)
     }
 
     if (query.hasHighlights) {
-      vods = vods.filter(vod => 
-        vod.metadata.aiGenerated?.highlights && 
-        vod.metadata.aiGenerated.highlights.length > 0
+      vods = vods.filter(
+        vod =>
+          vod.metadata.aiGenerated?.highlights &&
+          vod.metadata.aiGenerated.highlights.length > 0
       )
     }
 
@@ -77,9 +91,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (query.tags) {
-      const searchTags = query.tags.split(',').map(tag => tag.trim().toLowerCase())
-      vods = vods.filter(vod => 
-        searchTags.some(searchTag => 
+      const searchTags = query.tags
+        .split(',')
+        .map(tag => tag.trim().toLowerCase())
+      vods = vods.filter(vod =>
+        searchTags.some(searchTag =>
           vod.tags.some(vodTag => vodTag.toLowerCase().includes(searchTag))
         )
       )
@@ -90,13 +106,9 @@ export async function GET(request: NextRequest) {
       total: vods.length,
       hasMore: vods.length === query.limit,
     })
-
   } catch (error) {
     console.error('Failed to get VODs:', error)
-    return NextResponse.json(
-      { error: 'Failed to get VODs' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get VODs' }, { status: 500 })
   }
 }
 
@@ -105,14 +117,11 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    
+
     const createSchema = z.object({
       filePath: z.string().min(1, 'File path is required'),
       title: z.string().min(1, 'Title is required'),
@@ -145,22 +154,15 @@ export async function POST(request: NextRequest) {
     )
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 400 })
     }
 
     return NextResponse.json({
       vod: result.data?.vod,
       message: 'VOD created successfully',
     })
-
   } catch (error) {
     console.error('Failed to create VOD:', error)
-    return NextResponse.json(
-      { error: 'Failed to create VOD' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create VOD' }, { status: 500 })
   }
 }

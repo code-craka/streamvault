@@ -1,6 +1,9 @@
 // Analytics module exports
 export { analyticsService, AnalyticsService } from './analytics-service'
-export { analyticsAggregator, AnalyticsAggregator } from './analytics-aggregator'
+export {
+  analyticsAggregator,
+  AnalyticsAggregator,
+} from './analytics-aggregator'
 
 // Re-export types
 export type {
@@ -12,5 +15,5 @@ export type {
   CreatorAnalytics,
   AnalyticsEvent,
   AnalyticsQuery,
-  AnalyticsResponse
+  AnalyticsResponse,
 } from '@/types/analytics'

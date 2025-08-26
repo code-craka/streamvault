@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { ChatRoomService } from '@/lib/database/chat-service'
-import { createChatRoomSchema, updateChatRoomSchema } from '@/lib/validations/chat'
+import {
+  createChatRoomSchema,
+  updateChatRoomSchema,
+} from '@/lib/validations/chat'
 
 const chatRoomService = new ChatRoomService()
 
@@ -13,14 +16,11 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const result = await chatRoomService.getChatRoomByStreamId(params.streamId)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to fetch chat room' },
@@ -48,16 +48,13 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user has permission to create chat room (streamer or admin)
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     if (!['admin', 'streamer'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -81,7 +78,7 @@ export async function POST(
     }
 
     const result = await chatRoomService.createChatRoom(validation.data)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to create chat room' },
@@ -89,10 +86,13 @@ export async function POST(
       )
     }
 
-    return NextResponse.json({
-      room: result.data,
-      success: true,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        room: result.data,
+        success: true,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error creating chat room:', error)
     return NextResponse.json(
@@ -110,16 +110,13 @@ export async function PATCH(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user has permission to modify chat room (streamer or admin)
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     if (!['admin', 'streamer'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -128,7 +125,9 @@ export async function PATCH(
     }
 
     // Get existing room
-    const existingRoom = await chatRoomService.getChatRoomByStreamId(params.streamId)
+    const existingRoom = await chatRoomService.getChatRoomByStreamId(
+      params.streamId
+    )
     if (!existingRoom.success || !existingRoom.data) {
       return NextResponse.json(
         { error: 'Chat room not found' },
@@ -152,7 +151,7 @@ export async function PATCH(
     }
 
     const result = await chatRoomService.updateChatRoom(validation.data)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to update chat room' },

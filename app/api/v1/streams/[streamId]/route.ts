@@ -49,20 +49,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -84,15 +87,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    return NextResponse.json({
-      data: stream,
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: stream,
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
@@ -133,20 +138,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -175,25 +183,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Update stream
     const updatedStream = await streamService.updateStream(streamId, updateData)
 
-    return NextResponse.json({
-      data: updatedStream,
-      message: 'Stream updated successfully',
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: updatedStream,
+        message: 'Stream updated successfully',
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request body', 
+        {
+          error: 'Invalid request body',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )
@@ -237,20 +247,23 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -275,15 +288,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Delete stream
     await streamService.deleteStream(streamId)
 
-    return NextResponse.json({
-      message: 'Stream deleted successfully',
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        message: 'Stream deleted successfully',
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(

@@ -6,24 +6,21 @@ import { doc, updateDoc } from 'firebase/firestore'
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { endpoint } = await request.json()
-    
+
     if (!endpoint) {
-      return NextResponse.json(
-        { error: 'Endpoint required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Endpoint required' }, { status: 400 })
     }
 
     // Mark subscription as inactive
     await updateDoc(doc(db, 'pushSubscriptions', userId), {
       active: false,
-      unsubscribedAt: new Date()
+      unsubscribedAt: new Date(),
     })
 
     return NextResponse.json({ success: true })

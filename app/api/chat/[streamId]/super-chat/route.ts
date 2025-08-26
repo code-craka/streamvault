@@ -13,10 +13,7 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user details
@@ -63,10 +60,13 @@ export async function POST(
       )
     }
 
-    return NextResponse.json({
-      superChat: result.data,
-      success: true,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        superChat: result.data,
+        success: true,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error creating super chat:', error)
     return NextResponse.json(
@@ -84,10 +84,7 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -121,9 +118,9 @@ export async function GET(
 // Helper function to calculate display duration based on amount
 function calculateDisplayDuration(amount: number): number {
   if (amount >= 100) return 300 // 5 minutes
-  if (amount >= 50) return 180  // 3 minutes
-  if (amount >= 20) return 120  // 2 minutes
-  if (amount >= 10) return 60   // 1 minute
-  if (amount >= 5) return 30    // 30 seconds
+  if (amount >= 50) return 180 // 3 minutes
+  if (amount >= 20) return 120 // 2 minutes
+  if (amount >= 10) return 60 // 1 minute
+  if (amount >= 5) return 30 // 30 seconds
   return 15 // 15 seconds
 }

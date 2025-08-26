@@ -33,6 +33,7 @@ This document outlines the complete Stripe integration implementation for Stream
 ### 2. Core Services
 
 #### SubscriptionService (`lib/stripe/subscription-service.ts`)
+
 - Create checkout sessions
 - Manage billing portal access
 - Handle subscription lifecycle
@@ -40,6 +41,7 @@ This document outlines the complete Stripe integration implementation for Stream
 - Generate subscription analytics
 
 #### StripeWebhookHandler (`lib/stripe/webhook-handler.ts`)
+
 - Verify webhook signatures
 - Process subscription events
 - Handle payment events
@@ -59,18 +61,21 @@ This document outlines the complete Stripe integration implementation for Stream
 ### 4. UI Components
 
 #### PricingTiers (`components/subscription/pricing-tiers.tsx`)
+
 - Display subscription plans
 - Handle plan selection
 - Show current plan status
 - Upgrade/downgrade options
 
 #### BillingPortal (`components/subscription/billing-portal.tsx`)
+
 - Manage current subscription
 - Access Stripe customer portal
 - Cancel/reactivate subscriptions
 - Display billing information
 
 #### SubscriptionDashboard (`components/subscription/subscription-dashboard.tsx`)
+
 - Comprehensive subscription overview
 - Status monitoring
 - Attention alerts
@@ -79,6 +84,7 @@ This document outlines the complete Stripe integration implementation for Stream
 ### 5. Utility Functions
 
 #### Subscription Helpers (`lib/stripe/subscription-helpers.ts`)
+
 - Format subscription status
 - Calculate renewal dates
 - Check expiration status
@@ -86,6 +92,7 @@ This document outlines the complete Stripe integration implementation for Stream
 - Status color coding
 
 #### Subscription Utils (`lib/stripe/subscription-utils.ts`)
+
 - Clerk metadata integration
 - User subscription queries
 - Permission checking
@@ -113,6 +120,7 @@ This document outlines the complete Stripe integration implementation for Stream
 ## Testing
 
 ### Unit Tests
+
 - Subscription tier logic
 - Status formatting functions
 - Date calculations
@@ -120,6 +128,7 @@ This document outlines the complete Stripe integration implementation for Stream
 - Permission checking
 
 ### Integration Tests
+
 - Webhook processing
 - API endpoint validation
 - Error handling

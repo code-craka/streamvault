@@ -13,17 +13,23 @@ export interface UserSubscriptionData {
 /**
  * Get user subscription data from Clerk metadata
  */
-export async function getUserSubscriptionData(userId: string): Promise<UserSubscriptionData> {
+export async function getUserSubscriptionData(
+  userId: string
+): Promise<UserSubscriptionData> {
   try {
     const user = await (await clerkClient()).users.getUser(userId)
-    
+
     return {
-      subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-      subscriptionStatus: (user.publicMetadata.subscriptionStatus as string) || null,
+      subscriptionTier:
+        (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+      subscriptionStatus:
+        (user.publicMetadata.subscriptionStatus as string) || null,
       subscriptionId: (user.publicMetadata.subscriptionId as string) || null,
       customerId: (user.publicMetadata.customerId as string) || null,
-      currentPeriodEnd: (user.publicMetadata.currentPeriodEnd as number) || null,
-      cancelAtPeriodEnd: (user.publicMetadata.cancelAtPeriodEnd as boolean) || null,
+      currentPeriodEnd:
+        (user.publicMetadata.currentPeriodEnd as number) || null,
+      cancelAtPeriodEnd:
+        (user.publicMetadata.cancelAtPeriodEnd as boolean) || null,
     }
   } catch (error) {
     console.error('Error getting user subscription data:', error)
@@ -57,7 +63,9 @@ export async function isSubscriptionPastDue(userId: string): Promise<boolean> {
 /**
  * Check if user subscription is canceled but still active
  */
-export async function isSubscriptionCanceledButActive(userId: string): Promise<boolean> {
+export async function isSubscriptionCanceledButActive(
+  userId: string
+): Promise<boolean> {
   const subscriptionData = await getUserSubscriptionData(userId)
   return (
     subscriptionData.subscriptionStatus === 'active' &&
@@ -68,9 +76,11 @@ export async function isSubscriptionCanceledButActive(userId: string): Promise<b
 /**
  * Get days until subscription ends
  */
-export async function getDaysUntilSubscriptionEnds(userId: string): Promise<number | null> {
+export async function getDaysUntilSubscriptionEnds(
+  userId: string
+): Promise<number | null> {
   const subscriptionData = await getUserSubscriptionData(userId)
-  
+
   if (!subscriptionData.currentPeriodEnd) {
     return null
   }
@@ -79,7 +89,7 @@ export async function getDaysUntilSubscriptionEnds(userId: string): Promise<numb
   const now = new Date()
   const diffTime = endDate.getTime() - now.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   return diffDays
 }
 
@@ -88,7 +98,7 @@ export async function getDaysUntilSubscriptionEnds(userId: string): Promise<numb
  */
 export function formatSubscriptionStatus(status: string | null): string {
   if (!status) return 'No Subscription'
-  
+
   switch (status) {
     case 'active':
       return 'Active'
@@ -114,7 +124,7 @@ export function formatSubscriptionStatus(status: string | null): string {
  */
 export function getSubscriptionStatusColor(status: string | null): string {
   if (!status) return 'gray'
-  
+
   switch (status) {
     case 'active':
       return 'green'
@@ -140,7 +150,7 @@ export function subscriptionNeedsAttention(
   cancelAtPeriodEnd: boolean | null
 ): boolean {
   if (!status) return false
-  
+
   return (
     status === 'past_due' ||
     status === 'unpaid' ||
@@ -158,23 +168,23 @@ export function getSubscriptionAttentionMessage(
   currentPeriodEnd: number | null
 ): string | null {
   if (!status) return null
-  
+
   if (status === 'past_due') {
     return 'Your payment is past due. Please update your payment method to continue your subscription.'
   }
-  
+
   if (status === 'unpaid') {
     return 'Your subscription is unpaid. Please update your payment method.'
   }
-  
+
   if (status === 'incomplete') {
     return 'Your subscription setup is incomplete. Please complete the payment process.'
   }
-  
+
   if (status === 'active' && cancelAtPeriodEnd === true && currentPeriodEnd) {
     const endDate = new Date(currentPeriodEnd * 1000).toLocaleDateString()
     return `Your subscription is set to cancel on ${endDate}. You can reactivate it anytime before then.`
   }
-  
+
   return null
 }

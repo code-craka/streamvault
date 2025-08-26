@@ -6,17 +6,23 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { VODCard } from '@/components/vod/vod-card'
-import { 
-  Search, 
-  Filter, 
-  X, 
-  Clock, 
-  TrendingUp, 
+import {
+  Search,
+  Filter,
+  X,
+  Clock,
+  TrendingUp,
   Calendar,
-  SlidersHorizontal
+  SlidersHorizontal,
 } from 'lucide-react'
 import type { VOD } from '@/types/streaming'
 
@@ -42,11 +48,31 @@ interface SearchResult {
 }
 
 const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Most Relevant', icon: <TrendingUp className="w-4 h-4" /> },
-  { value: 'newest', label: 'Newest First', icon: <Calendar className="w-4 h-4" /> },
-  { value: 'oldest', label: 'Oldest First', icon: <Clock className="w-4 h-4" /> },
-  { value: 'popular', label: 'Most Popular', icon: <TrendingUp className="w-4 h-4" /> },
-  { value: 'duration', label: 'By Duration', icon: <Clock className="w-4 h-4" /> },
+  {
+    value: 'relevance',
+    label: 'Most Relevant',
+    icon: <TrendingUp className="h-4 w-4" />,
+  },
+  {
+    value: 'newest',
+    label: 'Newest First',
+    icon: <Calendar className="h-4 w-4" />,
+  },
+  {
+    value: 'oldest',
+    label: 'Oldest First',
+    icon: <Clock className="h-4 w-4" />,
+  },
+  {
+    value: 'popular',
+    label: 'Most Popular',
+    icon: <TrendingUp className="h-4 w-4" />,
+  },
+  {
+    value: 'duration',
+    label: 'By Duration',
+    icon: <Clock className="h-4 w-4" />,
+  },
 ]
 
 const DURATION_RANGES = [
@@ -68,7 +94,7 @@ const DATE_RANGES = [
 export function SearchInterface() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   const [searchResults, setSearchResults] = useState<SearchResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -135,7 +161,7 @@ export function SearchInterface() {
       if (filters.query.trim()) {
         const updated = [
           filters.query.trim(),
-          ...recentSearches.filter(s => s !== filters.query.trim())
+          ...recentSearches.filter(s => s !== filters.query.trim()),
         ].slice(0, 5)
         setRecentSearches(updated)
         localStorage.setItem('recentSearches', JSON.stringify(updated))
@@ -151,7 +177,6 @@ export function SearchInterface() {
 
       const newUrl = `/search${newParams.toString() ? `?${newParams}` : ''}`
       router.replace(newUrl, { scroll: false })
-
     } catch (error) {
       console.error('Search failed:', error)
       setError(error instanceof Error ? error.message : 'Search failed')
@@ -192,9 +217,13 @@ export function SearchInterface() {
     updateFilter('query', search)
   }
 
-  const hasActiveFilters = filters.category || filters.requiredTier || 
-    filters.sortBy !== 'relevance' || filters.dateRange || 
-    filters.minDuration > 0 || filters.maxDuration > 0
+  const hasActiveFilters =
+    filters.category ||
+    filters.requiredTier ||
+    filters.sortBy !== 'relevance' ||
+    filters.dateRange ||
+    filters.minDuration > 0 ||
+    filters.maxDuration > 0
 
   return (
     <div className="space-y-6">
@@ -204,13 +233,13 @@ export function SearchInterface() {
           <form onSubmit={handleSearchSubmit} className="space-y-4">
             {/* Main Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search videos..."
                 value={filters.query}
-                onChange={(e) => updateFilter('query', e.target.value)}
-                className="pl-10 pr-4 h-12 text-lg"
+                onChange={e => updateFilter('query', e.target.value)}
+                className="h-12 pl-10 pr-4 text-lg"
               />
               {filters.query && (
                 <Button
@@ -218,9 +247,9 @@ export function SearchInterface() {
                   variant="ghost"
                   size="sm"
                   onClick={() => updateFilter('query', '')}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 transform"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </Button>
               )}
             </div>
@@ -235,7 +264,7 @@ export function SearchInterface() {
                   onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center space-x-2"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
+                  <SlidersHorizontal className="h-4 w-4" />
                   <span>Filters</span>
                   {hasActiveFilters && (
                     <Badge variant="secondary" className="ml-1">
@@ -258,13 +287,13 @@ export function SearchInterface() {
 
               <Select
                 value={filters.sortBy}
-                onValueChange={(value) => updateFilter('sortBy', value as any)}
+                onValueChange={value => updateFilter('sortBy', value as any)}
               >
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
+                  {SORT_OPTIONS.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       <div className="flex items-center space-x-2">
                         {option.icon}
@@ -278,19 +307,21 @@ export function SearchInterface() {
 
             {/* Advanced Filters */}
             {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
+              <div className="grid grid-cols-1 gap-4 border-t pt-4 md:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Category</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Category
+                  </label>
                   <Select
                     value={filters.category}
-                    onValueChange={(value) => updateFilter('category', value)}
+                    onValueChange={value => updateFilter('category', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Any Category" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Any Category</SelectItem>
-                      {searchResults?.filters.categories.map((cat) => (
+                      {searchResults?.filters.categories.map(cat => (
                         <SelectItem key={cat.name} value={cat.name}>
                           {cat.name} ({cat.count})
                         </SelectItem>
@@ -300,10 +331,12 @@ export function SearchInterface() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Subscription Tier</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Subscription Tier
+                  </label>
                   <Select
                     value={filters.requiredTier}
-                    onValueChange={(value) => updateFilter('requiredTier', value)}
+                    onValueChange={value => updateFilter('requiredTier', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Any Tier" />
@@ -318,11 +351,16 @@ export function SearchInterface() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Duration</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Duration
+                  </label>
                   <Select
-                    value={filters.minDuration && filters.maxDuration ? 
-                      `${filters.minDuration}-${filters.maxDuration}` : ''}
-                    onValueChange={(value) => {
+                    value={
+                      filters.minDuration && filters.maxDuration
+                        ? `${filters.minDuration}-${filters.maxDuration}`
+                        : ''
+                    }
+                    onValueChange={value => {
                       if (!value) {
                         updateFilter('minDuration', 0)
                         updateFilter('maxDuration', 0)
@@ -337,7 +375,7 @@ export function SearchInterface() {
                       <SelectValue placeholder="Any Duration" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DURATION_RANGES.map((range) => (
+                      {DURATION_RANGES.map(range => (
                         <SelectItem key={range.value} value={range.value}>
                           {range.label}
                         </SelectItem>
@@ -347,16 +385,18 @@ export function SearchInterface() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Upload Date</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Upload Date
+                  </label>
                   <Select
                     value={filters.dateRange}
-                    onValueChange={(value) => updateFilter('dateRange', value)}
+                    onValueChange={value => updateFilter('dateRange', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Any Time" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DATE_RANGES.map((range) => (
+                      {DATE_RANGES.map(range => (
                         <SelectItem key={range.value} value={range.value}>
                           {range.label}
                         </SelectItem>
@@ -374,16 +414,16 @@ export function SearchInterface() {
       {!filters.query && recentSearches.length > 0 && (
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-medium mb-3">Recent Searches</h3>
+            <h3 className="mb-3 font-medium">Recent Searches</h3>
             <div className="flex flex-wrap gap-2">
-              {recentSearches.map((search) => (
+              {recentSearches.map(search => (
                 <Badge
                   key={search}
                   variant="outline"
                   className="cursor-pointer hover:bg-gray-100"
                   onClick={() => selectRecentSearch(search)}
                 >
-                  <Clock className="w-3 h-3 mr-1" />
+                  <Clock className="mr-1 h-3 w-3" />
                   {search}
                 </Badge>
               ))}
@@ -396,9 +436,9 @@ export function SearchInterface() {
       {searchResults?.suggestions && searchResults.suggestions.length > 0 && (
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-medium mb-3">Did you mean?</h3>
+            <h3 className="mb-3 font-medium">Did you mean?</h3>
             <div className="flex flex-wrap gap-2">
-              {searchResults.suggestions.map((suggestion) => (
+              {searchResults.suggestions.map(suggestion => (
                 <Badge
                   key={suggestion}
                   variant="outline"
@@ -415,12 +455,12 @@ export function SearchInterface() {
 
       {/* Search Results */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-0">
                 <Skeleton className="aspect-video w-full" />
-                <div className="p-4 space-y-2">
+                <div className="space-y-2 p-4">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
                   <div className="flex justify-between">
@@ -435,7 +475,7 @@ export function SearchInterface() {
       ) : error ? (
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-red-500 mb-4">{error}</p>
+            <p className="mb-4 text-red-500">{error}</p>
             <Button onClick={performSearch} variant="outline">
               Try Again
             </Button>
@@ -446,14 +486,15 @@ export function SearchInterface() {
           {/* Results Header */}
           <div className="flex items-center justify-between">
             <p className="text-gray-600">
-              {searchResults.total.toLocaleString()} results for "{filters.query}"
+              {searchResults.total.toLocaleString()} results for "
+              {filters.query}"
             </p>
           </div>
 
           {/* Results Grid */}
           {searchResults.vods.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {searchResults.vods.map((vod) => (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {searchResults.vods.map(vod => (
                 <VODCard key={vod.id} vod={vod} />
               ))}
             </div>
@@ -477,9 +518,7 @@ export function SearchInterface() {
           {/* Load More */}
           {searchResults.hasMore && (
             <div className="text-center">
-              <Button variant="outline">
-                Load More Results
-              </Button>
+              <Button variant="outline">Load More Results</Button>
             </div>
           )}
         </div>

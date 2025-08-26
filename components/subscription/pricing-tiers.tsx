@@ -2,18 +2,17 @@
 
 import { useState } from 'react'
 import { useUser } from '@/hooks/use-user'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { 
-  Check, 
-  Crown, 
-  Zap, 
-  Star,
-  ArrowRight,
-  Sparkles
-} from 'lucide-react'
+import { Check, Crown, Zap, Star, ArrowRight, Sparkles } from 'lucide-react'
 import { SUBSCRIPTION_TIERS } from '@/types/subscription'
 import { getUserSubscriptionTier } from '@/lib/auth/permissions'
 import type { SubscriptionTier } from '@/types/auth'
@@ -23,7 +22,10 @@ interface PricingTiersProps {
   showCurrentPlan?: boolean
 }
 
-export function PricingTiers({ className, showCurrentPlan = true }: PricingTiersProps) {
+export function PricingTiers({
+  className,
+  showCurrentPlan = true,
+}: PricingTiersProps) {
   const { user } = useUser()
   const [isAnnual, setIsAnnual] = useState(false)
   const [isLoading, setIsLoading] = useState<string | null>(null)
@@ -38,7 +40,7 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
     }
 
     setIsLoading(tier)
-    
+
     try {
       const response = await fetch('/api/subscriptions/checkout', {
         method: 'POST',
@@ -76,7 +78,7 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
     if (!isAnnual) return 0
     const monthlyPrice = SUBSCRIPTION_TIERS[tier].price
     const annualPrice = getPrice(tier)
-    return (monthlyPrice * 12) - annualPrice
+    return monthlyPrice * 12 - annualPrice
   }
 
   const tiers = [
@@ -137,15 +139,18 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
   return (
     <div className={`space-y-8 ${className}`}>
       {/* Header */}
-      <div className="text-center space-y-4">
+      <div className="space-y-4 text-center">
         <h2 className="text-3xl font-bold">Choose Your Plan</h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Unlock powerful features and grow your streaming presence with our flexible subscription plans
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+          Unlock powerful features and grow your streaming presence with our
+          flexible subscription plans
         </p>
-        
+
         {/* Annual/Monthly Toggle */}
         <div className="flex items-center justify-center gap-4">
-          <span className={`text-sm ${!isAnnual ? 'font-medium' : 'text-muted-foreground'}`}>
+          <span
+            className={`text-sm ${!isAnnual ? 'font-medium' : 'text-muted-foreground'}`}
+          >
             Monthly
           </span>
           <Switch
@@ -153,12 +158,14 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
             onCheckedChange={setIsAnnual}
             className="data-[state=checked]:bg-green-600"
           />
-          <span className={`text-sm ${isAnnual ? 'font-medium' : 'text-muted-foreground'}`}>
+          <span
+            className={`text-sm ${isAnnual ? 'font-medium' : 'text-muted-foreground'}`}
+          >
             Annual
           </span>
           {isAnnual && (
             <Badge variant="secondary" className="ml-2">
-              <Sparkles className="h-3 w-3 mr-1" />
+              <Sparkles className="mr-1 h-3 w-3" />
               Save up to 17%
             </Badge>
           )}
@@ -166,20 +173,20 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {tiers.map((tier) => {
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
+        {tiers.map(tier => {
           const price = getPrice(tier.key)
           const savings = getSavings(tier.key)
           const isCurrentPlan = currentTier === tier.key
           const isLoadingTier = isLoading === tier.key
 
           return (
-            <Card 
+            <Card
               key={tier.key}
               className={`relative transition-all duration-200 ${
-                tier.popular 
-                  ? 'border-primary shadow-lg scale-105' 
-                  : 'hover:shadow-md hover:scale-102'
+                tier.popular
+                  ? 'border-primary scale-105 shadow-lg'
+                  : 'hover:scale-102 hover:shadow-md'
               } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
             >
               {tier.popular && (
@@ -192,47 +199,52 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
 
               {isCurrentPlan && (
                 <div className="absolute -top-4 right-4">
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
+                  <Badge
+                    variant="secondary"
+                    className="border-green-300 bg-green-100 text-green-800"
+                  >
                     Current Plan
                   </Badge>
                 </div>
               )}
 
-              <CardHeader className="text-center pb-8">
-                <div className="flex justify-center mb-4">
-                  <div className={`p-3 rounded-full ${
-                    tier.key === 'basic' ? 'bg-blue-100 text-blue-600' :
-                    tier.key === 'premium' ? 'bg-purple-100 text-purple-600' :
-                    'bg-yellow-100 text-yellow-600'
-                  }`}>
+              <CardHeader className="pb-8 text-center">
+                <div className="mb-4 flex justify-center">
+                  <div
+                    className={`rounded-full p-3 ${
+                      tier.key === 'basic'
+                        ? 'bg-blue-100 text-blue-600'
+                        : tier.key === 'premium'
+                          ? 'bg-purple-100 text-purple-600'
+                          : 'bg-yellow-100 text-yellow-600'
+                    }`}
+                  >
                     {tier.icon}
                   </div>
                 </div>
-                
+
                 <CardTitle className="text-2xl">{tier.name}</CardTitle>
                 <CardDescription className="text-base">
                   {tier.description}
                 </CardDescription>
-                
+
                 <div className="pt-4">
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-bold">
-                      ${price}
-                    </span>
+                    <span className="text-4xl font-bold">${price}</span>
                     <span className="text-muted-foreground">
                       /{isAnnual ? 'year' : 'month'}
                     </span>
                   </div>
-                  
+
                   {isAnnual && savings > 0 && (
-                    <div className="text-sm text-green-600 font-medium mt-1">
+                    <div className="mt-1 text-sm font-medium text-green-600">
                       Save ${savings}/year
                     </div>
                   )}
-                  
+
                   {!isAnnual && (
-                    <div className="text-sm text-muted-foreground mt-1">
-                      ${(price * 10)}/year (save ${price * 2})
+                    <div className="text-muted-foreground mt-1 text-sm">
+                      ${price * 10}/year (save ${price * 2})
                     </div>
                   )}
                 </div>
@@ -243,7 +255,7 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
                 <ul className="space-y-3">
                   {tier.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
@@ -252,12 +264,8 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
                 {/* CTA Button */}
                 <div className="pt-4">
                   {isCurrentPlan ? (
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      disabled
-                    >
-                      <Check className="h-4 w-4 mr-2" />
+                    <Button variant="outline" className="w-full" disabled>
+                      <Check className="mr-2 h-4 w-4" />
                       Current Plan
                     </Button>
                   ) : (
@@ -265,21 +273,19 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
                       onClick={() => handleSubscribe(tier.key)}
                       disabled={isLoadingTier}
                       className={`w-full ${
-                        tier.popular 
-                          ? 'bg-primary hover:bg-primary/90' 
-                          : ''
+                        tier.popular ? 'bg-primary hover:bg-primary/90' : ''
                       }`}
                       variant={tier.popular ? 'default' : 'outline'}
                     >
                       {isLoadingTier ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-current" />
                           Processing...
                         </>
                       ) : (
                         <>
                           {currentTier ? 'Switch to' : 'Get Started'}
-                          <ArrowRight className="h-4 w-4 ml-2" />
+                          <ArrowRight className="ml-2 h-4 w-4" />
                         </>
                       )}
                     </Button>
@@ -288,10 +294,10 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
 
                 {/* Additional Info */}
                 {tier.key === 'pro' && (
-                  <div className="text-center pt-2">
-                    <p className="text-xs text-muted-foreground">
-                      Need custom features? 
-                      <button className="text-primary hover:underline ml-1">
+                  <div className="pt-2 text-center">
+                    <p className="text-muted-foreground text-xs">
+                      Need custom features?
+                      <button className="text-primary ml-1 hover:underline">
                         Contact sales
                       </button>
                     </p>
@@ -304,31 +310,37 @@ export function PricingTiers({ className, showCurrentPlan = true }: PricingTiers
       </div>
 
       {/* FAQ or Additional Info */}
-      <div className="text-center space-y-4 pt-8">
+      <div className="space-y-4 pt-8 text-center">
         <h3 className="text-xl font-semibold">Frequently Asked Questions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 text-left md:grid-cols-2">
           <div>
-            <h4 className="font-medium mb-2">Can I change plans anytime?</h4>
-            <p className="text-sm text-muted-foreground">
-              Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately with prorated billing.
+            <h4 className="mb-2 font-medium">Can I change plans anytime?</h4>
+            <p className="text-muted-foreground text-sm">
+              Yes, you can upgrade or downgrade your plan at any time. Changes
+              take effect immediately with prorated billing.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">What payment methods do you accept?</h4>
-            <p className="text-sm text-muted-foreground">
-              We accept all major credit cards, PayPal, and bank transfers for annual plans.
+            <h4 className="mb-2 font-medium">
+              What payment methods do you accept?
+            </h4>
+            <p className="text-muted-foreground text-sm">
+              We accept all major credit cards, PayPal, and bank transfers for
+              annual plans.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">Is there a free trial?</h4>
-            <p className="text-sm text-muted-foreground">
-              New users get a 14-day free trial of Premium features. No credit card required to start.
+            <h4 className="mb-2 font-medium">Is there a free trial?</h4>
+            <p className="text-muted-foreground text-sm">
+              New users get a 14-day free trial of Premium features. No credit
+              card required to start.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">Can I cancel anytime?</h4>
-            <p className="text-sm text-muted-foreground">
-              Yes, you can cancel your subscription at any time. You'll retain access until the end of your billing period.
+            <h4 className="mb-2 font-medium">Can I cancel anytime?</h4>
+            <p className="text-muted-foreground text-sm">
+              Yes, you can cancel your subscription at any time. You'll retain
+              access until the end of your billing period.
             </p>
           </div>
         </div>

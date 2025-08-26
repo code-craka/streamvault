@@ -1,5 +1,14 @@
 import { db } from '@/lib/firebase'
-import { collection, doc, setDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  setDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+} from 'firebase/firestore'
 import { createHash } from 'crypto'
 
 interface AuditEvent {
@@ -69,7 +78,7 @@ export class AuditTrailService {
     } = {}
   ): Promise<string> {
     const eventId = this.generateEventId()
-    
+
     const auditEvent: AuditEvent = {
       id: eventId,
       userId,
@@ -85,7 +94,7 @@ export class AuditTrailService {
       severity: details.severity || this.determineSeverity(action, resource),
       category: details.category || this.determineCategory(resource),
       outcome: details.outcome || 'success',
-      complianceFlags: this.determineComplianceFlags(action, resource)
+      complianceFlags: this.determineComplianceFlags(action, resource),
     }
 
     // Store in Firestore with partitioning by date for performance
@@ -109,7 +118,7 @@ export class AuditTrailService {
    */
   async queryEvents(queryParams: AuditQuery): Promise<AuditEvent[]> {
     const events: AuditEvent[] = []
-    
+
     // Determine date partitions to query
     const partitions = this.getDatePartitionsForRange(
       queryParams.startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -144,7 +153,7 @@ export class AuditTrailService {
       const snapshot = await getDocs(q)
       const partitionEvents = snapshot.docs.map(doc => ({
         ...doc.data(),
-        timestamp: doc.data().timestamp.toDate()
+        timestamp: doc.data().timestamp.toDate(),
       })) as AuditEvent[]
 
       events.push(...partitionEvents)
@@ -152,7 +161,7 @@ export class AuditTrailService {
 
     // Sort and limit results
     events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-    
+
     if (queryParams.limit) {
       return events.slice(0, queryParams.limit)
     }
@@ -176,7 +185,7 @@ export class AuditTrailService {
     const events = await this.queryEvents({
       startDate,
       endDate,
-      ...filters
+      ...filters,
     })
 
     // Filter events based on compliance type
@@ -185,10 +194,11 @@ export class AuditTrailService {
     // Generate summary
     const summary = {
       totalEvents: relevantEvents.length,
-      criticalEvents: relevantEvents.filter(e => e.severity === 'critical').length,
+      criticalEvents: relevantEvents.filter(e => e.severity === 'critical')
+        .length,
       failedEvents: relevantEvents.filter(e => e.outcome === 'failure').length,
       userCount: new Set(relevantEvents.map(e => e.userId)).size,
-      resourcesAccessed: [...new Set(relevantEvents.map(e => e.resource))]
+      resourcesAccessed: [...new Set(relevantEvents.map(e => e.resource))],
     }
 
     const report: ComplianceReport = {
@@ -199,7 +209,7 @@ export class AuditTrailService {
       events: relevantEvents,
       summary,
       generatedAt: new Date(),
-      generatedBy
+      generatedBy,
     }
 
     // Store report
@@ -227,14 +237,14 @@ export class AuditTrailService {
       metadata: {
         purpose,
         dataFields: details.dataFields || [],
-        legalBasis: details.legalBasis || 'legitimate_interest'
+        legalBasis: details.legalBasis || 'legitimate_interest',
       },
       ipAddress: details.ipAddress,
       userAgent: details.userAgent,
       sessionId: details.sessionId,
       category: 'data',
       severity: 'medium',
-      complianceFlags: ['gdpr', 'ccpa']
+      complianceFlags: ['gdpr', 'ccpa'],
     })
   }
 
@@ -262,13 +272,13 @@ export class AuditTrailService {
       metadata: {
         changes,
         reason: details.reason || 'user_initiated',
-        fieldsModified: changes.fields
+        fieldsModified: changes.fields,
       },
       ipAddress: details.ipAddress,
       userAgent: details.userAgent,
       sessionId: details.sessionId,
       category: 'data',
-      severity: 'high'
+      severity: 'high',
     })
   }
 
@@ -290,13 +300,13 @@ export class AuditTrailService {
       metadata: {
         threat: details.threat,
         blocked: details.blocked || false,
-        ...details.metadata
+        ...details.metadata,
       },
       ipAddress: details.ipAddress,
       userAgent: details.userAgent,
       category: 'security',
       severity: 'critical',
-      outcome: details.blocked ? 'success' : 'failure'
+      outcome: details.blocked ? 'success' : 'failure',
     })
   }
 
@@ -318,14 +328,14 @@ export class AuditTrailService {
       actionsPerformed: [...new Set(events.map(e => e.action))],
       resourcesAccessed: [...new Set(events.map(e => e.resource))],
       dataAccessEvents: events.filter(e => e.action === 'data_access').length,
-      securityEvents: events.filter(e => e.category === 'security').length
+      securityEvents: events.filter(e => e.category === 'security').length,
     }
 
     // Log the data export
     await this.logEvent(userId, 'data_export', 'user_data', {
       metadata: { exportedEvents: events.length },
       category: 'data',
-      severity: 'medium'
+      severity: 'medium',
     })
 
     return { auditEvents: events, summary }
@@ -342,10 +352,11 @@ export class AuditTrailService {
 
     for (const event of events) {
       // Check if event should be retained for legal/compliance reasons
-      const shouldRetain = retentionExceptions.some(exception =>
-        event.complianceFlags.includes(exception) ||
-        event.category === 'security' ||
-        event.severity === 'critical'
+      const shouldRetain = retentionExceptions.some(
+        exception =>
+          event.complianceFlags.includes(exception) ||
+          event.category === 'security' ||
+          event.severity === 'critical'
       )
 
       if (!shouldRetain) {
@@ -358,10 +369,10 @@ export class AuditTrailService {
     await this.logEvent(userId, 'data_deletion', 'audit_data', {
       metadata: {
         eventsProcessed: events.length,
-        retentionExceptions
+        retentionExceptions,
       },
       category: 'data',
-      severity: 'high'
+      severity: 'high',
     })
   }
 
@@ -376,31 +387,50 @@ export class AuditTrailService {
         userEmail: 'anonymized',
         ipAddress: 'anonymized',
         userAgent: 'anonymized',
-        anonymizedAt: new Date()
+        anonymizedAt: new Date(),
       },
       { merge: true }
     )
   }
 
-  private determineSeverity(action: string, resource: string): 'low' | 'medium' | 'high' | 'critical' {
-    const criticalActions = ['delete', 'admin_access', 'security_breach', 'payment_failure']
-    const highActions = ['create', 'update', 'login_failure', 'permission_change']
+  private determineSeverity(
+    action: string,
+    resource: string
+  ): 'low' | 'medium' | 'high' | 'critical' {
+    const criticalActions = [
+      'delete',
+      'admin_access',
+      'security_breach',
+      'payment_failure',
+    ]
+    const highActions = [
+      'create',
+      'update',
+      'login_failure',
+      'permission_change',
+    ]
     const mediumActions = ['read', 'login_success', 'logout']
 
     if (criticalActions.some(a => action.includes(a))) return 'critical'
     if (highActions.some(a => action.includes(a))) return 'high'
     if (mediumActions.some(a => action.includes(a))) return 'medium'
-    
+
     return 'low'
   }
 
-  private determineCategory(resource: string): 'auth' | 'data' | 'system' | 'security' | 'payment' | 'content' {
+  private determineCategory(
+    resource: string
+  ): 'auth' | 'data' | 'system' | 'security' | 'payment' | 'content' {
     if (resource.includes('auth') || resource.includes('login')) return 'auth'
-    if (resource.includes('payment') || resource.includes('billing')) return 'payment'
-    if (resource.includes('security') || resource.includes('fraud')) return 'security'
-    if (resource.includes('video') || resource.includes('stream')) return 'content'
-    if (resource.includes('system') || resource.includes('admin')) return 'system'
-    
+    if (resource.includes('payment') || resource.includes('billing'))
+      return 'payment'
+    if (resource.includes('security') || resource.includes('fraud'))
+      return 'security'
+    if (resource.includes('video') || resource.includes('stream'))
+      return 'content'
+    if (resource.includes('system') || resource.includes('admin'))
+      return 'system'
+
     return 'data'
   }
 
@@ -430,7 +460,10 @@ export class AuditTrailService {
     return flags
   }
 
-  private filterEventsForCompliance(events: AuditEvent[], type: string): AuditEvent[] {
+  private filterEventsForCompliance(
+    events: AuditEvent[],
+    type: string
+  ): AuditEvent[] {
     return events.filter(event => event.complianceFlags.includes(type))
   }
 
@@ -441,14 +474,14 @@ export class AuditTrailService {
       `action_${event.action}`,
       `resource_${event.resource}`,
       `category_${event.category}`,
-      `severity_${event.severity}`
+      `severity_${event.severity}`,
     ]
 
     for (const index of indexes) {
-      await setDoc(
-        doc(db, 'audit_indexes', index, 'events', event.id),
-        { eventId: event.id, timestamp: event.timestamp }
-      )
+      await setDoc(doc(db, 'audit_indexes', index, 'events', event.id), {
+        eventId: event.id,
+        timestamp: event.timestamp,
+      })
     }
   }
 
@@ -460,7 +493,7 @@ export class AuditTrailService {
         type: 'critical_failure',
         description: `Critical event failed: ${event.action} on ${event.resource}`,
         timestamp: event.timestamp,
-        status: 'open'
+        status: 'open',
       })
     }
   }

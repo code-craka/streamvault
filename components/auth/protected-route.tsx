@@ -5,10 +5,7 @@
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import type {
-  RouteProtectionConfig,
-  StreamVaultUser,
-} from '@/types/auth'
+import type { RouteProtectionConfig, StreamVaultUser } from '@/types/auth'
 import {
   hasRole,
   hasSubscriptionTier,

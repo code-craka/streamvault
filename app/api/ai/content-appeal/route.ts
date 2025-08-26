@@ -15,7 +15,9 @@ const appealRequestSchema = z.object({
     confidence: z.number(),
     severity: z.enum(['low', 'medium', 'high', 'critical']),
   }),
-  appealReason: z.string().min(10, 'Appeal reason must be at least 10 characters'),
+  appealReason: z
+    .string()
+    .min(10, 'Appeal reason must be at least 10 characters'),
 })
 
 export async function POST(request: NextRequest) {
@@ -26,9 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { contentId, originalViolation, appealReason } = appealRequestSchema.parse(body)
+    const { contentId, originalViolation, appealReason } =
+      appealRequestSchema.parse(body)
 
-    console.log(`Processing content appeal for content ${contentId} by user ${userId}`)
+    console.log(
+      `Processing content appeal for content ${contentId} by user ${userId}`
+    )
 
     // Process the appeal with AI assistance
     const appealProcess = await aiContentEnhancement.processContentAppeal(
@@ -43,13 +48,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       appeal: appealProcess,
-      message: appealProcess.humanReviewRequired 
+      message: appealProcess.humanReviewRequired
         ? 'Appeal submitted for human review'
         : 'Appeal processed automatically',
     })
   } catch (error) {
     console.error('Content appeal API error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid appeal data', details: error.errors },
@@ -96,7 +101,8 @@ export async function GET(request: NextRequest) {
         {
           timestamp: new Date(Date.now() + 3600000).toISOString(),
           status: 'ai_reviewed',
-          message: 'AI preliminary review completed - forwarded to human moderator',
+          message:
+            'AI preliminary review completed - forwarded to human moderator',
         },
       ],
     }

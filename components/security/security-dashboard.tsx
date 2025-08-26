@@ -1,7 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -46,7 +52,7 @@ export function SecurityDashboard() {
     blockedRequests: 0,
     moderatedContent: 0,
     activeUsers: 0,
-    suspiciousIPs: 0
+    suspiciousIPs: 0,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -58,7 +64,7 @@ export function SecurityDashboard() {
   const fetchSecurityData = async () => {
     try {
       setLoading(true)
-      
+
       // Fetch security events
       const eventsResponse = await fetch('/api/security/events?limit=50')
       if (eventsResponse.ok) {
@@ -78,14 +84,21 @@ export function SecurityDashboard() {
       setStats({
         totalEvents: events.length,
         criticalEvents: events.filter(e => e.severity === 'critical').length,
-        blockedRequests: events.filter(e => e.eventType === 'rate_limit_exceeded').length,
-        moderatedContent: events.filter(e => e.eventType === 'content_violation').length,
+        blockedRequests: events.filter(
+          e => e.eventType === 'rate_limit_exceeded'
+        ).length,
+        moderatedContent: events.filter(
+          e => e.eventType === 'content_violation'
+        ).length,
         activeUsers: new Set(auditLogs.map(log => log.userId)).size,
-        suspiciousIPs: new Set(events.filter(e => e.severity === 'high').map(e => e.ipAddress)).size
+        suspiciousIPs: new Set(
+          events.filter(e => e.severity === 'high').map(e => e.ipAddress)
+        ).size,
       })
-
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch security data')
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch security data'
+      )
     } finally {
       setLoading(false)
     }
@@ -93,11 +106,16 @@ export function SecurityDashboard() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'bg-red-500'
-      case 'high': return 'bg-orange-500'
-      case 'medium': return 'bg-yellow-500'
-      case 'low': return 'bg-green-500'
-      default: return 'bg-gray-500'
+      case 'critical':
+        return 'bg-red-500'
+      case 'high':
+        return 'bg-orange-500'
+      case 'medium':
+        return 'bg-yellow-500'
+      case 'low':
+        return 'bg-green-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
@@ -107,16 +125,16 @@ export function SecurityDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-600 p-8">
-        <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+      <div className="p-8 text-center text-red-600">
+        <AlertTriangle className="mx-auto mb-2 h-8 w-8" />
         <p>Error loading security dashboard: {error}</p>
         <Button onClick={fetchSecurityData} className="mt-4">
           Retry
@@ -128,70 +146,92 @@ export function SecurityDashboard() {
   return (
     <div className="space-y-6">
       {/* Security Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Security Events</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Total Security Events
+            </CardTitle>
+            <Shield className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalEvents}</div>
-            <p className="text-xs text-muted-foreground">Last 24 hours</p>
+            <p className="text-muted-foreground text-xs">Last 24 hours</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Events</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Critical Events
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.criticalEvents}</div>
-            <p className="text-xs text-muted-foreground">Requires immediate attention</p>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.criticalEvents}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Requires immediate attention
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Blocked Requests</CardTitle>
-            <Lock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Blocked Requests
+            </CardTitle>
+            <Lock className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.blockedRequests}</div>
-            <p className="text-xs text-muted-foreground">Rate limited or blocked</p>
+            <p className="text-muted-foreground text-xs">
+              Rate limited or blocked
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Moderated Content</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Moderated Content
+            </CardTitle>
+            <Eye className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.moderatedContent}</div>
-            <p className="text-xs text-muted-foreground">Content violations detected</p>
+            <p className="text-muted-foreground text-xs">
+              Content violations detected
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeUsers}</div>
-            <p className="text-xs text-muted-foreground">Unique users today</p>
+            <p className="text-muted-foreground text-xs">Unique users today</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Suspicious IPs</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Suspicious IPs
+            </CardTitle>
             <Activity className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.suspiciousIPs}</div>
-            <p className="text-xs text-muted-foreground">High-risk IP addresses</p>
+            <div className="text-2xl font-bold text-orange-600">
+              {stats.suspiciousIPs}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              High-risk IP addresses
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -214,26 +254,29 @@ export function SecurityDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {securityEvents.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
+                  <p className="text-muted-foreground py-8 text-center">
                     No security events found
                   </p>
                 ) : (
-                  securityEvents.map((event) => (
+                  securityEvents.map(event => (
                     <div
                       key={event.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex items-center justify-between rounded-lg border p-4"
                     >
                       <div className="flex items-center space-x-4">
                         <Badge className={getSeverityColor(event.severity)}>
                           {event.severity.toUpperCase()}
                         </Badge>
                         <div>
-                          <p className="font-medium">{event.eventType.replace(/_/g, ' ')}</p>
-                          <p className="text-sm text-muted-foreground">
-                            IP: {event.ipAddress} | {formatTimestamp(event.timestamp)}
+                          <p className="font-medium">
+                            {event.eventType.replace(/_/g, ' ')}
+                          </p>
+                          <p className="text-muted-foreground text-sm">
+                            IP: {event.ipAddress} |{' '}
+                            {formatTimestamp(event.timestamp)}
                           </p>
                           {event.userId && (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                               User: {event.userId}
                             </p>
                           )}
@@ -241,8 +284,12 @@ export function SecurityDashboard() {
                       </div>
                       {event.details && (
                         <div className="text-right">
-                          <p className="text-sm text-muted-foreground">
-                            {JSON.stringify(event.details, null, 2).substring(0, 100)}...
+                          <p className="text-muted-foreground text-sm">
+                            {JSON.stringify(event.details, null, 2).substring(
+                              0,
+                              100
+                            )}
+                            ...
                           </p>
                         </div>
                       )}
@@ -265,31 +312,35 @@ export function SecurityDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {auditLogs.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
+                  <p className="text-muted-foreground py-8 text-center">
                     No audit logs found
                   </p>
                 ) : (
-                  auditLogs.map((log) => (
+                  auditLogs.map(log => (
                     <div
                       key={log.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex items-center justify-between rounded-lg border p-4"
                     >
                       <div className="flex items-center space-x-4">
-                        <Badge variant={log.success ? 'default' : 'destructive'}>
+                        <Badge
+                          variant={log.success ? 'default' : 'destructive'}
+                        >
                           {log.success ? 'SUCCESS' : 'FAILED'}
                         </Badge>
                         <div>
-                          <p className="font-medium">{log.action.replace(/_/g, ' ')}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="font-medium">
+                            {log.action.replace(/_/g, ' ')}
+                          </p>
+                          <p className="text-muted-foreground text-sm">
                             {log.resourceType}: {log.resourceId}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             User: {log.userId} | IP: {log.ipAddress}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {formatTimestamp(log.timestamp)}
                         </p>
                       </div>

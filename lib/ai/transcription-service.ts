@@ -62,10 +62,12 @@ export class TranscriptionService {
     try {
       const audioPath = await this.extractAudio(videoPath)
       const transcription = await this.performTranscription(audioPath, language)
-      
+
       // Validate accuracy threshold
       if (transcription.confidence < 0.95) {
-        console.warn(`Transcription confidence ${transcription.confidence} below 95% threshold`)
+        console.warn(
+          `Transcription confidence ${transcription.confidence} below 95% threshold`
+        )
       }
 
       return transcription
@@ -106,7 +108,10 @@ export class TranscriptionService {
             primaryTranscription.segments,
             translated.text
           )
-          confidence = Math.min(primaryTranscription.confidence, translated.confidence)
+          confidence = Math.min(
+            primaryTranscription.confidence,
+            translated.confidence
+          )
         }
 
         const language = this.supportedLanguages.find(l => l.code === langCode)
@@ -142,21 +147,21 @@ export class TranscriptionService {
     language: string
   ): Promise<TranscriptionResult> {
     const client = await this.auth.getClient()
-    
+
     // Mock implementation - in production would use Google Speech-to-Text API
     const mockTranscription: TranscriptionResult = {
-      text: "This is a sample transcription with high accuracy.",
+      text: 'This is a sample transcription with high accuracy.',
       confidence: 0.97,
       language,
       segments: [
         {
-          text: "This is a sample transcription",
+          text: 'This is a sample transcription',
           startTime: 0,
           endTime: 2.5,
           confidence: 0.98,
         },
         {
-          text: "with high accuracy.",
+          text: 'with high accuracy.',
           startTime: 2.5,
           endTime: 4.0,
           confidence: 0.96,
@@ -179,7 +184,8 @@ export class TranscriptionService {
     // Mock translation - in production would use Google Translate API
     const translations = {
       'es-ES': 'Esta es una transcripción de muestra con alta precisión.',
-      'fr-FR': 'Ceci est un exemple de transcription avec une grande précision.',
+      'fr-FR':
+        'Ceci est un exemple de transcription avec une grande précision.',
       'de-DE': 'Dies ist eine Beispieltranskription mit hoher Genauigkeit.',
     }
 
@@ -192,7 +198,9 @@ export class TranscriptionService {
   /**
    * Convert transcription segments to subtitle format
    */
-  private convertToSubtitles(segments: TranscriptionSegment[]): SubtitleEntry[] {
+  private convertToSubtitles(
+    segments: TranscriptionSegment[]
+  ): SubtitleEntry[] {
     return segments.map(segment => ({
       startTime: segment.startTime,
       endTime: segment.endTime,

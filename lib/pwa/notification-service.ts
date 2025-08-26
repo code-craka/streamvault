@@ -34,7 +34,7 @@ export class NotificationService {
 
   async initialize(registration: ServiceWorkerRegistration): Promise<void> {
     this.registration = registration
-    
+
     // Check for existing subscription
     this.subscription = await registration.pushManager.getSubscription()
   }
@@ -68,7 +68,7 @@ export class NotificationService {
     try {
       this.subscription = await this.registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
       })
 
       // Send subscription to server
@@ -89,7 +89,7 @@ export class NotificationService {
 
     try {
       const success = await this.subscription.unsubscribe()
-      
+
       if (success) {
         // Remove subscription from server
         await this.removeSubscriptionFromServer(this.subscription)
@@ -124,7 +124,7 @@ export class NotificationService {
       actions: payload.actions,
       requireInteraction: payload.requireInteraction,
       silent: payload.silent,
-      vibrate: payload.vibrate || [200, 100, 200]
+      vibrate: payload.vibrate || [200, 100, 200],
     }
 
     await this.registration.showNotification(payload.title, options)
@@ -137,7 +137,11 @@ export class NotificationService {
 
   // Check if notifications are supported
   isSupported(): boolean {
-    return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+    return (
+      'Notification' in window &&
+      'serviceWorker' in navigator &&
+      'PushManager' in window
+    )
   }
 
   // Check if user has granted permission
@@ -146,22 +150,24 @@ export class NotificationService {
   }
 
   // Send subscription to server
-  private async sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
+  private async sendSubscriptionToServer(
+    subscription: PushSubscription
+  ): Promise<void> {
     const subscriptionData: PushSubscriptionData = {
       endpoint: subscription.endpoint,
       keys: {
         p256dh: this.arrayBufferToBase64(subscription.getKey('p256dh')!),
-        auth: this.arrayBufferToBase64(subscription.getKey('auth')!)
-      }
+        auth: this.arrayBufferToBase64(subscription.getKey('auth')!),
+      },
     }
 
     const response = await fetch('/api/notifications/subscribe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await this.getAuthToken()}`
+        Authorization: `Bearer ${await this.getAuthToken()}`,
       },
-      body: JSON.stringify(subscriptionData)
+      body: JSON.stringify(subscriptionData),
     })
 
     if (!response.ok) {
@@ -170,14 +176,16 @@ export class NotificationService {
   }
 
   // Remove subscription from server
-  private async removeSubscriptionFromServer(subscription: PushSubscription): Promise<void> {
+  private async removeSubscriptionFromServer(
+    subscription: PushSubscription
+  ): Promise<void> {
     const response = await fetch('/api/notifications/unsubscribe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await this.getAuthToken()}`
+        Authorization: `Bearer ${await this.getAuthToken()}`,
       },
-      body: JSON.stringify({ endpoint: subscription.endpoint })
+      body: JSON.stringify({ endpoint: subscription.endpoint }),
     })
 
     if (!response.ok) {
@@ -187,7 +195,7 @@ export class NotificationService {
 
   // Utility functions
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
     const base64 = (base64String + padding)
       .replace(/-/g, '+')
       .replace(/_/g, '/')
@@ -227,11 +235,14 @@ export const NotificationTemplates = {
     data: { type: 'follower', username },
     actions: [
       { action: 'view-profile', title: 'View Profile' },
-      { action: 'dismiss', title: 'Dismiss' }
-    ]
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
   }),
 
-  liveStreamStarted: (streamerName: string, title: string): NotificationPayload => ({
+  liveStreamStarted: (
+    streamerName: string,
+    title: string
+  ): NotificationPayload => ({
     title: `${streamerName} is now live!`,
     body: title,
     icon: '/icons/icon-192x192.png',
@@ -240,8 +251,8 @@ export const NotificationTemplates = {
     requireInteraction: true,
     actions: [
       { action: 'watch-stream', title: 'Watch Now' },
-      { action: 'dismiss', title: 'Later' }
-    ]
+      { action: 'dismiss', title: 'Later' },
+    ],
   }),
 
   newVideo: (creatorName: string, videoTitle: string): NotificationPayload => ({
@@ -252,8 +263,8 @@ export const NotificationTemplates = {
     data: { type: 'new-video', creatorName, videoTitle },
     actions: [
       { action: 'watch-video', title: 'Watch' },
-      { action: 'save-later', title: 'Save for Later' }
-    ]
+      { action: 'save-later', title: 'Save for Later' },
+    ],
   }),
 
   subscriptionExpiring: (daysLeft: number): NotificationPayload => ({
@@ -265,8 +276,8 @@ export const NotificationTemplates = {
     requireInteraction: true,
     actions: [
       { action: 'renew-subscription', title: 'Renew Now' },
-      { action: 'remind-later', title: 'Remind Later' }
-    ]
+      { action: 'remind-later', title: 'Remind Later' },
+    ],
   }),
 
   downloadComplete: (videoTitle: string): NotificationPayload => ({
@@ -277,8 +288,8 @@ export const NotificationTemplates = {
     data: { type: 'download', videoTitle },
     actions: [
       { action: 'watch-offline', title: 'Watch Now' },
-      { action: 'dismiss', title: 'OK' }
-    ]
+      { action: 'dismiss', title: 'OK' },
+    ],
   }),
 
   syncComplete: (): NotificationPayload => ({
@@ -287,6 +298,6 @@ export const NotificationTemplates = {
     icon: '/icons/icon-192x192.png',
     tag: 'sync-complete',
     data: { type: 'sync' },
-    silent: true
-  })
+    silent: true,
+  }),
 }

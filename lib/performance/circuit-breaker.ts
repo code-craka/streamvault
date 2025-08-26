@@ -13,9 +13,9 @@ export interface CircuitBreakerOptions {
 }
 
 export enum CircuitBreakerState {
-  CLOSED = 'CLOSED',     // Normal operation
-  OPEN = 'OPEN',         // Failing, rejecting requests
-  HALF_OPEN = 'HALF_OPEN' // Testing if service recovered
+  CLOSED = 'CLOSED', // Normal operation
+  OPEN = 'OPEN', // Failing, rejecting requests
+  HALF_OPEN = 'HALF_OPEN', // Testing if service recovered
 }
 
 export interface CircuitBreakerStats {
@@ -57,7 +57,9 @@ export class CircuitBreaker {
         this.state = CircuitBreakerState.HALF_OPEN
         this.options.onStateChange(this.state)
       } else {
-        throw new Error(`Circuit breaker is OPEN. Next attempt at ${new Date(this.nextAttempt!)}`)
+        throw new Error(
+          `Circuit breaker is OPEN. Next attempt at ${new Date(this.nextAttempt!)}`
+        )
       }
     }
 
@@ -97,8 +99,9 @@ export class CircuitBreaker {
   }
 
   private isExpectedError(error: Error): boolean {
-    return this.options.expectedErrors.some(expectedError =>
-      error.message.includes(expectedError) || error.name === expectedError
+    return this.options.expectedErrors.some(
+      expectedError =>
+        error.message.includes(expectedError) || error.name === expectedError
     )
   }
 
@@ -150,7 +153,10 @@ export class CircuitBreaker {
 export class CircuitBreakerRegistry {
   private breakers = new Map<string, CircuitBreaker>()
 
-  public register(name: string, options: CircuitBreakerOptions): CircuitBreaker {
+  public register(
+    name: string,
+    options: CircuitBreakerOptions
+  ): CircuitBreaker {
     const breaker = new CircuitBreaker(options)
     this.breakers.set(name, breaker)
     return breaker
@@ -166,7 +172,7 @@ export class CircuitBreakerRegistry {
 
   public getStats(): Record<string, CircuitBreakerStats> {
     const stats: Record<string, CircuitBreakerStats> = {}
-    
+
     for (const [name, breaker] of this.breakers) {
       stats[name] = breaker.getStats()
     }
@@ -226,7 +232,7 @@ export function withCircuitBreaker(
 // React hook for circuit breaker monitoring
 export function useCircuitBreaker(name: string) {
   const breaker = circuitBreakerRegistry.get(name)
-  
+
   return {
     breaker,
     stats: breaker?.getStats(),

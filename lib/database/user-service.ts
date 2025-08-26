@@ -9,7 +9,6 @@ import type {
   UserQueryInput,
 } from '@/lib/validations/user'
 
-
 export class UserService extends BaseService<User> {
   constructor() {
     super(COLLECTIONS.USERS)

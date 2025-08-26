@@ -52,7 +52,11 @@ export interface StreamHeartbeatEvent extends BaseWebhookEvent {
   }
 }
 
-export type WebhookEvent = StreamStartedEvent | StreamStoppedEvent | StreamErrorEvent | StreamHeartbeatEvent
+export type WebhookEvent =
+  | StreamStartedEvent
+  | StreamStoppedEvent
+  | StreamErrorEvent
+  | StreamHeartbeatEvent
 
 export interface WebhookResponse {
   message: string

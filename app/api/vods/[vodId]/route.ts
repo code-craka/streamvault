@@ -27,13 +27,10 @@ export async function GET(
 
     // Check if user has access to this VOD
     const { userId } = await auth()
-    
+
     // Private VODs can only be accessed by owner
     if (vod.visibility === 'private' && vod.userId !== userId) {
-      return NextResponse.json(
-        { error: 'VOD not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'VOD not found' }, { status: 404 })
     }
 
     // Increment view count if not the owner
@@ -42,13 +39,9 @@ export async function GET(
     }
 
     return NextResponse.json({ vod })
-
   } catch (error) {
     console.error('Failed to get VOD:', error)
-    return NextResponse.json(
-      { error: 'Failed to get VOD' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get VOD' }, { status: 500 })
   }
 }
 
@@ -60,10 +53,7 @@ export async function PUT(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { vodId } = params
@@ -85,8 +75,14 @@ export async function PUT(
     if (!result.success) {
       return NextResponse.json(
         { error: result.error },
-        { status: result.code === 'UNAUTHORIZED' ? 403 : 
-                 result.code === 'VOD_NOT_FOUND' ? 404 : 500 }
+        {
+          status:
+            result.code === 'UNAUTHORIZED'
+              ? 403
+              : result.code === 'VOD_NOT_FOUND'
+                ? 404
+                : 500,
+        }
       )
     }
 
@@ -94,13 +90,9 @@ export async function PUT(
       vod: result.data,
       message: 'VOD updated successfully',
     })
-
   } catch (error) {
     console.error('Failed to update VOD:', error)
-    return NextResponse.json(
-      { error: 'Failed to update VOD' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update VOD' }, { status: 500 })
   }
 }
 
@@ -112,10 +104,7 @@ export async function DELETE(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { vodId } = params
@@ -125,20 +114,22 @@ export async function DELETE(
     if (!result.success) {
       return NextResponse.json(
         { error: result.error },
-        { status: result.code === 'UNAUTHORIZED' ? 403 : 
-                 result.code === 'VOD_NOT_FOUND' ? 404 : 500 }
+        {
+          status:
+            result.code === 'UNAUTHORIZED'
+              ? 403
+              : result.code === 'VOD_NOT_FOUND'
+                ? 404
+                : 500,
+        }
       )
     }
 
     return NextResponse.json({
       message: 'VOD deleted successfully',
     })
-
   } catch (error) {
     console.error('Failed to delete VOD:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete VOD' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to delete VOD' }, { status: 500 })
   }
 }

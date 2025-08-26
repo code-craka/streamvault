@@ -13,16 +13,13 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user has moderation permissions
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     if (!['admin', 'streamer'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -34,7 +31,9 @@ export async function POST(
     const { action, targetUserId, targetUsername, reason, duration } = body
 
     // Get chat room
-    const roomResult = await chatRoomService.getChatRoomByStreamId(params.streamId)
+    const roomResult = await chatRoomService.getChatRoomByStreamId(
+      params.streamId
+    )
     if (!roomResult.success || !roomResult.data) {
       return NextResponse.json(
         { error: 'Chat room not found' },
@@ -86,7 +85,10 @@ export async function POST(
         })
 
       case 'unban':
-        const unbanResult = await chatRoomService.unbanUser(roomId, targetUserId)
+        const unbanResult = await chatRoomService.unbanUser(
+          roomId,
+          targetUserId
+        )
 
         if (!unbanResult.success) {
           return NextResponse.json(
@@ -167,16 +169,13 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user has moderation permissions
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     if (!['admin', 'streamer'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -185,7 +184,9 @@ export async function GET(
     }
 
     // Get chat room with banned users
-    const roomResult = await chatRoomService.getChatRoomByStreamId(params.streamId)
+    const roomResult = await chatRoomService.getChatRoomByStreamId(
+      params.streamId
+    )
     if (!roomResult.success || !roomResult.data) {
       return NextResponse.json(
         { error: 'Chat room not found' },

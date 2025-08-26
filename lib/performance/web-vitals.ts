@@ -28,8 +28,8 @@ export interface PerformanceThresholds {
 // Performance thresholds based on Core Web Vitals standards
 export const PERFORMANCE_THRESHOLDS: PerformanceThresholds = {
   LCP: { good: 2500, poor: 4000 }, // Largest Contentful Paint
-  FID: { good: 100, poor: 300 },   // First Input Delay
-  CLS: { good: 0.1, poor: 0.25 },  // Cumulative Layout Shift
+  FID: { good: 100, poor: 300 }, // First Input Delay
+  CLS: { good: 0.1, poor: 0.25 }, // Cumulative Layout Shift
   FCP: { good: 1800, poor: 3000 }, // First Contentful Paint
   TTFB: { good: 800, poor: 1800 }, // Time to First Byte
 }
@@ -40,15 +40,18 @@ class WebVitalsTracker {
   private sessionId: string
   private reportingEndpoint: string
 
-  constructor(options: {
-    reportingEndpoint?: string
-    userId?: string
-    sessionId?: string
-  } = {}) {
-    this.reportingEndpoint = options.reportingEndpoint || '/api/performance/vitals'
+  constructor(
+    options: {
+      reportingEndpoint?: string
+      userId?: string
+      sessionId?: string
+    } = {}
+  ) {
+    this.reportingEndpoint =
+      options.reportingEndpoint || '/api/performance/vitals'
     this.userId = options.userId
     this.sessionId = options.sessionId || this.generateSessionId()
-    
+
     this.initializeTracking()
   }
 
@@ -85,15 +88,19 @@ class WebVitalsTracker {
     }
 
     this.metrics.push(webVitalsMetric)
-    
+
     // Report critical metrics immediately
     if (webVitalsMetric.rating === 'poor') {
       this.reportMetric(webVitalsMetric)
     }
   }
 
-  private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
-    const thresholds = PERFORMANCE_THRESHOLDS[name as keyof PerformanceThresholds]
+  private getRating(
+    name: string,
+    value: number
+  ): 'good' | 'needs-improvement' | 'poor' {
+    const thresholds =
+      PERFORMANCE_THRESHOLDS[name as keyof PerformanceThresholds]
     if (!thresholds) return 'good'
 
     if (value <= thresholds.good) return 'good'
@@ -104,19 +111,28 @@ class WebVitalsTracker {
   private trackCustomMetrics(): void {
     // Track Time to Interactive (TTI)
     if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
+      const observer = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === 'navigation') {
             const navEntry = entry as PerformanceNavigationTiming
-            
+
             // Track DNS lookup time
-            this.trackCustomMetric('DNS', navEntry.domainLookupEnd - navEntry.domainLookupStart)
-            
+            this.trackCustomMetric(
+              'DNS',
+              navEntry.domainLookupEnd - navEntry.domainLookupStart
+            )
+
             // Track connection time
-            this.trackCustomMetric('Connection', navEntry.connectEnd - navEntry.connectStart)
-            
+            this.trackCustomMetric(
+              'Connection',
+              navEntry.connectEnd - navEntry.connectStart
+            )
+
             // Track server response time
-            this.trackCustomMetric('ServerResponse', navEntry.responseEnd - navEntry.requestStart)
+            this.trackCustomMetric(
+              'ServerResponse',
+              navEntry.responseEnd - navEntry.requestStart
+            )
           }
         }
       })
@@ -130,10 +146,10 @@ class WebVitalsTracker {
 
   private trackResourceMetrics(): void {
     if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
+      const observer = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
           const resourceEntry = entry as PerformanceResourceTiming
-          
+
           // Track slow resources (> 1 second)
           if (resourceEntry.duration > 1000) {
             this.trackCustomMetric('SlowResource', resourceEntry.duration, {
@@ -248,7 +264,7 @@ class WebVitalsTracker {
       total: this.metrics.length,
     }
 
-    this.metrics.forEach((metric) => {
+    this.metrics.forEach(metric => {
       switch (metric.rating) {
         case 'good':
           summary.good++

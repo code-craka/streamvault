@@ -70,7 +70,7 @@ const thumbnails = await thumbnailGenerator.generateThumbnails(
     count: 5,
     width: 1280,
     height: 720,
-    quality: 85
+    quality: 85,
   }
 )
 ```
@@ -107,6 +107,7 @@ const recommendations = await aiContentEnhancement.generateRecommendations(
 Process video with comprehensive AI enhancement.
 
 **Request:**
+
 ```json
 {
   "videoId": "video-123",
@@ -121,6 +122,7 @@ Process video with comprehensive AI enhancement.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -153,11 +155,10 @@ React component for video enhancement UI.
 
 ```tsx
 import { ContentEnhancementPanel } from '@/components/ai/content-enhancement-panel'
-
-<ContentEnhancementPanel
+;<ContentEnhancementPanel
   videoId="video-123"
   videoPath="/path/to/video.mp4"
-  onEnhancementComplete={(data) => console.log(data)}
+  onEnhancementComplete={data => console.log(data)}
 />
 ```
 
@@ -167,12 +168,7 @@ AI-powered recommendation display.
 
 ```tsx
 import { RecommendationEngine } from '@/components/ai/recommendation-engine'
-
-<RecommendationEngine
-  currentVideoId="video-123"
-  limit={6}
-  showReason={true}
-/>
+;<RecommendationEngine currentVideoId="video-123" limit={6} showReason={true} />
 ```
 
 ## Configuration
@@ -203,42 +199,46 @@ export const AI_CONFIG = {
     defaultCount: 5,
     maxCount: 10,
     defaultQuality: 85,
-    supportedFormats: ['jpeg', 'png', 'webp']
+    supportedFormats: ['jpeg', 'png', 'webp'],
   },
   quality: {
     thresholds: {
       excellent: 0.9,
       good: 0.7,
       fair: 0.5,
-      poor: 0.3
-    }
+      poor: 0.3,
+    },
   },
   recommendations: {
     maxRecommendations: 50,
     defaultLimit: 10,
-    confidenceThreshold: 0.6
-  }
+    confidenceThreshold: 0.6,
+  },
 }
 ```
 
 ## Quality Metrics
 
 ### Technical Quality
+
 - Video resolution, bitrate, frame rate
 - Audio quality and encoding
 - Compression efficiency
 
 ### Engagement Metrics
+
 - Content pacing and structure
 - Visual interest and composition
 - Thumbnail appeal and effectiveness
 
 ### Accessibility Score
+
 - Caption availability
 - Audio descriptions
 - Visual contrast and readability
 
 ### SEO Optimization
+
 - Title optimization (40-70 characters)
 - Description quality (100-300 characters)
 - Tag relevance and diversity
@@ -247,12 +247,14 @@ export const AI_CONFIG = {
 ## Performance
 
 ### Benchmarks
+
 - Thumbnail generation: < 30 seconds for 5 thumbnails
 - Metadata generation: < 10 seconds
 - Quality analysis: < 15 seconds
 - Recommendations: < 5 seconds
 
 ### Optimization
+
 - Parallel processing for multiple AI tasks
 - Caching for repeated operations
 - Progressive enhancement for large files
@@ -261,16 +263,19 @@ export const AI_CONFIG = {
 ## Testing
 
 ### Unit Tests
+
 ```bash
 pnpm test tests/unit/ai/content-enhancement-simple.test.ts
 ```
 
 ### Integration Tests
+
 ```bash
 pnpm test tests/integration/ai/
 ```
 
 ### Load Testing
+
 ```bash
 pnpm test:load tests/load/ai-processing.test.ts
 ```
@@ -278,12 +283,14 @@ pnpm test:load tests/load/ai-processing.test.ts
 ## Monitoring
 
 ### Metrics Tracked
+
 - Processing success/failure rates
 - Average processing times
 - AI confidence scores
 - User engagement with AI-generated content
 
 ### Alerts
+
 - Processing failures > 5%
 - Average processing time > 60 seconds
 - AI confidence scores < 0.5
@@ -292,12 +299,14 @@ pnpm test:load tests/load/ai-processing.test.ts
 ## Security
 
 ### Data Protection
+
 - Temporary file cleanup after processing
 - Secure API key management
 - Input validation and sanitization
 - Rate limiting for API endpoints
 
 ### Privacy Compliance
+
 - No permanent storage of video content
 - Anonymized analytics data
 - GDPR-compliant data handling
@@ -308,16 +317,19 @@ pnpm test:load tests/load/ai-processing.test.ts
 ### Common Issues
 
 **Processing Failures**
+
 - Check video format compatibility
 - Verify storage permissions
 - Validate API key configuration
 
 **Low Quality Scores**
+
 - Review video technical specifications
 - Check audio quality settings
 - Validate metadata completeness
 
 **Slow Processing**
+
 - Monitor system resources
 - Check network connectivity
 - Review file size limits
@@ -340,6 +352,7 @@ const result = await aiContentEnhancement.processUploadedVideo(
 ## Roadmap
 
 ### Upcoming Features
+
 - Real-time processing for live streams
 - Advanced scene detection with ML models
 - Multi-language content analysis
@@ -347,6 +360,7 @@ const result = await aiContentEnhancement.processUploadedVideo(
 - Enhanced recommendation algorithms
 
 ### Performance Improvements
+
 - GPU acceleration for video processing
 - Distributed processing for large files
 - Advanced caching strategies

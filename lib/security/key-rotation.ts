@@ -1,7 +1,16 @@
 import { Storage } from '@google-cloud/storage'
 import { createHash, randomBytes } from 'crypto'
 import { db } from '@/lib/firebase'
-import { collection, doc, setDoc, getDoc, query, where, getDocs, deleteDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+} from 'firebase/firestore'
 
 interface RotationKey {
   id: string
@@ -43,13 +52,18 @@ export class DynamicKeyRotationService {
    */
   async generateRotationKey(): Promise<RotationKey> {
     const keyData = randomBytes(32).toString('hex')
-    const keyId = createHash('sha256').update(keyData + Date.now()).digest('hex').substring(0, 16)
+    const keyId = createHash('sha256')
+      .update(keyData + Date.now())
+      .digest('hex')
+      .substring(0, 16)
 
     const rotationKey: RotationKey = {
       id: keyId,
       keyData,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + this.config.keyExpirationHours * 60 * 60 * 1000),
+      expiresAt: new Date(
+        Date.now() + this.config.keyExpirationHours * 60 * 60 * 1000
+      ),
       isActive: true,
       rotationCount: 0,
     }
@@ -84,7 +98,9 @@ export class DynamicKeyRotationService {
       expiresAt: doc.data().expiresAt.toDate(),
     })) as RotationKey[]
 
-    const currentKey = keys.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
+    const currentKey = keys.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )[0]
 
     // Check if key needs rotation
     if (this.shouldRotateKey(currentKey)) {
@@ -139,14 +155,20 @@ export class DynamicKeyRotationService {
     })) as RotationKey[]
 
     // Keep only the most recent keys up to maxActiveKeys
-    const sortedKeys = activeKeys.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const sortedKeys = activeKeys.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
 
     // Deactivate old keys beyond the limit
     for (let i = this.config.maxActiveKeys; i < sortedKeys.length; i++) {
-      await setDoc(doc(db, 'security_keys', sortedKeys[i].id), {
-        ...sortedKeys[i],
-        isActive: false,
-      }, { merge: true })
+      await setDoc(
+        doc(db, 'security_keys', sortedKeys[i].id),
+        {
+          ...sortedKeys[i],
+          isActive: false,
+        },
+        { merge: true }
+      )
     }
 
     // Log rotation event
@@ -229,7 +251,7 @@ export class DynamicKeyRotationService {
       }
 
       const key = keyDoc.data() as RotationKey
-      
+
       // Check if key is still valid
       if (!key.isActive || new Date() > key.expiresAt) {
         return false
@@ -251,7 +273,9 @@ export class DynamicKeyRotationService {
     const expiredKeysQuery = query(keysRef, where('expiresAt', '<', new Date()))
     const expiredKeysSnapshot = await getDocs(expiredKeysQuery)
 
-    const deletionPromises = expiredKeysSnapshot.docs.map(doc => deleteDoc(doc.ref))
+    const deletionPromises = expiredKeysSnapshot.docs.map(doc =>
+      deleteDoc(doc.ref)
+    )
     await Promise.all(deletionPromises)
 
     console.log(`Cleaned up ${expiredKeysSnapshot.size} expired keys`)
@@ -266,17 +290,25 @@ export class DynamicKeyRotationService {
   private async incrementKeyUsage(keyId: string): Promise<void> {
     const keyRef = doc(db, 'security_keys', keyId)
     const keyDoc = await getDoc(keyRef)
-    
+
     if (keyDoc.exists()) {
       const currentCount = keyDoc.data().rotationCount || 0
-      await setDoc(keyRef, {
-        rotationCount: currentCount + 1,
-        lastUsed: new Date(),
-      }, { merge: true })
+      await setDoc(
+        keyRef,
+        {
+          rotationCount: currentCount + 1,
+          lastUsed: new Date(),
+        },
+        { merge: true }
+      )
     }
   }
 
-  private async logKeyRotation(keyId: string, type: string, reason?: string): Promise<void> {
+  private async logKeyRotation(
+    keyId: string,
+    type: string,
+    reason?: string
+  ): Promise<void> {
     await setDoc(doc(db, 'security_logs', `rotation_${Date.now()}`), {
       type: 'key_rotation',
       keyId,
@@ -287,10 +319,13 @@ export class DynamicKeyRotationService {
     })
   }
 
-  private async triggerSecurityAlert(alertType: string, data: any): Promise<void> {
+  private async triggerSecurityAlert(
+    alertType: string,
+    data: any
+  ): Promise<void> {
     // Implement security alert system
     console.log(`Security Alert: ${alertType}`, data)
-    
+
     // In production, integrate with monitoring systems like PagerDuty, Slack, etc.
     await setDoc(doc(db, 'security_alerts', `alert_${Date.now()}`), {
       type: alertType,

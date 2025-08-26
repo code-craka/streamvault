@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -28,13 +34,15 @@ interface RecommendationEngineProps {
   showReason?: boolean
 }
 
-export function RecommendationEngine({ 
-  currentVideoId, 
-  limit = 6, 
-  showReason = false 
+export function RecommendationEngine({
+  currentVideoId,
+  limit = 6,
+  showReason = false,
 }: RecommendationEngineProps) {
   const { user } = useUser()
-  const [recommendations, setRecommendations] = useState<VideoRecommendation[]>([])
+  const [recommendations, setRecommendations] = useState<VideoRecommendation[]>(
+    []
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -51,13 +59,13 @@ export function RecommendationEngine({
 
       const params = new URLSearchParams({
         limit: limit.toString(),
-        ...(currentVideoId && { videoId: currentVideoId })
+        ...(currentVideoId && { videoId: currentVideoId }),
       })
 
       const response = await fetch(`/api/ai/recommendations?${params}`, {
         headers: {
-          'Authorization': `Bearer ${await user?.getToken()}`
-        }
+          Authorization: `Bearer ${await user?.getToken()}`,
+        },
       })
 
       if (!response.ok) {
@@ -66,7 +74,6 @@ export function RecommendationEngine({
 
       const data = await response.json()
       setRecommendations(data.recommendations || [])
-
     } catch (error) {
       console.error('Failed to fetch recommendations:', error)
       setError('Unable to load recommendations')
@@ -103,7 +110,7 @@ export function RecommendationEngine({
           <TrendingUp className="h-5 w-5" />
           <h3 className="text-lg font-semibold">Recommended for You</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: limit }).map((_, i) => (
             <Card key={i} className="overflow-hidden">
               <Skeleton className="h-48 w-full" />
@@ -120,8 +127,8 @@ export function RecommendationEngine({
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-500 mb-4">{error}</p>
+      <div className="py-8 text-center">
+        <p className="mb-4 text-red-500">{error}</p>
         <Button onClick={fetchRecommendations} variant="outline">
           Try Again
         </Button>
@@ -131,10 +138,10 @@ export function RecommendationEngine({
 
   if (recommendations.length === 0) {
     return (
-      <div className="text-center py-8">
-        <TrendingUp className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+      <div className="py-8 text-center">
+        <TrendingUp className="mx-auto mb-4 h-12 w-12 text-gray-400" />
         <p className="text-gray-500">No recommendations available</p>
-        <p className="text-sm text-gray-400 mt-2">
+        <p className="mt-2 text-sm text-gray-400">
           Watch more videos to get personalized recommendations
         </p>
       </div>
@@ -148,9 +155,9 @@ export function RecommendationEngine({
           <TrendingUp className="h-5 w-5" />
           <h3 className="text-lg font-semibold">Recommended for You</h3>
         </div>
-        <Button 
-          onClick={fetchRecommendations} 
-          variant="ghost" 
+        <Button
+          onClick={fetchRecommendations}
+          variant="ghost"
           size="sm"
           className="text-sm"
         >
@@ -158,26 +165,29 @@ export function RecommendationEngine({
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {recommendations.map((video) => (
-          <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {recommendations.map(video => (
+          <Card
+            key={video.id}
+            className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg"
+          >
             <div className="relative">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
+                className="h-48 w-full object-cover transition-transform duration-200 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
-                <Play className="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/20">
+                <Play className="h-12 w-12 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
               </div>
-              <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-                <Clock className="h-3 w-3 inline mr-1" />
+              <div className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-1 text-xs text-white">
+                <Clock className="mr-1 inline h-3 w-3" />
                 {formatDuration(video.duration)}
               </div>
               {showReason && (
-                <div className="absolute top-2 left-2">
-                  <div 
-                    className={`w-2 h-2 rounded-full ${getConfidenceColor(video.confidence)}`}
+                <div className="absolute left-2 top-2">
+                  <div
+                    className={`h-2 w-2 rounded-full ${getConfidenceColor(video.confidence)}`}
                     title={`Confidence: ${Math.round(video.confidence * 100)}%`}
                   />
                 </div>
@@ -185,7 +195,7 @@ export function RecommendationEngine({
             </div>
 
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm line-clamp-2 group-hover:text-blue-600 transition-colors">
+              <CardTitle className="line-clamp-2 text-sm transition-colors group-hover:text-blue-600">
                 {video.title}
               </CardTitle>
               <CardDescription className="text-xs">
@@ -194,7 +204,7 @@ export function RecommendationEngine({
             </CardHeader>
 
             <CardContent className="pt-0">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center space-x-1">
                   <Eye className="h-3 w-3" />
                   <span>{formatViewCount(video.viewCount)} views</span>
@@ -205,13 +215,13 @@ export function RecommendationEngine({
               </div>
 
               {showReason && (
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                <p className="mb-2 line-clamp-2 text-xs text-gray-600">
                   {video.reason}
                 </p>
               )}
 
               <div className="flex flex-wrap gap-1">
-                {video.tags.slice(0, 3).map((tag) => (
+                {video.tags.slice(0, 3).map(tag => (
                   <Badge key={tag} variant="outline" className="text-xs">
                     {tag}
                   </Badge>

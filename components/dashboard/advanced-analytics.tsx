@@ -3,25 +3,37 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { businessIntelligence } from '@/lib/analytics/business-intelligence'
-import type { 
-  GeographicHeatmap, 
-  EngagementHeatmap, 
+import type {
+  GeographicHeatmap,
+  EngagementHeatmap,
   ContentOptimization,
   ChurnPrediction,
   ABTestResult,
-  MarketInsight
+  MarketInsight,
 } from '@/lib/analytics/business-intelligence'
-import { 
-  Globe, 
-  TrendingUp, 
-  Users, 
+import {
+  Globe,
+  TrendingUp,
+  Users,
   Target,
   Brain,
   BarChart3,
@@ -30,7 +42,7 @@ import {
   Lightbulb,
   AlertTriangle,
   Trophy,
-  DollarSign
+  DollarSign,
 } from 'lucide-react'
 
 interface AdvancedAnalyticsProps {
@@ -41,14 +53,22 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
   const { user } = useUser()
   const [loading, setLoading] = useState(true)
   const [selectedPeriod, setSelectedPeriod] = useState('week')
-  
+
   // State for different analytics data
   const [geoHeatmap, setGeoHeatmap] = useState<GeographicHeatmap[]>([])
-  const [engagementHeatmap, setEngagementHeatmap] = useState<EngagementHeatmap[]>([])
-  const [contentOptimization, setContentOptimization] = useState<ContentOptimization[]>([])
-  const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>([])
+  const [engagementHeatmap, setEngagementHeatmap] = useState<
+    EngagementHeatmap[]
+  >([])
+  const [contentOptimization, setContentOptimization] = useState<
+    ContentOptimization[]
+  >([])
+  const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>(
+    []
+  )
   const [abTestResults, setAbTestResults] = useState<ABTestResult[]>([])
-  const [marketInsights, setMarketInsights] = useState<MarketInsight | null>(null)
+  const [marketInsights, setMarketInsights] = useState<MarketInsight | null>(
+    null
+  )
 
   useEffect(() => {
     if (creatorId) {
@@ -59,22 +79,23 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
   const loadAdvancedAnalytics = async () => {
     try {
       setLoading(true)
-      
+
       const endDate = new Date()
       const startDate = new Date()
-      startDate.setDate(endDate.getDate() - (selectedPeriod === 'week' ? 7 : 30))
+      startDate.setDate(
+        endDate.getDate() - (selectedPeriod === 'week' ? 7 : 30)
+      )
 
       // Load all analytics data in parallel
-      const [
-        geoData,
-        contentOpt,
-        churnData,
-        marketData
-      ] = await Promise.all([
-        businessIntelligence.generateGeographicHeatmap(creatorId, startDate, endDate),
+      const [geoData, contentOpt, churnData, marketData] = await Promise.all([
+        businessIntelligence.generateGeographicHeatmap(
+          creatorId,
+          startDate,
+          endDate
+        ),
         businessIntelligence.generateContentOptimization(creatorId),
         businessIntelligence.predictChurn(creatorId),
-        businessIntelligence.getMarketInsights('gaming')
+        businessIntelligence.getMarketInsights('gaming'),
       ])
 
       setGeoHeatmap(geoData)
@@ -83,9 +104,9 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
       setMarketInsights(marketData)
 
       // Mock engagement heatmap for latest stream
-      const engagementData = await businessIntelligence.generateEngagementHeatmap('latest_stream')
+      const engagementData =
+        await businessIntelligence.generateEngagementHeatmap('latest_stream')
       setEngagementHeatmap(engagementData)
-
     } catch (error) {
       console.error('Error loading advanced analytics:', error)
     } finally {
@@ -95,8 +116,8 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
       </div>
     )
   }
@@ -146,24 +167,32 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
             <CardContent>
               <div className="space-y-4">
                 {geoHeatmap.slice(0, 10).map((location, index) => (
-                  <div key={`${location.country}-${location.city}`} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={`${location.country}-${location.city}`}
+                    className="flex items-center justify-between rounded-lg border p-4"
+                  >
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="w-8 h-6 text-xs">
+                      <Badge variant="outline" className="h-6 w-8 text-xs">
                         #{index + 1}
                       </Badge>
                       <div>
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{location.city}, {location.country}</span>
+                          <MapPin className="text-muted-foreground h-4 w-4" />
+                          <span className="font-medium">
+                            {location.city}, {location.country}
+                          </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Avg. watch time: {Math.floor(location.averageViewTime / 60)}m
+                        <p className="text-muted-foreground text-sm">
+                          Avg. watch time:{' '}
+                          {Math.floor(location.averageViewTime / 60)}m
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{location.viewerCount.toLocaleString()}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="font-medium">
+                        {location.viewerCount.toLocaleString()}
+                      </div>
+                      <div className="text-muted-foreground text-sm">
                         {location.engagementScore}% engagement
                       </div>
                     </div>
@@ -194,28 +223,28 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                       key={index}
                       className="h-4 rounded-sm"
                       style={{
-                        backgroundColor: `hsl(${point.engagementLevel * 1.2}, 70%, ${50 + point.engagementLevel * 0.3}%)`
+                        backgroundColor: `hsl(${point.engagementLevel * 1.2}, 70%, ${50 + point.engagementLevel * 0.3}%)`,
                       }}
                       title={`${Math.floor(point.timepoint / 60)}:${(point.timepoint % 60).toString().padStart(2, '0')} - ${point.engagementLevel}% engagement`}
                     />
                   ))}
                 </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="text-muted-foreground flex justify-between text-xs">
                   <span>0:00</span>
                   <span>30:00</span>
                   <span>1:00:00</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-sm" />
+                    <div className="h-3 w-3 rounded-sm bg-red-500" />
                     <span>Low Engagement</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-sm" />
+                    <div className="h-3 w-3 rounded-sm bg-yellow-500" />
                     <span>Medium Engagement</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-sm" />
+                    <div className="h-3 w-3 rounded-sm bg-green-500" />
                     <span>High Engagement</span>
                   </div>
                 </div>
@@ -226,8 +255,8 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
 
         {/* AI Optimization */}
         <TabsContent value="optimization" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {contentOptimization.map((optimization) => (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {contentOptimization.map(optimization => (
               <Card key={optimization.streamId}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -240,17 +269,25 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {optimization.recommendations.map((rec, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-                      <Lightbulb className="h-4 w-4 text-yellow-500 mt-0.5" />
+                    <div
+                      key={index}
+                      className="bg-muted flex items-start gap-3 rounded-lg p-3"
+                    >
+                      <Lightbulb className="mt-0.5 h-4 w-4 text-yellow-500" />
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant={
-                            rec.impact === 'high' ? 'default' :
-                            rec.impact === 'medium' ? 'secondary' : 'outline'
-                          }>
+                        <div className="mb-1 flex items-center gap-2">
+                          <Badge
+                            variant={
+                              rec.impact === 'high'
+                                ? 'default'
+                                : rec.impact === 'medium'
+                                  ? 'secondary'
+                                  : 'outline'
+                            }
+                          >
                             {rec.impact} impact
                           </Badge>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-muted-foreground text-xs">
                             {Math.round(rec.confidence * 100)}% confidence
                           </span>
                         </div>
@@ -258,27 +295,33 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                       </div>
                     </div>
                   ))}
-                  
-                  <div className="pt-4 border-t">
-                    <h4 className="font-medium mb-2">Predicted Improvements</h4>
+
+                  <div className="border-t pt-4">
+                    <h4 className="mb-2 font-medium">Predicted Improvements</h4>
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
                         <div className="text-lg font-bold text-blue-600">
                           +{optimization.predictedImprovement.viewers}
                         </div>
-                        <div className="text-xs text-muted-foreground">Viewers</div>
+                        <div className="text-muted-foreground text-xs">
+                          Viewers
+                        </div>
                       </div>
                       <div>
                         <div className="text-lg font-bold text-green-600">
                           +{optimization.predictedImprovement.engagement}%
                         </div>
-                        <div className="text-xs text-muted-foreground">Engagement</div>
+                        <div className="text-muted-foreground text-xs">
+                          Engagement
+                        </div>
                       </div>
                       <div>
                         <div className="text-lg font-bold text-purple-600">
                           +${optimization.predictedImprovement.revenue}
                         </div>
-                        <div className="text-xs text-muted-foreground">Revenue</div>
+                        <div className="text-muted-foreground text-xs">
+                          Revenue
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -290,7 +333,7 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
 
         {/* Retention Analytics */}
         <TabsContent value="retention" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Churn Predictions */}
             <Card>
               <CardHeader>
@@ -304,20 +347,32 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {churnPredictions.slice(0, 5).map((prediction) => (
-                    <div key={prediction.userId} className="flex items-center justify-between p-3 border rounded-lg">
+                  {churnPredictions.slice(0, 5).map(prediction => (
+                    <div
+                      key={prediction.userId}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
                       <div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={
-                            prediction.churnProbability > 0.7 ? 'destructive' :
-                            prediction.churnProbability > 0.4 ? 'secondary' : 'outline'
-                          }>
-                            {Math.round(prediction.churnProbability * 100)}% risk
+                          <Badge
+                            variant={
+                              prediction.churnProbability > 0.7
+                                ? 'destructive'
+                                : prediction.churnProbability > 0.4
+                                  ? 'secondary'
+                                  : 'outline'
+                            }
+                          >
+                            {Math.round(prediction.churnProbability * 100)}%
+                            risk
                           </Badge>
-                          <span className="text-sm">User {prediction.userId.slice(-6)}</span>
+                          <span className="text-sm">
+                            User {prediction.userId.slice(-6)}
+                          </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          LTV: ${prediction.lifetimeValue} • {prediction.daysUntilChurn} days
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          LTV: ${prediction.lifetimeValue} •{' '}
+                          {prediction.daysUntilChurn} days
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
@@ -342,7 +397,7 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
                     <h4 className="font-medium text-blue-900 dark:text-blue-100">
                       Personalized Content
                     </h4>
@@ -350,7 +405,7 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                       Send tailored recommendations based on viewing history
                     </p>
                   </div>
-                  <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+                  <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950">
                     <h4 className="font-medium text-green-900 dark:text-green-100">
                       Exclusive Access
                     </h4>
@@ -358,7 +413,7 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                       Offer subscriber-only streams and content
                     </p>
                   </div>
-                  <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                  <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-950">
                     <h4 className="font-medium text-purple-900 dark:text-purple-100">
                       Direct Engagement
                     </h4>
@@ -375,7 +430,7 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
         {/* Market Intelligence */}
         <TabsContent value="market" className="space-y-4">
           {marketInsights && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -396,14 +451,14 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Competitors</span>
                     <span className="font-medium">
                       {marketInsights.competitorCount.toLocaleString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Avg. Revenue</span>
                     <span className="font-medium">
@@ -412,10 +467,14 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Top Keywords</h4>
+                    <h4 className="mb-2 text-sm font-medium">Top Keywords</h4>
                     <div className="flex flex-wrap gap-1">
-                      {marketInsights.topKeywords.map((keyword) => (
-                        <Badge key={keyword} variant="outline" className="text-xs">
+                      {marketInsights.topKeywords.map(keyword => (
+                        <Badge
+                          key={keyword}
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {keyword}
                         </Badge>
                       ))}
@@ -439,22 +498,35 @@ export function AdvancedAnalytics({ creatorId }: AdvancedAnalyticsProps) {
                     {marketInsights.seasonalPatterns
                       .sort((a, b) => b.multiplier - a.multiplier)
                       .slice(0, 6)
-                      .map((pattern) => {
+                      .map(pattern => {
                         const monthNames = [
-                          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                          'Jan',
+                          'Feb',
+                          'Mar',
+                          'Apr',
+                          'May',
+                          'Jun',
+                          'Jul',
+                          'Aug',
+                          'Sep',
+                          'Oct',
+                          'Nov',
+                          'Dec',
                         ]
                         return (
-                          <div key={pattern.month} className="flex items-center justify-between">
+                          <div
+                            key={pattern.month}
+                            className="flex items-center justify-between"
+                          >
                             <span className="text-sm">
                               {monthNames[pattern.month - 1]}
                             </span>
                             <div className="flex items-center gap-2">
-                              <Progress 
-                                value={pattern.multiplier * 50} 
-                                className="w-20 h-2" 
+                              <Progress
+                                value={pattern.multiplier * 50}
+                                className="h-2 w-20"
                               />
-                              <span className="text-sm font-medium w-12">
+                              <span className="w-12 text-sm font-medium">
                                 {pattern.multiplier.toFixed(1)}x
                               </span>
                             </div>

@@ -6,11 +6,32 @@
 import { Storage } from '@google-cloud/storage'
 import { db } from '@/lib/firebase'
 import { collection, doc, setDoc, getDoc } from 'firebase/firestore'
-import { TranscriptionService, TranscriptionResult, MultiLanguageSubtitles } from './transcription-service'
-import { AdvancedContentAnalysis, Scene, Highlight, ContentOptimization } from './advanced-content-analysis'
-import { SentimentAnalysisService, SentimentResult, AudienceEngagementSentiment } from './sentiment-analysis'
-import { ContentModerationService, ModerationResult } from './content-moderation'
-import { CopyrightDetectionService, CopyrightScanResult, DMCATakedown, CounterClaim } from './copyright-detection'
+import {
+  TranscriptionService,
+  TranscriptionResult,
+  MultiLanguageSubtitles,
+} from './transcription-service'
+import {
+  AdvancedContentAnalysis,
+  Scene,
+  Highlight,
+  ContentOptimization,
+} from './advanced-content-analysis'
+import {
+  SentimentAnalysisService,
+  SentimentResult,
+  AudienceEngagementSentiment,
+} from './sentiment-analysis'
+import {
+  ContentModerationService,
+  ModerationResult,
+} from './content-moderation'
+import {
+  CopyrightDetectionService,
+  CopyrightScanResult,
+  DMCATakedown,
+  CounterClaim,
+} from './copyright-detection'
 
 // Initialize Google Cloud Storage
 const storage = new Storage({
@@ -133,15 +154,23 @@ export class AIContentEnhancement {
       console.log(`Starting comprehensive AI analysis for video ${videoId}`)
 
       // Step 1: High-accuracy transcription (>95%)
-      const transcription = await this.transcriptionService.transcribeVideo(videoPath, 'en-US')
-      console.log(`Transcription completed with ${transcription.confidence * 100}% confidence`)
+      const transcription = await this.transcriptionService.transcribeVideo(
+        videoPath,
+        'en-US'
+      )
+      console.log(
+        `Transcription completed with ${transcription.confidence * 100}% confidence`
+      )
 
       // Step 2: Multi-language subtitle generation
-      const multiLanguageSubtitles = await this.transcriptionService.generateMultiLanguageSubtitles(
-        videoPath,
-        ['en-US', 'es-ES', 'fr-FR', 'de-DE']
+      const multiLanguageSubtitles =
+        await this.transcriptionService.generateMultiLanguageSubtitles(
+          videoPath,
+          ['en-US', 'es-ES', 'fr-FR', 'de-DE']
+        )
+      console.log(
+        `Generated subtitles in ${multiLanguageSubtitles.length} languages`
       )
-      console.log(`Generated subtitles in ${multiLanguageSubtitles.length} languages`)
 
       // Step 3: AI scene detection and analysis
       const scenes = await this.contentAnalysis.detectScenes(videoPath)
@@ -155,28 +184,45 @@ export class AIContentEnhancement {
       console.log(`Created ${highlights.length} highlights`)
 
       // Step 5: Content optimization recommendations
-      const contentOptimization = await this.contentAnalysis.generateContentOptimization(
-        videoPath,
-        scenes,
-        transcription.text
+      const contentOptimization =
+        await this.contentAnalysis.generateContentOptimization(
+          videoPath,
+          scenes,
+          transcription.text
+        )
+      console.log(
+        `Generated ${contentOptimization.recommendations.length} optimization recommendations`
       )
-      console.log(`Generated ${contentOptimization.recommendations.length} optimization recommendations`)
 
       // Step 6: Sentiment analysis
-      const sentimentAnalysis = await this.sentimentService.analyzeContentSentiment(transcription.text)
-      console.log(`Content sentiment: ${sentimentAnalysis.overall.label} (${sentimentAnalysis.overall.polarity})`)
+      const sentimentAnalysis =
+        await this.sentimentService.analyzeContentSentiment(transcription.text)
+      console.log(
+        `Content sentiment: ${sentimentAnalysis.overall.label} (${sentimentAnalysis.overall.polarity})`
+      )
 
       // Step 7: Content moderation
-      const moderationResult = await this.moderationService.moderateVideo(videoPath, metadata)
-      console.log(`Moderation result: ${moderationResult.approved ? 'APPROVED' : 'FLAGGED'}`)
+      const moderationResult = await this.moderationService.moderateVideo(
+        videoPath,
+        metadata
+      )
+      console.log(
+        `Moderation result: ${moderationResult.approved ? 'APPROVED' : 'FLAGGED'}`
+      )
 
       // Step 8: Copyright detection
-      const copyrightScan = await this.copyrightService.scanContent(videoPath, 'video', {
-        title: metadata.title,
-        description: metadata.description,
-        tags: metadata.tags,
-      })
-      console.log(`Copyright scan: ${copyrightScan.hasViolation ? 'VIOLATIONS FOUND' : 'CLEAR'}`)
+      const copyrightScan = await this.copyrightService.scanContent(
+        videoPath,
+        'video',
+        {
+          title: metadata.title,
+          description: metadata.description,
+          tags: metadata.tags,
+        }
+      )
+      console.log(
+        `Copyright scan: ${copyrightScan.hasViolation ? 'VIOLATIONS FOUND' : 'CLEAR'}`
+      )
 
       // Step 9: AI-generated metadata
       const aiGenerated = await this.generateEnhancedMetadata(
@@ -226,28 +272,40 @@ export class AIContentEnhancement {
       // Real-time content moderation
       const realTimeModeration: ModerationResult[] = []
       for (const message of chatMessages) {
-        const modResult = await this.moderationService.moderateText(message, 'chat')
+        const modResult = await this.moderationService.moderateText(
+          message,
+          'chat'
+        )
         if (!modResult.approved) {
           realTimeModeration.push(modResult)
         }
       }
 
       // Audience engagement sentiment analysis
-      const audienceEngagement = await this.sentimentService.analyzeAudienceEngagement(
-        chatMessages.map((msg, i) => ({ id: i.toString(), message: msg, timestamp: new Date() })),
-        reactions,
-        []
-      )
+      const audienceEngagement =
+        await this.sentimentService.analyzeAudienceEngagement(
+          chatMessages.map((msg, i) => ({
+            id: i.toString(),
+            message: msg,
+            timestamp: new Date(),
+          })),
+          reactions,
+          []
+        )
 
       // Content sentiment from chat
       const chatText = chatMessages.join(' ')
-      const contentSentiment = await this.sentimentService.analyzeContentSentiment(chatText)
+      const contentSentiment =
+        await this.sentimentService.analyzeContentSentiment(chatText)
 
       // Copyright monitoring (for music/audio)
       const copyrightAlerts: CopyrightScanResult[] = []
       if (audioChunk.length > 0) {
         // In production, would analyze audio chunk for copyright
-        const mockScan = await this.copyrightService.scanContent('audio_chunk', 'audio')
+        const mockScan = await this.copyrightService.scanContent(
+          'audio_chunk',
+          'audio'
+        )
         if (mockScan.hasViolation) {
           copyrightAlerts.push(mockScan)
         }
@@ -288,19 +346,21 @@ export class AIContentEnhancement {
       const appealId = `appeal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
       // Use AI to analyze the appeal
-      const aiRecommendation = await this.moderationService.processContentAppeal({
-        id: appealId,
-        contentId,
-        userId,
-        originalViolation,
-        appealReason,
-        status: 'pending',
-        submittedAt: new Date(),
-      })
+      const aiRecommendation =
+        await this.moderationService.processContentAppeal({
+          id: appealId,
+          contentId,
+          userId,
+          originalViolation,
+          appealReason,
+          status: 'pending',
+          submittedAt: new Date(),
+        })
 
       // Determine if human review is needed
-      const humanReviewRequired = aiRecommendation.confidence < 0.8 || 
-                                  aiRecommendation.recommendation === 'needs_human_review'
+      const humanReviewRequired =
+        aiRecommendation.confidence < 0.8 ||
+        aiRecommendation.recommendation === 'needs_human_review'
 
       return {
         appealId,
@@ -380,10 +440,18 @@ export class AIContentEnhancement {
     )
 
     // Generate relevant tags
-    const tags = await this.generateOptimizedTags(transcription, scenes, sentiment)
+    const tags = await this.generateOptimizedTags(
+      transcription,
+      scenes,
+      sentiment
+    )
 
     // Categorize content
-    const categories = await this.categorizeContent(transcription, scenes, sentiment)
+    const categories = await this.categorizeContent(
+      transcription,
+      scenes,
+      sentiment
+    )
 
     return {
       thumbnails,
@@ -397,7 +465,10 @@ export class AIContentEnhancement {
   /**
    * Generate AI thumbnails from key scenes
    */
-  private async generateAIThumbnails(scenes: Scene[], videoPath: string): Promise<string[]> {
+  private async generateAIThumbnails(
+    scenes: Scene[],
+    videoPath: string
+  ): Promise<string[]> {
     const thumbnails: string[] = []
 
     // Select best scenes for thumbnails
@@ -409,7 +480,10 @@ export class AIContentEnhancement {
     for (const scene of bestScenes) {
       // Extract frame at scene midpoint
       const frameTime = (scene.startTime + scene.endTime) / 2
-      const thumbnailUrl = await this.extractFrameAsThumbnail(videoPath, frameTime)
+      const thumbnailUrl = await this.extractFrameAsThumbnail(
+        videoPath,
+        frameTime
+      )
       thumbnails.push(thumbnailUrl)
     }
 
@@ -425,7 +499,7 @@ export class AIContentEnhancement {
   ): Promise<string> {
     // Extract key topics and phrases
     const keyPhrases = sentiment.topics.slice(0, 3).map(topic => topic.topic)
-    
+
     // Generate title based on content and sentiment
     if (sentiment.overall.label === 'very_positive') {
       return `Amazing ${keyPhrases.join(' & ')} - Must Watch!`
@@ -454,7 +528,10 @@ This video features ${sceneCount} distinct scenes with ${sentimentLabel} content
 ${summary}
 
 Key topics covered:
-${sentiment.topics.slice(0, 5).map(topic => `• ${topic.topic}`).join('\n')}
+${sentiment.topics
+  .slice(0, 5)
+  .map(topic => `• ${topic.topic}`)
+  .join('\n')}
 
 Generated with AI-powered content analysis for optimal discoverability.
     `.trim()
@@ -505,7 +582,10 @@ Generated with AI-powered content analysis for optimal discoverability.
       categories.push('Entertainment')
     }
 
-    if (transcription.toLowerCase().includes('learn') || transcription.toLowerCase().includes('tutorial')) {
+    if (
+      transcription.toLowerCase().includes('learn') ||
+      transcription.toLowerCase().includes('tutorial')
+    ) {
       categories.push('Education')
     }
 
@@ -536,15 +616,21 @@ Generated with AI-powered content analysis for optimal discoverability.
     }
 
     if (engagement.engagementMetrics.negativeEngagementRate > 0.3) {
-      recommendations.push('Consider adjusting content tone - audience sentiment declining')
+      recommendations.push(
+        'Consider adjusting content tone - audience sentiment declining'
+      )
     }
 
     if (copyrightAlerts.length > 0) {
-      recommendations.push('Copyright content detected - consider muting audio or changing music')
+      recommendations.push(
+        'Copyright content detected - consider muting audio or changing music'
+      )
     }
 
     if (engagement.audienceMood.currentMood === 'excited') {
-      recommendations.push('Audience is highly engaged - great time for call-to-action')
+      recommendations.push(
+        'Audience is highly engaged - great time for call-to-action'
+      )
     }
 
     return recommendations
@@ -553,7 +639,10 @@ Generated with AI-powered content analysis for optimal discoverability.
   /**
    * Extract frame as thumbnail
    */
-  private async extractFrameAsThumbnail(videoPath: string, timeInSeconds: number): Promise<string> {
+  private async extractFrameAsThumbnail(
+    videoPath: string,
+    timeInSeconds: number
+  ): Promise<string> {
     // Mock implementation - in production would use FFmpeg or similar
     return `https://storage.example.com/thumbnails/frame_${timeInSeconds}.jpg`
   }
@@ -577,15 +666,17 @@ Generated with AI-powered content analysis for optimal discoverability.
   /**
    * Get stored analysis results
    */
-  private async getStoredAnalysis(videoId: string): Promise<ComprehensiveVideoAnalysis | null> {
+  private async getStoredAnalysis(
+    videoId: string
+  ): Promise<ComprehensiveVideoAnalysis | null> {
     try {
       const analysisRef = doc(db, 'video_analysis', videoId)
       const analysisDoc = await getDoc(analysisRef)
-      
+
       if (analysisDoc.exists()) {
         return analysisDoc.data() as ComprehensiveVideoAnalysis
       }
-      
+
       return null
     } catch (error) {
       console.error('Failed to get stored analysis:', error)
@@ -612,7 +703,10 @@ Generated with AI-powered content analysis for optimal discoverability.
     return [Buffer.from('frame1'), Buffer.from('frame2'), Buffer.from('frame3')]
   }
 
-  private async uploadThumbnail(frameBuffer: Buffer, filename: string): Promise<string> {
+  private async uploadThumbnail(
+    frameBuffer: Buffer,
+    filename: string
+  ): Promise<string> {
     try {
       const file = bucket.file(`thumbnails/${filename}.jpg`)
       await file.save(frameBuffer, {

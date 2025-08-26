@@ -1,16 +1,15 @@
 import { describe, it, expect } from '@jest/globals'
-import { 
+import {
   formatSubscriptionStatus,
   getSubscriptionStatusColor,
   subscriptionNeedsAttention,
   getSubscriptionAttentionMessage,
   getDaysUntilSubscriptionEnds,
   isSubscriptionExpiringSoon,
-  formatCurrency
+  formatCurrency,
 } from '@/lib/stripe/subscription-helpers'
 
 describe('Subscription Utils', () => {
-
   describe('formatSubscriptionStatus', () => {
     it('should format status correctly', () => {
       expect(formatSubscriptionStatus('active')).toBe('Active')
@@ -44,25 +43,32 @@ describe('Subscription Utils', () => {
 
   describe('getSubscriptionAttentionMessage', () => {
     it('should return appropriate messages for different statuses', () => {
-      expect(getSubscriptionAttentionMessage('past_due', false, null))
-        .toContain('payment is past due')
-      
-      expect(getSubscriptionAttentionMessage('unpaid', false, null))
-        .toContain('subscription is unpaid')
-      
-      expect(getSubscriptionAttentionMessage('active', false, null))
-        .toBeNull()
+      expect(
+        getSubscriptionAttentionMessage('past_due', false, null)
+      ).toContain('payment is past due')
+
+      expect(getSubscriptionAttentionMessage('unpaid', false, null)).toContain(
+        'subscription is unpaid'
+      )
+
+      expect(getSubscriptionAttentionMessage('active', false, null)).toBeNull()
     })
 
     it('should return cancellation message for canceled active subscription', () => {
-      const message = getSubscriptionAttentionMessage('active', true, 1234567890)
+      const message = getSubscriptionAttentionMessage(
+        'active',
+        true,
+        1234567890
+      )
       expect(message).toContain('set to cancel')
     })
   })
 
   describe('getDaysUntilSubscriptionEnds', () => {
     it('should calculate days correctly', () => {
-      const futureDate = Math.floor((Date.now() + 7 * 24 * 60 * 60 * 1000) / 1000) // 7 days from now
+      const futureDate = Math.floor(
+        (Date.now() + 7 * 24 * 60 * 60 * 1000) / 1000
+      ) // 7 days from now
       const days = getDaysUntilSubscriptionEnds(futureDate)
       expect(days).toBe(7)
     })
@@ -74,12 +80,16 @@ describe('Subscription Utils', () => {
 
   describe('isSubscriptionExpiringSoon', () => {
     it('should return true for subscription expiring in 5 days', () => {
-      const futureDate = Math.floor((Date.now() + 5 * 24 * 60 * 60 * 1000) / 1000)
+      const futureDate = Math.floor(
+        (Date.now() + 5 * 24 * 60 * 60 * 1000) / 1000
+      )
       expect(isSubscriptionExpiringSoon(futureDate)).toBe(true)
     })
 
     it('should return false for subscription expiring in 10 days', () => {
-      const futureDate = Math.floor((Date.now() + 10 * 24 * 60 * 60 * 1000) / 1000)
+      const futureDate = Math.floor(
+        (Date.now() + 10 * 24 * 60 * 60 * 1000) / 1000
+      )
       expect(isSubscriptionExpiringSoon(futureDate)).toBe(false)
     })
   })

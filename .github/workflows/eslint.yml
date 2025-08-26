@@ -7,10 +7,10 @@ name: ESLint Security Scan
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: ['main', 'develop']
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "main", "develop" ]
+    branches: ['main', 'develop']
   schedule:
     # Run weekly on Tuesdays at 2:30 AM UTC
     - cron: '30 2 * * 2'
@@ -19,7 +19,7 @@ jobs:
   eslint:
     name: Run ESLint Security Scanning
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: read
       security-events: write
@@ -48,7 +48,7 @@ jobs:
 
       - name: Run ESLint with SARIF output
         env:
-          SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
+          SARIF_ESLINT_IGNORE_SUPPRESSED: 'true'
         run: |
           pnpm exec eslint . \
             --format @microsoft/eslint-formatter-sarif \
@@ -72,7 +72,7 @@ jobs:
   lint-check:
     name: Code Quality Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

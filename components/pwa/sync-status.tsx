@@ -4,17 +4,21 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { SyncService, type SyncResult, type SyncConflict } from '@/lib/pwa/sync-service'
+import {
+  SyncService,
+  type SyncResult,
+  type SyncConflict,
+} from '@/lib/pwa/sync-service'
 import { OfflineManager } from '@/lib/pwa/offline-manager'
-import { 
-  RefreshCw, 
-  Check, 
-  AlertTriangle, 
-  Clock, 
-  Smartphone, 
+import {
+  RefreshCw,
+  Check,
+  AlertTriangle,
+  Clock,
+  Smartphone,
   Monitor,
   Wifi,
-  WifiOff
+  WifiOff,
 } from 'lucide-react'
 
 interface SyncStatusProps {
@@ -33,7 +37,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
 
   useEffect(() => {
     loadSyncStatus()
-    
+
     // Listen for online/offline events
     const handleOnline = () => {
       setIsOnline(true)
@@ -42,17 +46,17 @@ export function SyncStatus({ className }: SyncStatusProps) {
       }
     }
     const handleOffline = () => setIsOnline(false)
-    
+
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-    
+
     // Auto-sync interval
     const syncInterval = setInterval(() => {
       if (isOnline && syncService.shouldSync()) {
         handleAutoSync()
       }
     }, 60000) // Check every minute
-    
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
@@ -65,20 +69,20 @@ export function SyncStatus({ className }: SyncStatusProps) {
     if (lastSync) {
       setLastSyncTime(new Date(lastSync))
     }
-    
+
     // Load pending changes count (this would be implemented based on your data structure)
     setPendingChanges(0) // Placeholder
   }
 
   const handleManualSync = async () => {
     if (!user || !isOnline) return
-    
+
     setIsSyncing(true)
     try {
       const result = await syncService.triggerManualSync(user.id)
       setSyncResult(result)
       setConflicts(result.conflicts)
-      
+
       if (result.success) {
         setLastSyncTime(new Date())
         syncService.updateLastSyncTime()
@@ -89,8 +93,13 @@ export function SyncStatus({ className }: SyncStatusProps) {
       setSyncResult({
         success: false,
         conflicts: [],
-        synced: { watchProgress: 0, preferences: false, analytics: 0, userActivity: 0 },
-        errors: [error instanceof Error ? error.message : 'Sync failed']
+        synced: {
+          watchProgress: 0,
+          preferences: false,
+          analytics: 0,
+          userActivity: 0,
+        },
+        errors: [error instanceof Error ? error.message : 'Sync failed'],
       })
     } finally {
       setIsSyncing(false)
@@ -99,7 +108,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
 
   const handleAutoSync = async () => {
     if (!user || !isOnline) return
-    
+
     try {
       await syncService.backgroundSync(user.id)
       setLastSyncTime(new Date())
@@ -112,7 +121,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
   const resolveConflict = async (conflict: SyncConflict, useLocal: boolean) => {
     // This would implement conflict resolution logic
     console.log('Resolving conflict:', conflict, 'Use local:', useLocal)
-    
+
     // Remove resolved conflict from list
     setConflicts(prev => prev.filter(c => c !== conflict))
   }
@@ -123,7 +132,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMins / 60)
     const diffDays = Math.floor(diffHours / 24)
-    
+
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
@@ -164,7 +173,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
               <h3 className="font-medium">Sync Status</h3>
             </div>
           </div>
-          
+
           <Button
             onClick={handleManualSync}
             disabled={isSyncing || !isOnline}
@@ -172,7 +181,9 @@ export function SyncStatus({ className }: SyncStatusProps) {
             size="sm"
             className="flex items-center space-x-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`}
+            />
             <span>Sync</span>
           </Button>
         </div>
@@ -181,7 +192,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {isSyncing ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+              <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-blue-600" />
             ) : conflicts.length > 0 ? (
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
             ) : syncResult?.success === false ? (
@@ -193,7 +204,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
               {getSyncStatusText()}
             </span>
           </div>
-          
+
           {pendingChanges > 0 && (
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               <Clock className="h-3 w-3" />
@@ -204,7 +215,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
 
         {/* Last sync result */}
         {syncResult && (
-          <div className="text-xs text-gray-600 space-y-1">
+          <div className="space-y-1 text-xs text-gray-600">
             {syncResult.success ? (
               <div className="space-y-1">
                 <p>✓ {syncResult.synced.watchProgress} watch progress synced</p>
@@ -229,9 +240,12 @@ export function SyncStatus({ className }: SyncStatusProps) {
               Sync Conflicts ({conflicts.length})
             </h4>
             {conflicts.map((conflict, index) => (
-              <div key={index} className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div
+                key={index}
+                className="rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+              >
                 <div className="text-sm">
-                  <p className="font-medium text-yellow-800 mb-1">
+                  <p className="mb-1 font-medium text-yellow-800">
                     {conflict.field}
                   </p>
                   <div className="space-y-2">
@@ -248,7 +262,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2 mt-2">
+                  <div className="mt-2 flex space-x-2">
                     <Button
                       onClick={() => resolveConflict(conflict, true)}
                       size="sm"
@@ -273,7 +287,7 @@ export function SyncStatus({ className }: SyncStatusProps) {
         )}
 
         {/* Sync info */}
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="space-y-1 text-xs text-gray-500">
           <p>• Data syncs automatically across devices</p>
           <p>• Manual sync available when online</p>
           <p>• Offline changes sync when reconnected</p>

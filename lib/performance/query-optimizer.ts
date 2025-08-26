@@ -3,20 +3,20 @@
  * Includes caching, indexing, and query analysis
  */
 
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  startAfter, 
-  getDocs, 
-  doc, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  getDocs,
+  doc,
   getDoc,
   QueryConstraint,
   DocumentSnapshot,
   Query,
-  CollectionReference
+  CollectionReference,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -60,7 +60,7 @@ export class QueryOptimizer {
 
   constructor(config: Partial<QueryOptimizationConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    
+
     // Clean up cache periodically
     setInterval(() => this.cleanupCache(), 60000) // Every minute
   }
@@ -113,14 +113,18 @@ export class QueryOptimizer {
       const snapshot = await getDocs(q)
       const results = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as T[]
 
       const executionTime = Date.now() - startTime
 
       // Cache results
       if (this.config.enableCaching) {
-        this.setCacheEntry(queryHash, results, options.cacheTTL || this.config.defaultCacheTTL)
+        this.setCacheEntry(
+          queryHash,
+          results,
+          options.cacheTTL || this.config.defaultCacheTTL
+        )
       }
 
       // Record metrics
@@ -136,10 +140,13 @@ export class QueryOptimizer {
 
       // Log slow queries
       if (executionTime > this.config.slowQueryThreshold) {
-        console.warn(`Slow query detected: ${collectionName} took ${executionTime}ms`, {
-          constraints: constraints.map(c => c.toString()),
-          resultCount: results.length,
-        })
+        console.warn(
+          `Slow query detected: ${collectionName} took ${executionTime}ms`,
+          {
+            constraints: constraints.map(c => c.toString()),
+            resultCount: results.length,
+          }
+        )
       }
 
       return results
@@ -184,17 +191,23 @@ export class QueryOptimizer {
     try {
       const docRef = doc(db, collectionName, documentId)
       const docSnap = await getDoc(docRef)
-      
-      const result = docSnap.exists() ? {
-        id: docSnap.id,
-        ...docSnap.data()
-      } as T : null
+
+      const result = docSnap.exists()
+        ? ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          } as T)
+        : null
 
       const executionTime = Date.now() - startTime
 
       // Cache result
       if (this.config.enableCaching && result) {
-        this.setCacheEntry(queryHash, result, options.cacheTTL || this.config.defaultCacheTTL)
+        this.setCacheEntry(
+          queryHash,
+          result,
+          options.cacheTTL || this.config.defaultCacheTTL
+        )
       }
 
       // Record metrics
@@ -210,7 +223,10 @@ export class QueryOptimizer {
 
       return result
     } catch (error) {
-      console.error(`Document fetch failed for ${collectionName}/${documentId}:`, error)
+      console.error(
+        `Document fetch failed for ${collectionName}/${documentId}:`,
+        error
+      )
       throw error
     }
   }
@@ -234,7 +250,7 @@ export class QueryOptimizer {
     const pageSize = options.pageSize || 20
     const paginatedConstraints = [
       ...constraints,
-      limit(pageSize + 1) // Get one extra to check if there are more
+      limit(pageSize + 1), // Get one extra to check if there are more
     ]
 
     if (options.lastDoc) {
@@ -249,10 +265,10 @@ export class QueryOptimizer {
 
     const hasMore = results.length > pageSize
     const data = hasMore ? results.slice(0, pageSize) : results
-    
+
     return {
       data,
-      lastDoc: hasMore ? results[pageSize - 1] as any : undefined,
+      lastDoc: hasMore ? (results[pageSize - 1] as any) : undefined,
       hasMore,
     }
   }
@@ -267,7 +283,7 @@ export class QueryOptimizer {
       cacheTTL?: number
     }>
   ): Promise<Record<string, T[]>> {
-    const promises = queries.map(async (queryConfig) => {
+    const promises = queries.map(async queryConfig => {
       const results = await this.executeQuery<T>(
         queryConfig.collection,
         queryConfig.constraints || [],
@@ -277,14 +293,20 @@ export class QueryOptimizer {
     })
 
     const batchResults = await Promise.all(promises)
-    
-    return batchResults.reduce((acc, { collection, results }) => {
-      acc[collection] = results
-      return acc
-    }, {} as Record<string, T[]>)
+
+    return batchResults.reduce(
+      (acc, { collection, results }) => {
+        acc[collection] = results
+        return acc
+      },
+      {} as Record<string, T[]>
+    )
   }
 
-  private generateQueryHash(collection: string, constraints: QueryConstraint[]): string {
+  private generateQueryHash(
+    collection: string,
+    constraints: QueryConstraint[]
+  ): string {
     const constraintStrings = constraints.map(c => c.toString()).sort()
     return `${collection}:${constraintStrings.join('|')}`
   }
@@ -362,14 +384,20 @@ export class QueryOptimizer {
 
     const totalQueries = this.metrics.length
     const cacheHits = this.metrics.filter(m => m.cacheHit).length
-    const averageExecutionTime = this.metrics.reduce((sum, m) => sum + m.executionTime, 0) / totalQueries
-    const slowQueries = this.metrics.filter(m => m.executionTime > this.config.slowQueryThreshold)
+    const averageExecutionTime =
+      this.metrics.reduce((sum, m) => sum + m.executionTime, 0) / totalQueries
+    const slowQueries = this.metrics.filter(
+      m => m.executionTime > this.config.slowQueryThreshold
+    )
 
     // Count queries by collection
-    const collectionCounts = this.metrics.reduce((acc, m) => {
-      acc[m.collection] = (acc[m.collection] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
+    const collectionCounts = this.metrics.reduce(
+      (acc, m) => {
+        acc[m.collection] = (acc[m.collection] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    )
 
     const topCollections = Object.entries(collectionCounts)
       .map(([collection, count]) => ({ collection, count }))
@@ -415,24 +443,28 @@ export const optimizedQueries = {
     queryOptimizer.executeQuery('streams', [
       where('userId', '==', userId),
       orderBy('createdAt', 'desc'),
-      limit(20)
+      limit(20),
     ]),
 
   // Get live streams with short cache
   getLiveStreams: () =>
-    queryOptimizer.executeQuery('streams', [
-      where('status', '==', 'active'),
-      orderBy('viewerCount', 'desc'),
-      limit(50)
-    ], { cacheTTL: 30000 }), // 30 seconds cache
+    queryOptimizer.executeQuery(
+      'streams',
+      [
+        where('status', '==', 'active'),
+        orderBy('viewerCount', 'desc'),
+        limit(50),
+      ],
+      { cacheTTL: 30000 }
+    ), // 30 seconds cache
 
   // Get popular videos with longer cache
   getPopularVideos: () =>
-    queryOptimizer.executeQuery('videos', [
-      where('isPublic', '==', true),
-      orderBy('viewCount', 'desc'),
-      limit(20)
-    ], { cacheTTL: 600000 }), // 10 minutes cache
+    queryOptimizer.executeQuery(
+      'videos',
+      [where('isPublic', '==', true), orderBy('viewCount', 'desc'), limit(20)],
+      { cacheTTL: 600000 }
+    ), // 10 minutes cache
 
   // Get user profile with long cache
   getUserProfile: (userId: string) =>

@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { videoId, language, format } = subtitleExportSchema.parse(body)
 
-    console.log(`Exporting ${format} subtitles for video ${videoId} in ${language}`)
+    console.log(
+      `Exporting ${format} subtitles for video ${videoId} in ${language}`
+    )
 
     // Export subtitles in requested format
     const subtitleContent = await aiContentEnhancement.exportSubtitles(
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Subtitle export API error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
@@ -107,12 +109,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const availableLanguages = analysis.multiLanguageSubtitles.map(subtitle => ({
-      language: subtitle.language,
-      languageCode: subtitle.languageCode,
-      confidence: subtitle.confidence,
-      subtitleCount: subtitle.subtitles.length,
-    }))
+    const availableLanguages = analysis.multiLanguageSubtitles.map(
+      subtitle => ({
+        language: subtitle.language,
+        languageCode: subtitle.languageCode,
+        confidence: subtitle.confidence,
+        subtitleCount: subtitle.subtitles.length,
+      })
+    )
 
     return NextResponse.json({
       success: true,

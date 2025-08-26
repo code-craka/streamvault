@@ -31,8 +31,7 @@ export async function POST(request: NextRequest) {
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = (user.publicMetadata?.role as UserRole) || 'viewer'
     const hasPermission =
-      checkUserRole(userRole, 'admin') ||
-      checkUserRole(userRole, 'streamer')
+      checkUserRole(userRole, 'admin') || checkUserRole(userRole, 'streamer')
 
     if (!hasPermission) {
       return NextResponse.json(

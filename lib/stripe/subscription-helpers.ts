@@ -7,7 +7,7 @@
  */
 export function formatSubscriptionStatus(status: string | null): string {
   if (!status) return 'No Subscription'
-  
+
   switch (status) {
     case 'active':
       return 'Active'
@@ -33,7 +33,7 @@ export function formatSubscriptionStatus(status: string | null): string {
  */
 export function getSubscriptionStatusColor(status: string | null): string {
   if (!status) return 'gray'
-  
+
   switch (status) {
     case 'active':
       return 'green'
@@ -59,7 +59,7 @@ export function subscriptionNeedsAttention(
   cancelAtPeriodEnd: boolean | null
 ): boolean {
   if (!status) return false
-  
+
   return (
     status === 'past_due' ||
     status === 'unpaid' ||
@@ -77,31 +77,33 @@ export function getSubscriptionAttentionMessage(
   currentPeriodEnd: number | null
 ): string | null {
   if (!status) return null
-  
+
   if (status === 'past_due') {
     return 'Your payment is past due. Please update your payment method to continue your subscription.'
   }
-  
+
   if (status === 'unpaid') {
     return 'Your subscription is unpaid. Please update your payment method.'
   }
-  
+
   if (status === 'incomplete') {
     return 'Your subscription setup is incomplete. Please complete the payment process.'
   }
-  
+
   if (status === 'active' && cancelAtPeriodEnd === true && currentPeriodEnd) {
     const endDate = new Date(currentPeriodEnd * 1000).toLocaleDateString()
     return `Your subscription is set to cancel on ${endDate}. You can reactivate it anytime before then.`
   }
-  
+
   return null
 }
 
 /**
  * Get days until subscription ends
  */
-export function getDaysUntilSubscriptionEnds(currentPeriodEnd: number | null): number | null {
+export function getDaysUntilSubscriptionEnds(
+  currentPeriodEnd: number | null
+): number | null {
   if (!currentPeriodEnd) {
     return null
   }
@@ -110,14 +112,16 @@ export function getDaysUntilSubscriptionEnds(currentPeriodEnd: number | null): n
   const now = new Date()
   const diffTime = endDate.getTime() - now.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   return diffDays
 }
 
 /**
  * Check if subscription is expiring soon (within 7 days)
  */
-export function isSubscriptionExpiringSoon(currentPeriodEnd: number | null): boolean {
+export function isSubscriptionExpiringSoon(
+  currentPeriodEnd: number | null
+): boolean {
   const daysUntilEnd = getDaysUntilSubscriptionEnds(currentPeriodEnd)
   return daysUntilEnd !== null && daysUntilEnd <= 7 && daysUntilEnd > 0
 }
@@ -125,7 +129,9 @@ export function isSubscriptionExpiringSoon(currentPeriodEnd: number | null): boo
 /**
  * Get subscription renewal date
  */
-export function getSubscriptionRenewalDate(currentPeriodEnd: number | null): Date | null {
+export function getSubscriptionRenewalDate(
+  currentPeriodEnd: number | null
+): Date | null {
   if (!currentPeriodEnd) return null
   return new Date(currentPeriodEnd * 1000)
 }
@@ -133,7 +139,10 @@ export function getSubscriptionRenewalDate(currentPeriodEnd: number | null): Dat
 /**
  * Format currency amount
  */
-export function formatCurrency(amount: number, currency: string = 'usd'): string {
+export function formatCurrency(
+  amount: number,
+  currency: string = 'usd'
+): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency.toUpperCase(),

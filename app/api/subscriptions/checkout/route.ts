@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { subscriptionService } from '@/lib/stripe/subscription-service'
-import { SUBSCRIPTION_TIERS, type SubscriptionTier } from '@/lib/stripe/subscription-tiers'
+import {
+  SUBSCRIPTION_TIERS,
+  type SubscriptionTier,
+} from '@/lib/stripe/subscription-tiers'
 import { z } from 'zod'
 
 const checkoutSchema = z.object({
@@ -13,12 +16,9 @@ const checkoutSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Checkout error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },

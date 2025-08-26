@@ -7,19 +7,20 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default async function UploadPage() {
   const { userId } = await auth()
-  
+
   if (!userId) {
     redirect('/sign-in')
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="space-y-8">
         {/* Page Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Upload Video</h1>
           <p className="text-gray-600">
-            Share your content with the world. Upload videos and let AI enhance them automatically.
+            Share your content with the world. Upload videos and let AI enhance
+            them automatically.
           </p>
         </div>
 

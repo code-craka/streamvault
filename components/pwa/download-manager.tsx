@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { OfflineManager, type VideoQuality } from '@/lib/pwa/offline-manager'
 import { Download, Check, X, Pause, Play, AlertCircle } from 'lucide-react'
 
@@ -21,7 +27,7 @@ export function DownloadManager({
   videoTitle,
   videoThumbnail,
   creatorName,
-  className
+  className,
 }: DownloadManagerProps) {
   const { user } = useUser()
   const [offlineManager] = useState(() => new OfflineManager())
@@ -43,21 +49,20 @@ export function DownloadManager({
 
     try {
       await offlineManager.initialize()
-      
+
       // Check if video is already downloaded
       const existingVideo = await offlineManager.getOfflineVideo(videoId)
       setIsDownloaded(!!existingVideo && !isVideoExpired(existingVideo))
-      
+
       // Check download limits
       const subscriptionTier = user.publicMetadata.subscriptionTier as string
       const limit = offlineManager.getDownloadLimit(subscriptionTier)
       const videos = await offlineManager.getAllOfflineVideos()
       const current = videos.length
-      
+
       setDownloadLimit(limit)
       setCurrentDownloads(current)
       setCanDownload(offlineManager.canDownload(subscriptionTier, current))
-      
     } catch (error) {
       console.error('Failed to initialize download manager:', error)
       setError('Failed to initialize download manager')
@@ -78,7 +83,7 @@ export function DownloadManager({
       const success = await offlineManager.downloadVideo(
         videoId,
         selectedQuality,
-        (progress) => {
+        progress => {
           setDownloadProgress(progress.progress)
           if (progress.status === 'failed') {
             setError(progress.error || 'Download failed')
@@ -90,10 +95,12 @@ export function DownloadManager({
       if (success) {
         setIsDownloaded(true)
         setCurrentDownloads(prev => prev + 1)
-        setCanDownload(offlineManager.canDownload(
-          user.publicMetadata.subscriptionTier as string,
-          currentDownloads + 1
-        ))
+        setCanDownload(
+          offlineManager.canDownload(
+            user.publicMetadata.subscriptionTier as string,
+            currentDownloads + 1
+          )
+        )
       } else {
         setError('Download failed')
       }
@@ -135,8 +142,10 @@ export function DownloadManager({
     return (
       <Card className={`p-4 ${className}`}>
         <div className="text-center">
-          <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">Sign in to download videos for offline viewing</p>
+          <AlertCircle className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+          <p className="text-sm text-gray-600">
+            Sign in to download videos for offline viewing
+          </p>
         </div>
       </Card>
     )
@@ -164,7 +173,7 @@ export function DownloadManager({
 
         {/* Subscription requirement */}
         {requiresSubscription && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
             <div className="flex items-center space-x-2">
               <AlertCircle className="h-4 w-4 text-yellow-600" />
               <p className="text-sm text-yellow-800">
@@ -172,7 +181,7 @@ export function DownloadManager({
               </p>
             </div>
             <Button
-              onClick={() => window.location.href = '/settings/billing'}
+              onClick={() => (window.location.href = '/settings/billing')}
               size="sm"
               className="mt-2"
             >
@@ -183,9 +192,7 @@ export function DownloadManager({
 
         {/* Download limits */}
         {!requiresSubscription && (
-          <div className="text-sm text-gray-600">
-            {getDownloadLimitText()}
-          </div>
+          <div className="text-sm text-gray-600">{getDownloadLimitText()}</div>
         )}
 
         {/* Quality selector */}
@@ -194,7 +201,10 @@ export function DownloadManager({
             <label className="text-sm font-medium text-gray-700">
               Download Quality
             </label>
-            <Select value={selectedQuality} onValueChange={(value) => setSelectedQuality(value as VideoQuality)}>
+            <Select
+              value={selectedQuality}
+              onValueChange={value => setSelectedQuality(value as VideoQuality)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -217,9 +227,9 @@ export function DownloadManager({
               <span>Downloading...</span>
               <span>{downloadProgress}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="h-2 w-full rounded-full bg-gray-200">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all"
+                className="h-2 rounded-full bg-blue-600 transition-all"
                 style={{ width: `${downloadProgress}%` }}
               />
             </div>
@@ -228,7 +238,7 @@ export function DownloadManager({
 
         {/* Error message */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3">
             <div className="flex items-center space-x-2">
               <X className="h-4 w-4 text-red-600" />
               <p className="text-sm text-red-800">{error}</p>
@@ -241,8 +251,10 @@ export function DownloadManager({
           {isDownloaded ? (
             <>
               <Button
-                onClick={() => window.location.href = `/library/${videoId}?offline=true`}
-                className="flex-1 flex items-center justify-center space-x-2"
+                onClick={() =>
+                  (window.location.href = `/library/${videoId}?offline=true`)
+                }
+                className="flex flex-1 items-center justify-center space-x-2"
               >
                 <Play className="h-4 w-4" />
                 <span>Play Offline</span>
@@ -260,11 +272,11 @@ export function DownloadManager({
             <Button
               onClick={handleDownload}
               disabled={isDownloading || !canDownload || requiresSubscription}
-              className="w-full flex items-center justify-center space-x-2"
+              className="flex w-full items-center justify-center space-x-2"
             >
               {isDownloading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
                   <span>Downloading...</span>
                 </>
               ) : (
@@ -279,7 +291,7 @@ export function DownloadManager({
 
         {/* Download info */}
         {!requiresSubscription && (
-          <div className="text-xs text-gray-500 space-y-1">
+          <div className="space-y-1 text-xs text-gray-500">
             <p>• Downloads expire after 30 days</p>
             <p>• Videos sync across your devices</p>
             <p>• Watch without internet connection</p>

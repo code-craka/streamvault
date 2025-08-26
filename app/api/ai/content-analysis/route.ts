@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Content analysis API error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
@@ -81,10 +81,7 @@ export async function GET(request: NextRequest) {
     const analysis = await aiContentEnhancement['getStoredAnalysis'](videoId)
 
     if (!analysis) {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
     }
 
     return NextResponse.json({

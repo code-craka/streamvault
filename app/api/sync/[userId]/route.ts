@@ -9,25 +9,25 @@ export async function GET(
 ) {
   try {
     const { userId: authUserId } = await auth()
-    
+
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get sync data from Firestore
     const syncDoc = await getDoc(doc(db, 'userSync', params.userId))
-    
+
     if (!syncDoc.exists()) {
       return NextResponse.json({ error: 'No sync data found' }, { status: 404 })
     }
 
     const syncData = syncDoc.data()
-    
+
     return NextResponse.json({
       userId: params.userId,
       deviceId: syncData.deviceId,
       timestamp: syncData.timestamp.toDate(),
-      data: syncData.data
+      data: syncData.data,
     })
   } catch (error) {
     console.error('Failed to get sync data:', error)
@@ -44,13 +44,13 @@ export async function POST(
 ) {
   try {
     const { userId: authUserId } = await auth()
-    
+
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const syncData = await request.json()
-    
+
     // Validate sync data structure
     if (!syncData.deviceId || !syncData.data) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function POST(
       deviceId: syncData.deviceId,
       timestamp: new Date(),
       data: syncData.data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
 
     return NextResponse.json({ success: true })
@@ -84,7 +84,7 @@ export async function DELETE(
 ) {
   try {
     const { userId: authUserId } = await auth()
-    
+
     if (!authUserId || authUserId !== params.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -92,7 +92,7 @@ export async function DELETE(
     // Delete sync data from Firestore
     await setDoc(doc(db, 'userSync', params.userId), {
       deleted: true,
-      deletedAt: new Date()
+      deletedAt: new Date(),
     })
 
     return NextResponse.json({ success: true })

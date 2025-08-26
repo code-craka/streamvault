@@ -29,7 +29,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+          'Access-Control-Allow-Headers':
+            'Content-Type, Authorization, X-Requested-With',
         },
       })
     }
@@ -51,18 +52,25 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             undefined,
             {
               route: req.nextUrl.pathname,
-              reason: 'No authentication token'
+              reason: 'No authentication token',
             }
           )
-          
+
           const signInUrl = new URL('/sign-in', req.url)
           signInUrl.searchParams.set('redirect_url', req.url)
           return NextResponse.redirect(signInUrl)
         }
 
         // Log successful authentication for sensitive routes
-        const sensitiveRoutes = ['/dashboard', '/settings', '/api/streams', '/api/videos']
-        if (sensitiveRoutes.some(route => req.nextUrl.pathname.startsWith(route))) {
+        const sensitiveRoutes = [
+          '/dashboard',
+          '/settings',
+          '/api/streams',
+          '/api/videos',
+        ]
+        if (
+          sensitiveRoutes.some(route => req.nextUrl.pathname.startsWith(route))
+        ) {
           await logSecurityIncident(
             'login_attempt',
             'low',
@@ -70,45 +78,45 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             userId || undefined,
             {
               route: req.nextUrl.pathname,
-              success: true
+              success: true,
             }
           )
         }
-
       } catch (error) {
         // Log authentication failures for security monitoring
-        console.error('Authentication failed for protected route:', req.url, error)
-        
-        await logSecurityIncident(
-          'failed_login',
-          'high',
-          req,
-          userId,
-          {
-            route: req.nextUrl.pathname,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          }
+        console.error(
+          'Authentication failed for protected route:',
+          req.url,
+          error
         )
-        
+
+        await logSecurityIncident('failed_login', 'high', req, userId, {
+          route: req.nextUrl.pathname,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        })
+
         return NextResponse.redirect(new URL('/sign-in', req.url))
       }
     }
 
     // Create response and apply security processing
     const response = NextResponse.next()
-    
+
     const securityContext = {
       userId: userId || undefined,
       ipAddress,
       userAgent,
-      requestId: `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      requestId: `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     }
 
-    return await securityMiddleware.processResponse(req, response, securityContext)
-
+    return await securityMiddleware.processResponse(
+      req,
+      response,
+      securityContext
+    )
   } catch (error) {
     console.error('Middleware error:', error)
-    
+
     // Log critical security error
     try {
       await logSecurityIncident(
@@ -117,8 +125,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         req,
         undefined,
         {
-          error: error instanceof Error ? error.message : 'Unknown middleware error',
-          stack: error instanceof Error ? error.stack : undefined
+          error:
+            error instanceof Error ? error.message : 'Unknown middleware error',
+          stack: error instanceof Error ? error.stack : undefined,
         }
       )
     } catch (logError) {
@@ -134,11 +143,11 @@ function getClientIP(req: NextRequest): string {
   const forwarded = req.headers.get('x-forwarded-for')
   const realIP = req.headers.get('x-real-ip')
   const cfConnectingIP = req.headers.get('cf-connecting-ip')
-  
+
   if (cfConnectingIP) return cfConnectingIP
   if (realIP) return realIP
   if (forwarded) return forwarded.split(',')[0].trim()
-  
+
   return 'unknown'
 }
 

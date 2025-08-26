@@ -8,48 +8,51 @@ import { z } from 'zod'
 const enhancementRequestSchema = z.object({
   videoId: z.string().min(1),
   videoPath: z.string().min(1),
-  options: z.object({
-    generateThumbnails: z.boolean().default(true),
-    generateMetadata: z.boolean().default(true),
-    analyzeQuality: z.boolean().default(true),
-    generateRecommendations: z.boolean().default(false)
-  }).default({})
+  options: z
+    .object({
+      generateThumbnails: z.boolean().default(true),
+      generateMetadata: z.boolean().default(true),
+      analyzeQuality: z.boolean().default(true),
+      generateRecommendations: z.boolean().default(false),
+    })
+    .default({}),
 })
 
 const thumbnailRequestSchema = z.object({
   videoId: z.string().min(1),
   videoPath: z.string().min(1),
-  options: z.object({
-    count: z.number().min(1).max(10).default(5),
-    width: z.number().min(100).max(1920).default(1280),
-    height: z.number().min(100).max(1080).default(720),
-    quality: z.number().min(1).max(100).default(85),
-    timestamps: z.array(z.number()).optional()
-  }).default({})
+  options: z
+    .object({
+      count: z.number().min(1).max(10).default(5),
+      width: z.number().min(100).max(1920).default(1280),
+      height: z.number().min(100).max(1080).default(720),
+      quality: z.number().min(1).max(100).default(85),
+      timestamps: z.array(z.number()).optional(),
+    })
+    .default({}),
 })
 
 const qualityAnalysisSchema = z.object({
   videoId: z.string().min(1),
   videoPath: z.string().min(1),
-  metadata: z.object({
-    title: z.string().optional(),
-    description: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-    thumbnails: z.array(z.string()).optional(),
-    captions: z.boolean().optional(),
-    audioDescription: z.boolean().optional()
-  }).optional()
+  metadata: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+      thumbnails: z.array(z.string()).optional(),
+      captions: z.boolean().optional(),
+      audioDescription: z.boolean().optional(),
+    })
+    .optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -59,23 +62,19 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'enhance':
         return await handleContentEnhancement(body, userId)
-      
+
       case 'thumbnails':
         return await handleThumbnailGeneration(body, userId)
-      
+
       case 'quality':
         return await handleQualityAnalysis(body, userId)
-      
-      default:
-        return NextResponse.json(
-          { error: 'Invalid action' },
-          { status: 400 }
-        )
-    }
 
+      default:
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    }
   } catch (error) {
     console.error('Content enhancement API error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
@@ -108,8 +107,8 @@ async function handleContentEnhancement(body: any, userId: string) {
       processing: {
         thumbnails: options.generateThumbnails,
         metadata: options.generateMetadata,
-        quality: options.analyzeQuality
-      }
+        quality: options.analyzeQuality,
+      },
     }
 
     // Generate additional thumbnails if requested
@@ -134,23 +133,22 @@ async function handleContentEnhancement(body: any, userId: string) {
 
     // Generate recommendations if requested
     if (options.generateRecommendations) {
-      const recommendations = await aiContentEnhancement.generateRecommendations(
-        userId,
-        videoId,
-        5
-      )
+      const recommendations =
+        await aiContentEnhancement.generateRecommendations(userId, videoId, 5)
       result.recommendations = recommendations
     }
 
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
     })
-
   } catch (error) {
     console.error('Content enhancement processing failed:', error)
     return NextResponse.json(
-      { error: 'Enhancement processing failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Enhancement processing failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     )
   }
@@ -172,14 +170,16 @@ async function handleThumbnailGeneration(body: any, userId: string) {
       data: {
         videoId,
         thumbnails,
-        count: thumbnails.length
-      }
+        count: thumbnails.length,
+      },
     })
-
   } catch (error) {
     console.error('Thumbnail generation failed:', error)
     return NextResponse.json(
-      { error: 'Thumbnail generation failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Thumbnail generation failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     )
   }
@@ -200,14 +200,16 @@ async function handleQualityAnalysis(body: any, userId: string) {
       success: true,
       data: {
         videoId,
-        analysis
-      }
+        analysis,
+      },
     })
-
   } catch (error) {
     console.error('Quality analysis failed:', error)
     return NextResponse.json(
-      { error: 'Quality analysis failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Quality analysis failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     )
   }
@@ -216,12 +218,9 @@ async function handleQualityAnalysis(body: any, userId: string) {
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -238,8 +237,8 @@ export async function GET(request: NextRequest) {
           thumbnails: 'completed',
           metadata: 'completed',
           quality: 'completed',
-          recommendations: 'completed'
-        }
+          recommendations: 'completed',
+        },
       })
     }
 
@@ -250,27 +249,27 @@ export async function GET(request: NextRequest) {
           thumbnailGeneration: {
             maxCount: 10,
             supportedFormats: ['jpeg', 'png', 'webp'],
-            maxResolution: '1920x1080'
+            maxResolution: '1920x1080',
           },
           metadataGeneration: {
             languages: ['en', 'es', 'fr', 'de'],
             maxTitleLength: 100,
-            maxDescriptionLength: 500
+            maxDescriptionLength: 500,
           },
           qualityAnalysis: {
             metrics: ['technical', 'engagement', 'accessibility', 'seo'],
-            supportedFormats: ['mp4', 'mov', 'avi', 'mkv']
+            supportedFormats: ['mp4', 'mov', 'avi', 'mkv'],
           },
           recommendations: {
             algorithms: ['collaborative', 'content-based', 'hybrid'],
-            maxRecommendations: 50
-          }
+            maxRecommendations: 50,
+          },
         },
         limits: {
           dailyProcessing: 100,
           concurrentJobs: 5,
-          maxFileSize: '2GB'
-        }
+          maxFileSize: '2GB',
+        },
       })
     }
 
@@ -278,7 +277,6 @@ export async function GET(request: NextRequest) {
       { error: 'Invalid action or missing parameters' },
       { status: 400 }
     )
-
   } catch (error) {
     console.error('Content enhancement GET API error:', error)
     return NextResponse.json(

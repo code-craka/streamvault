@@ -2,17 +2,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { 
-  DollarSign, 
-  Download, 
-  Calendar, 
+import {
+  DollarSign,
+  Download,
+  Calendar,
   CreditCard,
   FileText,
   AlertCircle,
@@ -20,7 +32,7 @@ import {
   Clock,
   Building,
   User,
-  Settings
+  Settings,
 } from 'lucide-react'
 
 interface PayoutMethod {
@@ -60,12 +72,14 @@ export function PayoutManagement() {
   const [showAddMethod, setShowAddMethod] = useState(false)
 
   // Form state for adding payout method
-  const [methodType, setMethodType] = useState<'bank' | 'paypal' | 'stripe'>('bank')
+  const [methodType, setMethodType] = useState<'bank' | 'paypal' | 'stripe'>(
+    'bank'
+  )
   const [accountDetails, setAccountDetails] = useState({
     accountName: '',
     accountNumber: '',
     routingNumber: '',
-    email: ''
+    email: '',
   })
 
   useEffect(() => {
@@ -75,7 +89,7 @@ export function PayoutManagement() {
   const loadPayoutData = async () => {
     try {
       setLoading(true)
-      
+
       // Mock data - in production, fetch from API
       setPayoutMethods([
         {
@@ -84,7 +98,7 @@ export function PayoutManagement() {
           name: 'Primary Bank Account',
           details: '****1234',
           isDefault: true,
-          isVerified: true
+          isVerified: true,
         },
         {
           id: '2',
@@ -92,31 +106,31 @@ export function PayoutManagement() {
           name: 'PayPal Account',
           details: 'user@example.com',
           isDefault: false,
-          isVerified: true
-        }
+          isVerified: true,
+        },
       ])
 
       setPayoutHistory([
         {
           id: '1',
-          amount: 1250.00,
+          amount: 1250.0,
           status: 'completed',
           method: 'Bank Transfer',
           date: new Date('2024-01-15'),
-          taxWithheld: 125.00,
-          fees: 12.50,
-          netAmount: 1112.50
+          taxWithheld: 125.0,
+          fees: 12.5,
+          netAmount: 1112.5,
         },
         {
           id: '2',
-          amount: 890.50,
+          amount: 890.5,
           status: 'processing',
           method: 'PayPal',
           date: new Date('2024-01-01'),
           taxWithheld: 89.05,
           fees: 8.91,
-          netAmount: 792.54
-        }
+          netAmount: 792.54,
+        },
       ])
 
       setTaxDocuments([
@@ -124,20 +138,19 @@ export function PayoutManagement() {
           id: '1',
           type: '1099',
           year: 2023,
-          amount: 15600.00,
+          amount: 15600.0,
           downloadUrl: '/api/tax-documents/1099-2023.pdf',
-          generatedAt: new Date('2024-01-31')
+          generatedAt: new Date('2024-01-31'),
         },
         {
           id: '2',
           type: 'tax_summary',
           year: 2023,
-          amount: 15600.00,
+          amount: 15600.0,
           downloadUrl: '/api/tax-documents/summary-2023.pdf',
-          generatedAt: new Date('2024-01-31')
-        }
+          generatedAt: new Date('2024-01-31'),
+        },
       ])
-
     } catch (error) {
       console.error('Error loading payout data:', error)
     } finally {
@@ -151,12 +164,20 @@ export function PayoutManagement() {
       const newMethod: PayoutMethod = {
         id: Date.now().toString(),
         type: methodType,
-        name: methodType === 'bank' ? 'Bank Account' : 
-              methodType === 'paypal' ? 'PayPal Account' : 'Stripe Account',
-        details: methodType === 'bank' ? `****${accountDetails.accountNumber.slice(-4)}` :
-                methodType === 'paypal' ? accountDetails.email : 'Connected',
+        name:
+          methodType === 'bank'
+            ? 'Bank Account'
+            : methodType === 'paypal'
+              ? 'PayPal Account'
+              : 'Stripe Account',
+        details:
+          methodType === 'bank'
+            ? `****${accountDetails.accountNumber.slice(-4)}`
+            : methodType === 'paypal'
+              ? accountDetails.email
+              : 'Connected',
         isDefault: payoutMethods.length === 0,
-        isVerified: false
+        isVerified: false,
       }
 
       setPayoutMethods(prev => [...prev, newMethod])
@@ -165,7 +186,7 @@ export function PayoutManagement() {
         accountName: '',
         accountNumber: '',
         routingNumber: '',
-        email: ''
+        email: '',
       })
     } catch (error) {
       console.error('Error adding payout method:', error)
@@ -173,10 +194,12 @@ export function PayoutManagement() {
   }
 
   const setDefaultMethod = async (methodId: string) => {
-    setPayoutMethods(prev => prev.map(method => ({
-      ...method,
-      isDefault: method.id === methodId
-    })))
+    setPayoutMethods(prev =>
+      prev.map(method => ({
+        ...method,
+        isDefault: method.id === methodId,
+      }))
+    )
   }
 
   const requestPayout = async () => {
@@ -195,60 +218,76 @@ export function PayoutManagement() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-      case 'processing': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-      case 'pending': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-      case 'failed': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      case 'processing':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+      case 'pending':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      case 'failed':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
     }
   }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(amount)
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
       </div>
     )
   }
 
-  const totalEarnings = payoutHistory.reduce((sum, payout) => sum + payout.amount, 0)
-  const pendingPayouts = payoutHistory.filter(p => p.status === 'pending' || p.status === 'processing')
+  const totalEarnings = payoutHistory.reduce(
+    (sum, payout) => sum + payout.amount,
+    0
+  )
+  const pendingPayouts = payoutHistory.filter(
+    p => p.status === 'pending' || p.status === 'processing'
+  )
   const availableBalance = 2450.75 // Mock available balance
 
   return (
     <div className="space-y-6">
       {/* Balance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Available Balance
+            </CardTitle>
+            <DollarSign className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(availableBalance)}</div>
-            <p className="text-xs text-muted-foreground">
-              Ready for payout
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(availableBalance)}
+            </div>
+            <p className="text-muted-foreground text-xs">Ready for payout</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Pending Payouts
+            </CardTitle>
+            <Clock className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(pendingPayouts.reduce((sum, p) => sum + p.amount, 0))}
+              {formatCurrency(
+                pendingPayouts.reduce((sum, p) => sum + p.amount, 0)
+              )}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {pendingPayouts.length} transactions
             </p>
           </CardContent>
@@ -256,14 +295,16 @@ export function PayoutManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Total Earnings
+            </CardTitle>
+            <Building className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalEarnings)}</div>
-            <p className="text-xs text-muted-foreground">
-              All time
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalEarnings)}
+            </div>
+            <p className="text-muted-foreground text-xs">All time</p>
           </CardContent>
         </Card>
       </div>
@@ -279,30 +320,32 @@ export function PayoutManagement() {
               Request Payout
             </Button>
             <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="mr-2 h-4 w-4" />
               Download Statement
             </Button>
             <Button variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
+              <Settings className="mr-2 h-4 w-4" />
               Payout Settings
             </Button>
           </div>
           {availableBalance < 50 && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2 text-sm">
               Minimum payout amount is $50.00
             </p>
           )}
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Payout Methods */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Payout Methods</CardTitle>
-                <CardDescription>Manage how you receive payments</CardDescription>
+                <CardDescription>
+                  Manage how you receive payments
+                </CardDescription>
               </div>
               <Button onClick={() => setShowAddMethod(true)} size="sm">
                 Add Method
@@ -310,10 +353,13 @@ export function PayoutManagement() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {payoutMethods.map((method) => (
-              <div key={method.id} className="flex items-center justify-between p-3 border rounded-lg">
+            {payoutMethods.map(method => (
+              <div
+                key={method.id}
+                className="flex items-center justify-between rounded-lg border p-3"
+              >
                 <div className="flex items-center gap-3">
-                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <CreditCard className="text-muted-foreground h-5 w-5" />
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{method.name}</span>
@@ -326,14 +372,16 @@ export function PayoutManagement() {
                         <AlertCircle className="h-4 w-4 text-yellow-500" />
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">{method.details}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {method.details}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   {!method.isDefault && (
-                    <Button 
+                    <Button
                       onClick={() => setDefaultMethod(method.id)}
-                      variant="outline" 
+                      variant="outline"
                       size="sm"
                     >
                       Set Default
@@ -345,12 +393,12 @@ export function PayoutManagement() {
 
             {/* Add Method Form */}
             {showAddMethod && (
-              <div className="p-4 border rounded-lg space-y-4">
+              <div className="space-y-4 rounded-lg border p-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">Add Payout Method</h4>
-                  <Button 
+                  <Button
                     onClick={() => setShowAddMethod(false)}
-                    variant="ghost" 
+                    variant="ghost"
                     size="sm"
                   >
                     Cancel
@@ -360,7 +408,10 @@ export function PayoutManagement() {
                 <div className="space-y-3">
                   <div>
                     <Label>Method Type</Label>
-                    <Select value={methodType} onValueChange={(value: any) => setMethodType(value)}>
+                    <Select
+                      value={methodType}
+                      onValueChange={(value: any) => setMethodType(value)}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -378,10 +429,12 @@ export function PayoutManagement() {
                         <Label>Account Name</Label>
                         <Input
                           value={accountDetails.accountName}
-                          onChange={(e) => setAccountDetails(prev => ({
-                            ...prev,
-                            accountName: e.target.value
-                          }))}
+                          onChange={e =>
+                            setAccountDetails(prev => ({
+                              ...prev,
+                              accountName: e.target.value,
+                            }))
+                          }
                           placeholder="Account holder name"
                         />
                       </div>
@@ -389,10 +442,12 @@ export function PayoutManagement() {
                         <Label>Account Number</Label>
                         <Input
                           value={accountDetails.accountNumber}
-                          onChange={(e) => setAccountDetails(prev => ({
-                            ...prev,
-                            accountNumber: e.target.value
-                          }))}
+                          onChange={e =>
+                            setAccountDetails(prev => ({
+                              ...prev,
+                              accountNumber: e.target.value,
+                            }))
+                          }
                           placeholder="Account number"
                         />
                       </div>
@@ -400,10 +455,12 @@ export function PayoutManagement() {
                         <Label>Routing Number</Label>
                         <Input
                           value={accountDetails.routingNumber}
-                          onChange={(e) => setAccountDetails(prev => ({
-                            ...prev,
-                            routingNumber: e.target.value
-                          }))}
+                          onChange={e =>
+                            setAccountDetails(prev => ({
+                              ...prev,
+                              routingNumber: e.target.value,
+                            }))
+                          }
                           placeholder="Routing number"
                         />
                       </div>
@@ -416,10 +473,12 @@ export function PayoutManagement() {
                       <Input
                         type="email"
                         value={accountDetails.email}
-                        onChange={(e) => setAccountDetails(prev => ({
-                          ...prev,
-                          email: e.target.value
-                        }))}
+                        onChange={e =>
+                          setAccountDetails(prev => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         placeholder="your@email.com"
                       />
                     </div>
@@ -442,25 +501,32 @@ export function PayoutManagement() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {payoutHistory.map((payout) => (
-                <div key={payout.id} className="flex items-center justify-between p-3 border rounded-lg">
+              {payoutHistory.map(payout => (
+                <div
+                  key={payout.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div className="flex items-center gap-3">
-                    <DollarSign className="h-5 w-5 text-muted-foreground" />
+                    <DollarSign className="text-muted-foreground h-5 w-5" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{formatCurrency(payout.amount)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(payout.amount)}
+                        </span>
                         <Badge className={getStatusColor(payout.status)}>
                           {payout.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {payout.method} • {payout.date.toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">{formatCurrency(payout.netAmount)}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="font-medium">
+                      {formatCurrency(payout.netAmount)}
+                    </div>
+                    <div className="text-muted-foreground text-xs">
                       Net amount
                     </div>
                   </div>
@@ -483,30 +549,30 @@ export function PayoutManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {taxDocuments.map((document) => (
-              <div key={document.id} className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge variant="outline">
-                    {document.type.toUpperCase()}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {taxDocuments.map(document => (
+              <div key={document.id} className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <Badge variant="outline">{document.type.toUpperCase()}</Badge>
+                  <span className="text-muted-foreground text-sm">
                     {document.year}
                   </span>
                 </div>
                 <div className="mb-3">
-                  <div className="font-medium">{formatCurrency(document.amount)}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="font-medium">
+                    {formatCurrency(document.amount)}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
                     Generated {document.generatedAt.toLocaleDateString()}
                   </div>
                 </div>
-                <Button 
+                <Button
                   onClick={() => downloadTaxDocument(document)}
-                  variant="outline" 
-                  size="sm" 
+                  variant="outline"
+                  size="sm"
                   className="w-full"
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="mr-2 h-4 w-4" />
                   Download
                 </Button>
               </div>
@@ -515,9 +581,9 @@ export function PayoutManagement() {
 
           <Separator className="my-6" />
 
-          <div className="bg-muted p-4 rounded-lg">
-            <h4 className="font-medium mb-2">Tax Information</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
+          <div className="bg-muted rounded-lg p-4">
+            <h4 className="mb-2 font-medium">Tax Information</h4>
+            <ul className="text-muted-foreground space-y-1 text-sm">
               <li>• Tax documents are generated annually by January 31st</li>
               <li>• 1099 forms are issued for earnings over $600</li>
               <li>• Consult with a tax professional for advice</li>

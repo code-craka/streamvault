@@ -48,20 +48,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -84,30 +87,32 @@ export async function GET(request: NextRequest) {
       instanceId: client.instanceId,
     })
 
-    return NextResponse.json({
-      data: streams.data,
-      pagination: {
-        page: queryParams.page,
-        limit: queryParams.limit,
-        total: streams.total,
-        totalPages: Math.ceil(streams.total / queryParams.limit),
+    return NextResponse.json(
+      {
+        data: streams.data,
+        pagination: {
+          page: queryParams.page,
+          limit: queryParams.limit,
+          total: streams.total,
+          totalPages: Math.ceil(streams.total / queryParams.limit),
+        },
       },
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request parameters', 
+        {
+          error: 'Invalid request parameters',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )
@@ -149,20 +154,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -178,26 +186,28 @@ export async function POST(request: NextRequest) {
       instanceId: client.instanceId,
     })
 
-    return NextResponse.json({
-      data: stream,
-      message: 'Stream created successfully',
-    }, {
-      status: 201,
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: stream,
+        message: 'Stream created successfully',
+      },
+      {
+        status: 201,
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request body', 
+        {
+          error: 'Invalid request body',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )

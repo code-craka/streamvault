@@ -6,16 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Shield, 
-  Ban, 
-  Clock, 
-  Trash2, 
-  Flag, 
+import {
+  Shield,
+  Ban,
+  Clock,
+  Trash2,
+  Flag,
   Settings,
   Users,
   MessageSquareOff,
-  Filter
+  Filter,
 } from 'lucide-react'
 
 interface ModerationToolsProps {
@@ -33,10 +33,12 @@ export function ModerationTools({
   onTimeoutUser,
   onDeleteMessage,
   onUpdateChatSettings,
-  className
+  className,
 }: ModerationToolsProps) {
   const { user } = useUser()
-  const [activeTab, setActiveTab] = useState<'actions' | 'settings' | 'banned'>('actions')
+  const [activeTab, setActiveTab] = useState<'actions' | 'settings' | 'banned'>(
+    'actions'
+  )
   const [banUserId, setBanUserId] = useState('')
   const [banReason, setBanReason] = useState('')
   const [banDuration, setBanDuration] = useState<number | undefined>(undefined)
@@ -57,7 +59,7 @@ export function ModerationTools({
 
   const handleBanUser = () => {
     if (!banUserId.trim()) return
-    
+
     onBanUser?.(banUserId, banDuration, banReason || 'No reason provided')
     setBanUserId('')
     setBanReason('')
@@ -66,8 +68,12 @@ export function ModerationTools({
 
   const handleTimeoutUser = () => {
     if (!timeoutUserId.trim() || timeoutDuration <= 0) return
-    
-    onTimeoutUser?.(timeoutUserId, timeoutDuration, timeoutReason || 'No reason provided')
+
+    onTimeoutUser?.(
+      timeoutUserId,
+      timeoutDuration,
+      timeoutReason || 'No reason provided'
+    )
     setTimeoutUserId('')
     setTimeoutDuration(5)
     setTimeoutReason('')
@@ -77,7 +83,7 @@ export function ModerationTools({
     <div className="space-y-6">
       {/* Quick Actions */}
       <div>
-        <h4 className="font-medium mb-3 flex items-center space-x-2">
+        <h4 className="mb-3 flex items-center space-x-2 font-medium">
           <Shield className="h-4 w-4" />
           <span>Quick Actions</span>
         </h4>
@@ -88,7 +94,7 @@ export function ModerationTools({
             className="justify-start"
             onClick={() => onUpdateChatSettings?.({ slowMode: 5 })}
           >
-            <Clock className="h-3 w-3 mr-2" />
+            <Clock className="mr-2 h-3 w-3" />
             Slow Mode (5s)
           </Button>
           <Button
@@ -97,7 +103,7 @@ export function ModerationTools({
             className="justify-start"
             onClick={() => onUpdateChatSettings?.({ subscriberOnly: true })}
           >
-            <Users className="h-3 w-3 mr-2" />
+            <Users className="mr-2 h-3 w-3" />
             Subscriber Only
           </Button>
           <Button
@@ -106,7 +112,7 @@ export function ModerationTools({
             className="justify-start"
             onClick={() => onUpdateChatSettings?.({ emoteOnly: true })}
           >
-            <MessageSquareOff className="h-3 w-3 mr-2" />
+            <MessageSquareOff className="mr-2 h-3 w-3" />
             Emote Only
           </Button>
           <Button
@@ -115,7 +121,7 @@ export function ModerationTools({
             className="justify-start"
             onClick={() => onUpdateChatSettings?.({ profanityFilter: true })}
           >
-            <Filter className="h-3 w-3 mr-2" />
+            <Filter className="mr-2 h-3 w-3" />
             Profanity Filter
           </Button>
         </div>
@@ -123,7 +129,7 @@ export function ModerationTools({
 
       {/* Ban User */}
       <div>
-        <h4 className="font-medium mb-3 flex items-center space-x-2">
+        <h4 className="mb-3 flex items-center space-x-2 font-medium">
           <Ban className="h-4 w-4" />
           <span>Ban User</span>
         </h4>
@@ -131,19 +137,23 @@ export function ModerationTools({
           <Input
             placeholder="User ID or Username"
             value={banUserId}
-            onChange={(e) => setBanUserId(e.target.value)}
+            onChange={e => setBanUserId(e.target.value)}
           />
           <Input
             placeholder="Reason (optional)"
             value={banReason}
-            onChange={(e) => setBanReason(e.target.value)}
+            onChange={e => setBanReason(e.target.value)}
           />
           <div className="flex space-x-2">
             <Input
               type="number"
               placeholder="Duration (minutes, leave empty for permanent)"
               value={banDuration || ''}
-              onChange={(e) => setBanDuration(e.target.value ? parseInt(e.target.value) : undefined)}
+              onChange={e =>
+                setBanDuration(
+                  e.target.value ? parseInt(e.target.value) : undefined
+                )
+              }
             />
             <Button onClick={handleBanUser} variant="destructive">
               Ban User
@@ -154,7 +164,7 @@ export function ModerationTools({
 
       {/* Timeout User */}
       <div>
-        <h4 className="font-medium mb-3 flex items-center space-x-2">
+        <h4 className="mb-3 flex items-center space-x-2 font-medium">
           <Clock className="h-4 w-4" />
           <span>Timeout User</span>
         </h4>
@@ -162,19 +172,19 @@ export function ModerationTools({
           <Input
             placeholder="User ID or Username"
             value={timeoutUserId}
-            onChange={(e) => setTimeoutUserId(e.target.value)}
+            onChange={e => setTimeoutUserId(e.target.value)}
           />
           <Input
             placeholder="Reason (optional)"
             value={timeoutReason}
-            onChange={(e) => setTimeoutReason(e.target.value)}
+            onChange={e => setTimeoutReason(e.target.value)}
           />
           <div className="flex space-x-2">
             <Input
               type="number"
               placeholder="Duration (minutes)"
               value={timeoutDuration}
-              onChange={(e) => setTimeoutDuration(parseInt(e.target.value) || 5)}
+              onChange={e => setTimeoutDuration(parseInt(e.target.value) || 5)}
               min={1}
               max={1440} // 24 hours max
             />
@@ -189,16 +199,18 @@ export function ModerationTools({
 
   const renderSettingsTab = () => (
     <div className="space-y-6">
-      <h4 className="font-medium mb-3 flex items-center space-x-2">
+      <h4 className="mb-3 flex items-center space-x-2 font-medium">
         <Settings className="h-4 w-4" />
         <span>Chat Settings</span>
       </h4>
-      
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Slow Mode</p>
-            <p className="text-sm text-muted-foreground">Limit message frequency</p>
+            <p className="text-muted-foreground text-sm">
+              Limit message frequency
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -228,7 +240,9 @@ export function ModerationTools({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Subscriber Only</p>
-            <p className="text-sm text-muted-foreground">Only subscribers can chat</p>
+            <p className="text-muted-foreground text-sm">
+              Only subscribers can chat
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -251,7 +265,7 @@ export function ModerationTools({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Emote Only</p>
-            <p className="text-sm text-muted-foreground">Only emotes allowed</p>
+            <p className="text-muted-foreground text-sm">Only emotes allowed</p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -274,7 +288,9 @@ export function ModerationTools({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Profanity Filter</p>
-            <p className="text-sm text-muted-foreground">Auto-filter inappropriate content</p>
+            <p className="text-muted-foreground text-sm">
+              Auto-filter inappropriate content
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -297,7 +313,9 @@ export function ModerationTools({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">Links Allowed</p>
-            <p className="text-sm text-muted-foreground">Allow users to post links</p>
+            <p className="text-muted-foreground text-sm">
+              Allow users to post links
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -322,13 +340,13 @@ export function ModerationTools({
 
   const renderBannedTab = () => (
     <div className="space-y-4">
-      <h4 className="font-medium mb-3 flex items-center space-x-2">
+      <h4 className="mb-3 flex items-center space-x-2 font-medium">
         <Ban className="h-4 w-4" />
         <span>Banned Users</span>
       </h4>
-      
-      <div className="text-center py-8 text-muted-foreground">
-        <Ban className="h-8 w-8 mx-auto mb-2 opacity-50" />
+
+      <div className="text-muted-foreground py-8 text-center">
+        <Ban className="mx-auto mb-2 h-8 w-8 opacity-50" />
         <p>No banned users</p>
         <p className="text-sm">Banned users will appear here</p>
       </div>
@@ -337,8 +355,8 @@ export function ModerationTools({
 
   return (
     <Card className={`p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold flex items-center space-x-2">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="flex items-center space-x-2 font-semibold">
           <Shield className="h-4 w-4" />
           <span>Moderation Tools</span>
         </h3>
@@ -348,7 +366,7 @@ export function ModerationTools({
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-1 mb-4 bg-muted p-1 rounded-lg">
+      <div className="bg-muted mb-4 flex space-x-1 rounded-lg p-1">
         <Button
           variant={activeTab === 'actions' ? 'default' : 'ghost'}
           size="sm"

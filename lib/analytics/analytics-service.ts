@@ -1,30 +1,30 @@
 // Analytics service for user engagement tracking and metrics collection
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  limit,
   getDocs,
   onSnapshot,
   increment,
   serverTimestamp,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import type { 
-  ViewerMetrics, 
-  StreamMetrics, 
-  ChatMetrics, 
+import type {
+  ViewerMetrics,
+  StreamMetrics,
+  ChatMetrics,
   EngagementMetrics,
   RealtimeAnalytics,
   CreatorAnalytics,
   AnalyticsEvent,
   AnalyticsQuery,
-  AnalyticsResponse
+  AnalyticsResponse,
 } from '@/types/analytics'
 
 export class AnalyticsService {
@@ -40,8 +40,8 @@ export class AnalyticsService {
 
   // Track viewer joining a stream
   async trackViewerJoin(
-    streamId: string, 
-    userId: string | null, 
+    streamId: string,
+    userId: string | null,
     sessionId: string,
     deviceInfo: {
       deviceType: 'desktop' | 'mobile' | 'tablet'
@@ -60,18 +60,18 @@ export class AnalyticsService {
         location: deviceInfo.location,
         quality: '720p', // Default quality
         bufferingEvents: 0,
-        totalBufferingTime: 0
+        totalBufferingTime: 0,
       }
 
       // Add to viewer metrics collection
       await addDoc(collection(db, 'analytics', 'viewers', 'sessions'), {
         ...viewerMetric,
-        joinedAt: serverTimestamp()
+        joinedAt: serverTimestamp(),
       })
 
       // Update real-time stream metrics
       await this.updateRealtimeMetrics(streamId, {
-        currentViewers: increment(1) as any
+        currentViewers: increment(1) as any,
       })
 
       // Track engagement event
@@ -81,9 +81,8 @@ export class AnalyticsService {
         timestamp: new Date(),
         eventType: 'view_start',
         sessionId,
-        eventData: deviceInfo
+        eventData: deviceInfo,
       })
-
     } catch (error) {
       console.error('Error tracking viewer join:', error)
     }
@@ -106,18 +105,18 @@ export class AnalyticsService {
       )
 
       const snapshot = await getDocs(q)
-      
+
       if (!snapshot.empty) {
         const sessionDoc = snapshot.docs[0]
         await updateDoc(sessionDoc.ref, {
           leftAt: serverTimestamp(),
-          duration
+          duration,
         })
       }
 
       // Update real-time stream metrics
       await this.updateRealtimeMetrics(streamId, {
-        currentViewers: increment(-1) as any
+        currentViewers: increment(-1) as any,
       })
 
       // Track engagement event
@@ -126,9 +125,8 @@ export class AnalyticsService {
         timestamp: new Date(),
         eventType: 'view_end',
         sessionId,
-        eventData: { duration }
+        eventData: { duration },
       })
-
     } catch (error) {
       console.error('Error tracking viewer leave:', error)
     }
@@ -152,20 +150,19 @@ export class AnalyticsService {
         messageId,
         userId,
         timestamp: new Date(),
-        ...messageData
+        ...messageData,
       }
 
       // Add to chat metrics collection
       await addDoc(collection(db, 'analytics', 'chat', 'messages'), {
         ...chatMetric,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       })
 
       // Update real-time metrics
       await this.updateRealtimeMetrics(streamId, {
-        chatMessagesPerMinute: increment(1) as any
+        chatMessagesPerMinute: increment(1) as any,
       })
-
     } catch (error) {
       console.error('Error tracking chat message:', error)
     }
@@ -176,7 +173,7 @@ export class AnalyticsService {
     try {
       await addDoc(collection(db, 'analytics', 'engagement', 'events'), {
         ...event,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       })
     } catch (error) {
       console.error('Error tracking engagement event:', error)
@@ -185,21 +182,21 @@ export class AnalyticsService {
 
   // Update real-time analytics for a stream
   private async updateRealtimeMetrics(
-    streamId: string, 
+    streamId: string,
     updates: Partial<RealtimeAnalytics>
   ): Promise<void> {
     try {
       const realtimeRef = doc(db, 'analytics', 'realtime', 'streams', streamId)
       await updateDoc(realtimeRef, {
         ...updates,
-        lastUpdated: serverTimestamp()
+        lastUpdated: serverTimestamp(),
       })
     } catch (error) {
       // If document doesn't exist, create it
       await this.initializeRealtimeMetrics(streamId)
       await updateDoc(doc(db, 'analytics', 'realtime', 'streams', streamId), {
         ...updates,
-        lastUpdated: serverTimestamp()
+        lastUpdated: serverTimestamp(),
       })
     }
   }
@@ -216,12 +213,12 @@ export class AnalyticsService {
         qualityDistribution: {},
         revenueToday: 0,
         newSubscribers: 0,
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       }
 
       await addDoc(collection(db, 'analytics', 'realtime', 'streams'), {
         ...realtimeMetrics,
-        lastUpdated: serverTimestamp()
+        lastUpdated: serverTimestamp(),
       })
     } catch (error) {
       console.error('Error initializing real-time metrics:', error)
@@ -229,20 +226,24 @@ export class AnalyticsService {
   }
 
   // Get real-time analytics for a stream
-  async getRealtimeAnalytics(streamId: string): Promise<RealtimeAnalytics | null> {
+  async getRealtimeAnalytics(
+    streamId: string
+  ): Promise<RealtimeAnalytics | null> {
     try {
       const realtimeRef = doc(db, 'analytics', 'realtime', 'streams', streamId)
-      const snapshot = await getDocs(query(
-        collection(db, 'analytics', 'realtime', 'streams'),
-        where('streamId', '==', streamId),
-        limit(1)
-      ))
+      const snapshot = await getDocs(
+        query(
+          collection(db, 'analytics', 'realtime', 'streams'),
+          where('streamId', '==', streamId),
+          limit(1)
+        )
+      )
 
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data()
         return {
           ...data,
-          lastUpdated: data.lastUpdated?.toDate() || new Date()
+          lastUpdated: data.lastUpdated?.toDate() || new Date(),
         } as RealtimeAnalytics
       }
 
@@ -255,7 +256,7 @@ export class AnalyticsService {
 
   // Subscribe to real-time analytics updates
   subscribeToRealtimeAnalytics(
-    streamId: string, 
+    streamId: string,
     callback: (analytics: RealtimeAnalytics) => void
   ): () => void {
     const q = query(
@@ -263,12 +264,12 @@ export class AnalyticsService {
       where('streamId', '==', streamId)
     )
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, snapshot => {
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data()
         const analytics: RealtimeAnalytics = {
           ...data,
-          lastUpdated: data.lastUpdated?.toDate() || new Date()
+          lastUpdated: data.lastUpdated?.toDate() || new Date(),
         } as RealtimeAnalytics
 
         callback(analytics)
@@ -285,7 +286,9 @@ export class AnalyticsService {
       await addDoc(collection(db, 'analytics', 'streams', 'performance'), {
         ...streamMetrics,
         startTime: Timestamp.fromDate(streamMetrics.startTime),
-        endTime: streamMetrics.endTime ? Timestamp.fromDate(streamMetrics.endTime) : null
+        endTime: streamMetrics.endTime
+          ? Timestamp.fromDate(streamMetrics.endTime)
+          : null,
       })
     } catch (error) {
       console.error('Error tracking stream metrics:', error)
@@ -324,7 +327,7 @@ export class AnalyticsService {
         viewerRetention: [],
         geographicDistribution: {},
         deviceDistribution: {},
-        peakHours: []
+        peakHours: [],
       }
 
       // TODO: Implement actual aggregation logic
@@ -353,11 +356,11 @@ export class AnalyticsService {
       )
 
       const snapshot = await getDocs(q)
-      
+
       if (!snapshot.empty) {
         const sessionDoc = snapshot.docs[0]
         const updates: any = { quality: newQuality }
-        
+
         if (bufferingEvent) {
           updates.bufferingEvents = increment(1) as any
           if (bufferingDuration) {
@@ -374,13 +377,12 @@ export class AnalyticsService {
         timestamp: new Date(),
         eventType: 'quality_change',
         sessionId,
-        eventData: { 
-          newQuality, 
-          bufferingEvent, 
-          bufferingDuration 
-        }
+        eventData: {
+          newQuality,
+          bufferingEvent,
+          bufferingDuration,
+        },
       })
-
     } catch (error) {
       console.error('Error tracking quality change:', error)
     }

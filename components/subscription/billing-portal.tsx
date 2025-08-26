@@ -2,23 +2,32 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@/hooks/use-user'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
-import { 
-  CreditCard, 
-  Download, 
-  Calendar, 
-  TrendingUp, 
+import {
+  CreditCard,
+  Download,
+  Calendar,
+  TrendingUp,
   AlertTriangle,
   CheckCircle,
   XCircle,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react'
-import { formatSubscriptionTier, getUserSubscriptionTier } from '@/lib/auth/permissions'
+import {
+  formatSubscriptionTier,
+  getUserSubscriptionTier,
+} from '@/lib/auth/permissions'
 import { SUBSCRIPTION_TIERS } from '@/types/subscription'
 import type { BillingInfo, UsageMetrics } from '@/types/subscription'
 
@@ -94,7 +103,11 @@ export function BillingPortal({ className }: BillingPortalProps) {
   }
 
   const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
+    if (
+      !confirm(
+        'Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.'
+      )
+    ) {
       return
     }
 
@@ -106,7 +119,9 @@ export function BillingPortal({ className }: BillingPortalProps) {
 
       if (response.ok) {
         await fetchBillingData()
-        alert('Your subscription has been scheduled for cancellation at the end of your billing period.')
+        alert(
+          'Your subscription has been scheduled for cancellation at the end of your billing period.'
+        )
       } else {
         throw new Error('Failed to cancel subscription')
       }
@@ -143,7 +158,7 @@ export function BillingPortal({ className }: BillingPortalProps) {
     return (
       <Card className={className}>
         <CardContent className="p-6">
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Please sign in to view your billing information.
           </p>
         </CardContent>
@@ -186,33 +201,41 @@ export function BillingPortal({ className }: BillingPortalProps) {
               <h3 className="text-lg font-semibold">
                 {formatSubscriptionTier(currentTier)}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {tierConfig?.description || 'Basic access to StreamVault'}
               </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">
                 ${tierConfig?.price || 0}
-                <span className="text-sm font-normal text-muted-foreground">/month</span>
+                <span className="text-muted-foreground text-sm font-normal">
+                  /month
+                </span>
               </div>
-              <Badge variant={
-                user.subscriptionStatus === 'active' ? 'default' :
-                user.subscriptionStatus === 'canceled' ? 'destructive' :
-                user.subscriptionStatus === 'past_due' ? 'secondary' : 'outline'
-              }>
+              <Badge
+                variant={
+                  user.subscriptionStatus === 'active'
+                    ? 'default'
+                    : user.subscriptionStatus === 'canceled'
+                      ? 'destructive'
+                      : user.subscriptionStatus === 'past_due'
+                        ? 'secondary'
+                        : 'outline'
+                }
+              >
                 {user.subscriptionStatus === 'active' ? (
                   <>
-                    <CheckCircle className="h-3 w-3 mr-1" />
+                    <CheckCircle className="mr-1 h-3 w-3" />
                     Active
                   </>
                 ) : user.subscriptionStatus === 'canceled' ? (
                   <>
-                    <XCircle className="h-3 w-3 mr-1" />
+                    <XCircle className="mr-1 h-3 w-3" />
                     Canceled
                   </>
                 ) : user.subscriptionStatus === 'past_due' ? (
                   <>
-                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    <AlertTriangle className="mr-1 h-3 w-3" />
                     Past Due
                   </>
                 ) : (
@@ -223,24 +246,29 @@ export function BillingPortal({ className }: BillingPortalProps) {
           </div>
 
           {billingInfo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+            <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-3">
               <div className="text-center">
-                <div className="text-sm text-muted-foreground">Next Billing</div>
+                <div className="text-muted-foreground text-sm">
+                  Next Billing
+                </div>
                 <div className="font-semibold">
                   {new Date(billingInfo.currentPeriodEnd).toLocaleDateString()}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-muted-foreground">Payment Method</div>
+                <div className="text-muted-foreground text-sm">
+                  Payment Method
+                </div>
                 <div className="font-semibold">
-                  {billingInfo.paymentMethod ? 
-                    `•••• ${billingInfo.paymentMethod.last4}` : 
-                    'Not set'
-                  }
+                  {billingInfo.paymentMethod
+                    ? `•••• ${billingInfo.paymentMethod.last4}`
+                    : 'Not set'}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-muted-foreground">Customer Since</div>
+                <div className="text-muted-foreground text-sm">
+                  Customer Since
+                </div>
                 <div className="font-semibold">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </div>
@@ -251,7 +279,7 @@ export function BillingPortal({ className }: BillingPortalProps) {
           <Separator />
 
           <div className="flex flex-wrap gap-2">
-            <Button 
+            <Button
               onClick={handleManageBilling}
               disabled={isUpdating}
               className="flex items-center gap-2"
@@ -260,18 +288,19 @@ export function BillingPortal({ className }: BillingPortalProps) {
               {isUpdating ? 'Opening...' : 'Manage Billing'}
             </Button>
 
-            {user.subscriptionStatus === 'active' && !billingInfo?.cancelAtPeriodEnd && (
-              <Button 
-                variant="outline"
-                onClick={handleCancelSubscription}
-                disabled={isUpdating}
-              >
-                Cancel Subscription
-              </Button>
-            )}
+            {user.subscriptionStatus === 'active' &&
+              !billingInfo?.cancelAtPeriodEnd && (
+                <Button
+                  variant="outline"
+                  onClick={handleCancelSubscription}
+                  disabled={isUpdating}
+                >
+                  Cancel Subscription
+                </Button>
+              )}
 
             {billingInfo?.cancelAtPeriodEnd && (
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleReactivateSubscription}
                 disabled={isUpdating}
@@ -282,15 +311,16 @@ export function BillingPortal({ className }: BillingPortalProps) {
           </div>
 
           {billingInfo?.cancelAtPeriodEnd && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
                 <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
                   Subscription Ending
                 </span>
               </div>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                Your subscription will end on {new Date(billingInfo.currentPeriodEnd).toLocaleDateString()}.
+              <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                Your subscription will end on{' '}
+                {new Date(billingInfo.currentPeriodEnd).toLocaleDateString()}.
                 You'll lose access to premium features after this date.
               </p>
             </div>
@@ -313,19 +343,21 @@ export function BillingPortal({ className }: BillingPortalProps) {
           <CardContent className="space-y-6">
             {/* Storage Usage */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-medium">Storage Used</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {usageMetrics.metrics.storageUsed.toFixed(1)} GB
-                  {tierConfig.limits.storageQuota !== -1 && 
-                    ` / ${tierConfig.limits.storageQuota} GB`
-                  }
+                  {tierConfig.limits.storageQuota !== -1 &&
+                    ` / ${tierConfig.limits.storageQuota} GB`}
                 </span>
               </div>
-              <Progress 
+              <Progress
                 value={
-                  tierConfig.limits.storageQuota === -1 ? 0 :
-                  (usageMetrics.metrics.storageUsed / tierConfig.limits.storageQuota) * 100
+                  tierConfig.limits.storageQuota === -1
+                    ? 0
+                    : (usageMetrics.metrics.storageUsed /
+                        tierConfig.limits.storageQuota) *
+                      100
                 }
                 className="h-2"
               />
@@ -333,19 +365,21 @@ export function BillingPortal({ className }: BillingPortalProps) {
 
             {/* Bandwidth Usage */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-medium">Bandwidth Used</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {usageMetrics.metrics.bandwidthUsed.toFixed(1)} GB
-                  {tierConfig.limits.bandwidthQuota !== -1 && 
-                    ` / ${tierConfig.limits.bandwidthQuota} GB`
-                  }
+                  {tierConfig.limits.bandwidthQuota !== -1 &&
+                    ` / ${tierConfig.limits.bandwidthQuota} GB`}
                 </span>
               </div>
-              <Progress 
+              <Progress
                 value={
-                  tierConfig.limits.bandwidthQuota === -1 ? 0 :
-                  (usageMetrics.metrics.bandwidthUsed / tierConfig.limits.bandwidthQuota) * 100
+                  tierConfig.limits.bandwidthQuota === -1
+                    ? 0
+                    : (usageMetrics.metrics.bandwidthUsed /
+                        tierConfig.limits.bandwidthQuota) *
+                      100
                 }
                 className="h-2"
               />
@@ -353,10 +387,11 @@ export function BillingPortal({ className }: BillingPortalProps) {
 
             {/* Streaming Minutes */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-medium">Streaming Minutes</span>
-                <span className="text-sm text-muted-foreground">
-                  {usageMetrics.metrics.streamingMinutes.toLocaleString()} minutes
+                <span className="text-muted-foreground text-sm">
+                  {usageMetrics.metrics.streamingMinutes.toLocaleString()}{' '}
+                  minutes
                 </span>
               </div>
             </div>
@@ -364,19 +399,21 @@ export function BillingPortal({ className }: BillingPortalProps) {
             {/* API Calls (if applicable) */}
             {tierConfig.limits.apiAccess && (
               <div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">API Calls</span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-muted-foreground text-sm">
                     {usageMetrics.metrics.apiCalls.toLocaleString()}
-                    {tierConfig.limits.apiRateLimit > 0 && 
-                      ` / ${tierConfig.limits.apiRateLimit * 30 * 24 * 60} per month`
-                    }
+                    {tierConfig.limits.apiRateLimit > 0 &&
+                      ` / ${tierConfig.limits.apiRateLimit * 30 * 24 * 60} per month`}
                   </span>
                 </div>
-                <Progress 
+                <Progress
                   value={
-                    tierConfig.limits.apiRateLimit === 0 ? 0 :
-                    (usageMetrics.metrics.apiCalls / (tierConfig.limits.apiRateLimit * 30 * 24 * 60)) * 100
+                    tierConfig.limits.apiRateLimit === 0
+                      ? 0
+                      : (usageMetrics.metrics.apiCalls /
+                          (tierConfig.limits.apiRateLimit * 30 * 24 * 60)) *
+                        100
                   }
                   className="h-2"
                 />
@@ -384,24 +421,35 @@ export function BillingPortal({ className }: BillingPortalProps) {
             )}
 
             {/* Overage Charges */}
-            {usageMetrics.overages.storage > 0 || usageMetrics.overages.bandwidth > 0 || usageMetrics.overages.apiCalls > 0 && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">
-                  Overage Charges
-                </h4>
-                <div className="space-y-1 text-sm text-red-700 dark:text-red-300">
-                  {usageMetrics.overages.storage > 0 && (
-                    <div>Storage overage: ${usageMetrics.overages.storage.toFixed(2)}</div>
-                  )}
-                  {usageMetrics.overages.bandwidth > 0 && (
-                    <div>Bandwidth overage: ${usageMetrics.overages.bandwidth.toFixed(2)}</div>
-                  )}
-                  {usageMetrics.overages.apiCalls > 0 && (
-                    <div>API overage: ${usageMetrics.overages.apiCalls.toFixed(2)}</div>
-                  )}
+            {usageMetrics.overages.storage > 0 ||
+              usageMetrics.overages.bandwidth > 0 ||
+              (usageMetrics.overages.apiCalls > 0 && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+                  <h4 className="mb-2 font-medium text-red-800 dark:text-red-200">
+                    Overage Charges
+                  </h4>
+                  <div className="space-y-1 text-sm text-red-700 dark:text-red-300">
+                    {usageMetrics.overages.storage > 0 && (
+                      <div>
+                        Storage overage: $
+                        {usageMetrics.overages.storage.toFixed(2)}
+                      </div>
+                    )}
+                    {usageMetrics.overages.bandwidth > 0 && (
+                      <div>
+                        Bandwidth overage: $
+                        {usageMetrics.overages.bandwidth.toFixed(2)}
+                      </div>
+                    )}
+                    {usageMetrics.overages.apiCalls > 0 && (
+                      <div>
+                        API overage: $
+                        {usageMetrics.overages.apiCalls.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
           </CardContent>
         </Card>
       )}
@@ -420,11 +468,14 @@ export function BillingPortal({ className }: BillingPortalProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {billingInfo.invoices.slice(0, 5).map((invoice) => (
-                <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg">
+              {billingInfo.invoices.slice(0, 5).map(invoice => (
+                <div
+                  key={invoice.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div>
                     <div className="font-medium">Invoice #{invoice.number}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {new Date(invoice.dueDate).toLocaleDateString()}
                     </div>
                   </div>
@@ -433,11 +484,15 @@ export function BillingPortal({ className }: BillingPortalProps) {
                       <div className="font-medium">
                         ${(invoice.amount / 100).toFixed(2)}
                       </div>
-                      <Badge variant={
-                        invoice.status === 'paid' ? 'default' :
-                        invoice.status === 'open' ? 'secondary' :
-                        'destructive'
-                      }>
+                      <Badge
+                        variant={
+                          invoice.status === 'paid'
+                            ? 'default'
+                            : invoice.status === 'open'
+                              ? 'secondary'
+                              : 'destructive'
+                        }
+                      >
                         {invoice.status}
                       </Badge>
                     </div>
@@ -445,7 +500,9 @@ export function BillingPortal({ className }: BillingPortalProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(invoice.hostedInvoiceUrl, '_blank')}
+                        onClick={() =>
+                          window.open(invoice.hostedInvoiceUrl, '_blank')
+                        }
                       >
                         <Download className="h-4 w-4" />
                       </Button>

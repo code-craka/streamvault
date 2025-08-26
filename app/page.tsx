@@ -96,8 +96,8 @@ export default function HomePage() {
       </section>
 
       {/* Content Discovery Section */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-white px-4 py-16">
+        <div className="mx-auto max-w-7xl">
           <Suspense fallback={<ContentRecommendationsSkeleton />}>
             <ContentRecommendations limit={8} showRefresh={false} />
           </Suspense>
@@ -105,8 +105,8 @@ export default function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-gray-50 px-4 py-16">
+        <div className="mx-auto max-w-7xl">
           <Suspense fallback={<CategoryBrowserSkeleton />}>
             <CategoryBrowser showAll={false} limit={8} />
           </Suspense>
@@ -121,27 +121,27 @@ function ContentRecommendationsSkeleton() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="mb-2 h-8 w-48" />
           <Skeleton className="h-4 w-64" />
         </div>
       </div>
-      
+
       {Array.from({ length: 4 }).map((_, sectionIndex) => (
         <div key={sectionIndex} className="space-y-4">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-5 w-5" />
             <div>
-              <Skeleton className="h-6 w-32 mb-1" />
+              <Skeleton className="mb-1 h-6 w-32" />
               <Skeleton className="h-4 w-48" />
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Card key={i}>
                 <CardContent className="p-0">
                   <Skeleton className="aspect-video w-full" />
-                  <div className="p-4 space-y-2">
+                  <div className="space-y-2 p-4">
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-3 w-1/2" />
                     <div className="flex justify-between">
@@ -164,13 +164,13 @@ function CategoryBrowserSkeleton() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="mb-2 h-8 w-48" />
           <Skeleton className="h-4 w-64" />
         </div>
         <Skeleton className="h-10 w-24" />
       </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <Card key={i}>
             <CardContent className="p-0">

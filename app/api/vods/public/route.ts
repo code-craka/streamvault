@@ -8,14 +8,16 @@ const vodService = new VODService()
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const querySchema = z.object({
       search: z.string().optional(),
       category: z.string().optional(),
       requiredTier: z.enum(['basic', 'premium', 'pro']).optional(),
       limit: z.string().transform(val => parseInt(val) || 20),
       offset: z.string().transform(val => parseInt(val) || 0),
-      orderBy: z.enum(['createdAt', 'viewCount', 'duration', 'title']).default('createdAt'),
+      orderBy: z
+        .enum(['createdAt', 'viewCount', 'duration', 'title'])
+        .default('createdAt'),
       orderDirection: z.enum(['asc', 'desc']).default('desc'),
     })
 
@@ -26,16 +28,29 @@ export async function GET(request: NextRequest) {
       offset: query.offset,
       orderBy: [{ field: query.orderBy, direction: query.orderDirection }],
       where: [
-        ...(query.category ? [{ field: 'category', operator: '==' as const, value: query.category }] : []),
-        ...(query.requiredTier ? [{ field: 'requiredTier', operator: '==' as const, value: query.requiredTier }] : []),
+        ...(query.category
+          ? [
+              {
+                field: 'category',
+                operator: '==' as const,
+                value: query.category,
+              },
+            ]
+          : []),
+        ...(query.requiredTier
+          ? [
+              {
+                field: 'requiredTier',
+                operator: '==' as const,
+                value: query.requiredTier,
+              },
+            ]
+          : []),
       ],
     })
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     let vods = result.data || []
@@ -43,10 +58,12 @@ export async function GET(request: NextRequest) {
     // Apply text search filter
     if (query.search) {
       const searchTerm = query.search.toLowerCase()
-      vods = vods.filter(vod =>
-        vod.title.toLowerCase().includes(searchTerm) ||
-        (vod.description && vod.description.toLowerCase().includes(searchTerm)) ||
-        vod.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+      vods = vods.filter(
+        vod =>
+          vod.title.toLowerCase().includes(searchTerm) ||
+          (vod.description &&
+            vod.description.toLowerCase().includes(searchTerm)) ||
+          vod.tags.some(tag => tag.toLowerCase().includes(searchTerm))
       )
     }
 
@@ -55,7 +72,6 @@ export async function GET(request: NextRequest) {
       total: vods.length,
       hasMore: vods.length === query.limit,
     })
-
   } catch (error) {
     console.error('Failed to get public VODs:', error)
     return NextResponse.json(

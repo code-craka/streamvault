@@ -58,17 +58,21 @@ export interface SceneAnalysis {
 }
 
 export class SceneDetectionService {
-  async analyzeVideo(videoPath: string, videoId: string): Promise<SceneAnalysis> {
+  async analyzeVideo(
+    videoPath: string,
+    videoId: string
+  ): Promise<SceneAnalysis> {
     try {
       // Upload video to GCS if not already there
       const videoUri = await this.ensureVideoInGCS(videoPath, videoId)
 
       // Perform comprehensive video analysis
-      const [sceneResults, objectResults, emotionResults] = await Promise.allSettled([
-        this.detectScenes(videoUri),
-        this.detectObjects(videoUri),
-        this.analyzeEmotions(videoUri)
-      ])
+      const [sceneResults, objectResults, emotionResults] =
+        await Promise.allSettled([
+          this.detectScenes(videoUri),
+          this.detectObjects(videoUri),
+          this.analyzeEmotions(videoUri),
+        ])
 
       // Process and combine results
       const scenes = this.processSceneResults(
@@ -81,10 +85,10 @@ export class SceneDetectionService {
       const highlights = await this.generateHighlights(scenes, videoId)
 
       // Calculate analysis metrics
-      const totalDuration = scenes.length > 0 ? 
-        Math.max(...scenes.map(s => s.endTime)) : 0
-      const averageSceneLength = scenes.length > 0 ? 
-        totalDuration / scenes.length : 0
+      const totalDuration =
+        scenes.length > 0 ? Math.max(...scenes.map(s => s.endTime)) : 0
+      const averageSceneLength =
+        scenes.length > 0 ? totalDuration / scenes.length : 0
 
       // Find most exciting moments
       const mostExcitingMoments = this.findExcitingMoments(scenes, highlights)
@@ -94,7 +98,7 @@ export class SceneDetectionService {
         highlights,
         totalDuration,
         averageSceneLength,
-        mostExcitingMoments
+        mostExcitingMoments,
       }
     } catch (error) {
       console.error('Scene detection failed:', error)
@@ -102,7 +106,10 @@ export class SceneDetectionService {
     }
   }
 
-  private async ensureVideoInGCS(videoPath: string, videoId: string): Promise<string> {
+  private async ensureVideoInGCS(
+    videoPath: string,
+    videoId: string
+  ): Promise<string> {
     if (videoPath.startsWith('gs://')) {
       return videoPath
     }
@@ -153,7 +160,9 @@ export class SceneDetectionService {
     const [operation] = await videoClient.annotateVideo(request)
     const [operationResult] = await operation.promise()
 
-    return operationResult.annotationResults?.[0]?.faceDetectionAnnotations || []
+    return (
+      operationResult.annotationResults?.[0]?.faceDetectionAnnotations || []
+    )
   }
 
   private processSceneResults(
@@ -168,26 +177,31 @@ export class SceneDetectionService {
       const endTime = this.parseTimestamp(shot.endTimeOffset)
 
       // Find objects in this scene
-      const sceneObjects = objectResults.filter(obj => {
-        const objStart = this.parseTimestamp(obj.segment?.startTimeOffset)
-        const objEnd = this.parseTimestamp(obj.segment?.endTimeOffset)
-        return objStart >= startTime && objEnd <= endTime
-      }).map(obj => ({
-        name: obj.entity?.description || 'Unknown',
-        confidence: obj.confidence || 0,
-        boundingBox: obj.frames?.[0]?.normalizedBoundingBox
-      }))
+      const sceneObjects = objectResults
+        .filter(obj => {
+          const objStart = this.parseTimestamp(obj.segment?.startTimeOffset)
+          const objEnd = this.parseTimestamp(obj.segment?.endTimeOffset)
+          return objStart >= startTime && objEnd <= endTime
+        })
+        .map(obj => ({
+          name: obj.entity?.description || 'Unknown',
+          confidence: obj.confidence || 0,
+          boundingBox: obj.frames?.[0]?.normalizedBoundingBox,
+        }))
 
       // Find emotions in this scene
-      const sceneEmotions = emotionResults.filter(face => {
-        const faceStart = this.parseTimestamp(face.timeOffset)
-        return faceStart >= startTime && faceStart <= endTime
-      }).flatMap(face => 
-        face.attributes?.emotions?.map((emotion: any) => ({
-          emotion: emotion.emotion,
-          confidence: emotion.confidence
-        })) || []
-      )
+      const sceneEmotions = emotionResults
+        .filter(face => {
+          const faceStart = this.parseTimestamp(face.timeOffset)
+          return faceStart >= startTime && faceStart <= endTime
+        })
+        .flatMap(
+          face =>
+            face.attributes?.emotions?.map((emotion: any) => ({
+              emotion: emotion.emotion,
+              confidence: emotion.confidence,
+            })) || []
+        )
 
       // Generate key frames
       const keyFrames = await this.extractKeyFrames(startTime, endTime, shot)
@@ -198,7 +212,7 @@ export class SceneDetectionService {
         confidence: 1.0, // Shot detection is generally reliable
         keyFrames,
         objects: sceneObjects,
-        emotions: sceneEmotions
+        emotions: sceneEmotions,
       })
     }
 
@@ -215,17 +229,21 @@ export class SceneDetectionService {
     const frameTimestamps = [
       startTime + duration * 0.1,
       startTime + duration * 0.5,
-      startTime + duration * 0.9
+      startTime + duration * 0.9,
     ]
 
     // In a real implementation, you would extract actual frames
     // For now, return placeholder URLs
-    return frameTimestamps.map(timestamp => 
-      `/api/videos/frames/${shot.id || 'unknown'}_${Math.floor(timestamp)}.jpg`
+    return frameTimestamps.map(
+      timestamp =>
+        `/api/videos/frames/${shot.id || 'unknown'}_${Math.floor(timestamp)}.jpg`
     )
   }
 
-  private async generateHighlights(scenes: Scene[], videoId: string): Promise<Highlight[]> {
+  private async generateHighlights(
+    scenes: Scene[],
+    videoId: string
+  ): Promise<Highlight[]> {
     const highlights: Highlight[] = []
 
     for (const scene of scenes) {
@@ -243,7 +261,7 @@ export class SceneDetectionService {
           thumbnailUrl: scene.keyFrames[1] || scene.keyFrames[0] || '',
           tags: this.generateHighlightTags(scene),
           excitement,
-          engagement
+          engagement,
         }
 
         highlights.push(highlight)
@@ -251,9 +269,7 @@ export class SceneDetectionService {
     }
 
     // Sort by confidence and return top 10
-    return highlights
-      .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, 10)
+    return highlights.sort((a, b) => b.confidence - a.confidence).slice(0, 10)
   }
 
   private calculateExcitement(scene: Scene): number {
@@ -261,10 +277,11 @@ export class SceneDetectionService {
 
     // Factor in emotional intensity
     if (scene.emotions) {
-      const positiveEmotions = scene.emotions.filter(e => 
+      const positiveEmotions = scene.emotions.filter(e =>
         ['joy', 'surprise', 'excitement'].includes(e.emotion.toLowerCase())
       )
-      excitement += positiveEmotions.reduce((sum, e) => sum + e.confidence, 0) / 3
+      excitement +=
+        positiveEmotions.reduce((sum, e) => sum + e.confidence, 0) / 3
     }
 
     // Factor in object diversity (more objects = more action)
@@ -291,8 +308,9 @@ export class SceneDetectionService {
 
     // Factor in object recognition confidence
     if (scene.objects) {
-      const avgConfidence = scene.objects.reduce((sum, obj) => 
-        sum + obj.confidence, 0) / scene.objects.length
+      const avgConfidence =
+        scene.objects.reduce((sum, obj) => sum + obj.confidence, 0) /
+        scene.objects.length
       engagement += avgConfidence * 0.3
     }
 
@@ -320,8 +338,9 @@ export class SceneDetectionService {
 
   private async generateHighlightDescription(scene: Scene): Promise<string> {
     const duration = Math.floor(scene.endTime - scene.startTime)
-    const objects = scene.objects?.map(obj => obj.name).join(', ') || 'various elements'
-    
+    const objects =
+      scene.objects?.map(obj => obj.name).join(', ') || 'various elements'
+
     return `A ${duration}-second highlight featuring ${objects} with high engagement potential.`
   }
 
@@ -351,7 +370,10 @@ export class SceneDetectionService {
     return [...new Set(tags)].slice(0, 5) // Remove duplicates and limit to 5
   }
 
-  private findExcitingMoments(scenes: Scene[], highlights: Highlight[]): Array<{
+  private findExcitingMoments(
+    scenes: Scene[],
+    highlights: Highlight[]
+  ): Array<{
     timestamp: number
     excitement: number
     reason: string
@@ -360,10 +382,10 @@ export class SceneDetectionService {
 
     for (const scene of scenes) {
       const excitement = this.calculateExcitement(scene)
-      
+
       if (excitement > 0.6) {
         let reason = 'High activity detected'
-        
+
         if (scene.emotions?.some(e => e.confidence > 0.7)) {
           reason = 'Strong emotional content'
         } else if (scene.objects && scene.objects.length > 5) {
@@ -373,22 +395,20 @@ export class SceneDetectionService {
         moments.push({
           timestamp: scene.startTime + (scene.endTime - scene.startTime) / 2,
           excitement,
-          reason
+          reason,
         })
       }
     }
 
-    return moments
-      .sort((a, b) => b.excitement - a.excitement)
-      .slice(0, 5)
+    return moments.sort((a, b) => b.excitement - a.excitement).slice(0, 5)
   }
 
   private parseTimestamp(timestamp: any): number {
     if (!timestamp) return 0
-    
+
     const seconds = parseInt(timestamp.seconds || '0')
     const nanos = parseInt(timestamp.nanos || '0')
-    
+
     return seconds + nanos / 1e9
   }
 }

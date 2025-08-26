@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { apiAuthService } from '@/lib/api/auth-service'
-import { brandingService, CustomBrandingSchema } from '@/lib/white-label/branding-service'
+import {
+  brandingService,
+  CustomBrandingSchema,
+} from '@/lib/white-label/branding-service'
 
 // Update instance schema
 const UpdateInstanceSchema = z.object({
@@ -39,9 +42,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check permissions - allow access if client belongs to this instance or has admin access
-    const hasAccess = client.instanceId === instanceId || 
-                     apiAuthService.hasPermission(client, 'admin:all')
-    
+    const hasAccess =
+      client.instanceId === instanceId ||
+      apiAuthService.hasPermission(client, 'admin:all')
+
     if (!hasAccess) {
       return NextResponse.json(
         { error: 'Insufficient permissions', code: 'INSUFFICIENT_PERMISSIONS' },
@@ -50,20 +54,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -77,15 +84,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    return NextResponse.json({
-      data: instanceConfig,
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: instanceConfig,
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
@@ -118,9 +127,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check permissions
-    const hasAccess = client.instanceId === instanceId || 
-                     apiAuthService.hasPermission(client, 'admin:all')
-    
+    const hasAccess =
+      client.instanceId === instanceId ||
+      apiAuthService.hasPermission(client, 'admin:all')
+
     if (!hasAccess) {
       return NextResponse.json(
         { error: 'Insufficient permissions', code: 'INSUFFICIENT_PERMISSIONS' },
@@ -129,20 +139,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -170,12 +183,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Setup custom domain if provided
-    if (updateData.customDomain && updateData.customDomain !== existingConfig.branding.customDomain) {
-      await brandingService.setupCustomDomain(instanceId, updateData.customDomain)
+    if (
+      updateData.customDomain &&
+      updateData.customDomain !== existingConfig.branding.customDomain
+    ) {
+      await brandingService.setupCustomDomain(
+        instanceId,
+        updateData.customDomain
+      )
     }
 
     // Handle instance activation/deactivation
-    if (typeof updateData.isActive === 'boolean' && updateData.isActive !== existingConfig.isActive) {
+    if (
+      typeof updateData.isActive === 'boolean' &&
+      updateData.isActive !== existingConfig.isActive
+    ) {
       if (!updateData.isActive) {
         await brandingService.deactivateInstance(instanceId)
       }
@@ -185,25 +207,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Get updated configuration
     const updatedConfig = await brandingService.getBrandingConfig(instanceId)
 
-    return NextResponse.json({
-      data: updatedConfig,
-      message: 'Instance updated successfully',
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: updatedConfig,
+        message: 'Instance updated successfully',
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request body', 
+        {
+          error: 'Invalid request body',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )
@@ -247,20 +271,23 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -277,15 +304,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Deactivate instance (soft delete)
     await brandingService.deactivateInstance(instanceId)
 
-    return NextResponse.json({
-      message: 'Instance deactivated successfully',
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        message: 'Instance deactivated successfully',
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(

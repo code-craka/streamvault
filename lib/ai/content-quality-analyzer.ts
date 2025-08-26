@@ -98,17 +98,33 @@ export class ContentQualityAnalyzer {
         this.analyzeTechnicalQuality(videoPath),
         this.analyzeEngagementMetrics(videoPath, metadata),
         this.analyzeAccessibility(videoPath, metadata),
-        this.analyzeSEO(metadata)
+        this.analyzeSEO(metadata),
       ])
 
       // Calculate overall score
-      const overall = this.calculateOverallScore(technical, engagement, accessibility, seo)
+      const overall = this.calculateOverallScore(
+        technical,
+        engagement,
+        accessibility,
+        seo
+      )
 
       // Generate improvement suggestions
-      const suggestions = this.generateSuggestions(technical, engagement, accessibility, seo)
+      const suggestions = this.generateSuggestions(
+        technical,
+        engagement,
+        accessibility,
+        seo
+      )
 
       // Calculate quality score and grade
-      const score = this.calculateQualityScore(overall, technical, engagement, accessibility, seo)
+      const score = this.calculateQualityScore(
+        overall,
+        technical,
+        engagement,
+        accessibility,
+        seo
+      )
 
       const analysis: ContentQualityAnalysis = {
         overall,
@@ -117,22 +133,27 @@ export class ContentQualityAnalyzer {
         accessibility,
         seo,
         suggestions,
-        score
+        score,
       }
 
-      console.log(`Quality analysis completed for video ${videoId}. Overall score: ${overall}`)
+      console.log(
+        `Quality analysis completed for video ${videoId}. Overall score: ${overall}`
+      )
       return analysis
-
     } catch (error) {
       console.error(`Quality analysis failed for video ${videoId}:`, error)
-      throw new Error(`Quality analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Quality analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
   /**
    * Analyze technical video quality
    */
-  private async analyzeTechnicalQuality(videoPath: string): Promise<TechnicalQuality> {
+  private async analyzeTechnicalQuality(
+    videoPath: string
+  ): Promise<TechnicalQuality> {
     try {
       // Simulate technical analysis
       // In production, use FFmpeg or similar tools to analyze:
@@ -141,7 +162,7 @@ export class ContentQualityAnalyzer {
         bitrate: 5000, // kbps
         frameRate: 30,
         codec: 'h264',
-        score: 0.85
+        score: 0.85,
       }
 
       const audioAnalysis = {
@@ -149,21 +170,20 @@ export class ContentQualityAnalyzer {
         sampleRate: 44100,
         channels: 2,
         codec: 'aac',
-        score: 0.80
+        score: 0.8,
       }
 
       const encodingAnalysis = {
         efficiency: 0.88,
         compatibility: 0.95,
-        score: 0.91
+        score: 0.91,
       }
 
       return {
         video: videoAnalysis,
         audio: audioAnalysis,
-        encoding: encodingAnalysis
+        encoding: encodingAnalysis,
       }
-
     } catch (error) {
       console.error('Technical quality analysis failed:', error)
       throw error
@@ -173,7 +193,10 @@ export class ContentQualityAnalyzer {
   /**
    * Analyze engagement potential
    */
-  private async analyzeEngagementMetrics(videoPath: string, metadata?: any): Promise<EngagementMetrics> {
+  private async analyzeEngagementMetrics(
+    videoPath: string,
+    metadata?: any
+  ): Promise<EngagementMetrics> {
     try {
       // Simulate engagement analysis
       // In production, use AI models to analyze:
@@ -181,10 +204,21 @@ export class ContentQualityAnalyzer {
       const visualInterest = await this.analyzeVisualInterest(videoPath)
       const audioQuality = await this.analyzeAudioEngagement(videoPath)
       const contentStructure = await this.analyzeContentStructure(videoPath)
-      const thumbnailAppeal = await this.analyzeThumbnailAppeal(metadata?.thumbnails)
-      const titleEffectiveness = await this.analyzeTitleEffectiveness(metadata?.title)
+      const thumbnailAppeal = await this.analyzeThumbnailAppeal(
+        metadata?.thumbnails
+      )
+      const titleEffectiveness = await this.analyzeTitleEffectiveness(
+        metadata?.title
+      )
 
-      const score = (pacing + visualInterest + audioQuality + contentStructure + thumbnailAppeal + titleEffectiveness) / 6
+      const score =
+        (pacing +
+          visualInterest +
+          audioQuality +
+          contentStructure +
+          thumbnailAppeal +
+          titleEffectiveness) /
+        6
 
       return {
         pacing,
@@ -193,9 +227,8 @@ export class ContentQualityAnalyzer {
         contentStructure,
         thumbnailAppeal,
         titleEffectiveness,
-        score
+        score,
       }
-
     } catch (error) {
       console.error('Engagement analysis failed:', error)
       throw error
@@ -205,7 +238,10 @@ export class ContentQualityAnalyzer {
   /**
    * Analyze accessibility features
    */
-  private async analyzeAccessibility(videoPath: string, metadata?: any): Promise<AccessibilityScore> {
+  private async analyzeAccessibility(
+    videoPath: string,
+    metadata?: any
+  ): Promise<AccessibilityScore> {
     try {
       const captions = metadata?.captions || false
       const audioDescription = metadata?.audioDescription || false
@@ -223,9 +259,8 @@ export class ContentQualityAnalyzer {
         audioDescription,
         visualContrast,
         textReadability,
-        score
+        score,
       }
-
     } catch (error) {
       console.error('Accessibility analysis failed:', error)
       throw error
@@ -238,20 +273,23 @@ export class ContentQualityAnalyzer {
   private async analyzeSEO(metadata?: any): Promise<SEOScore> {
     try {
       const titleOptimization = this.analyzeTitleSEO(metadata?.title)
-      const descriptionQuality = this.analyzeDescriptionSEO(metadata?.description)
+      const descriptionQuality = this.analyzeDescriptionSEO(
+        metadata?.description
+      )
       const tagRelevance = this.analyzeTagRelevance(metadata?.tags)
       const thumbnailSEO = this.analyzeThumbnailSEO(metadata?.thumbnails)
 
-      const score = (titleOptimization + descriptionQuality + tagRelevance + thumbnailSEO) / 4
+      const score =
+        (titleOptimization + descriptionQuality + tagRelevance + thumbnailSEO) /
+        4
 
       return {
         titleOptimization,
         descriptionQuality,
         tagRelevance,
         thumbnailSEO,
-        score
+        score,
       }
-
     } catch (error) {
       console.error('SEO analysis failed:', error)
       throw error
@@ -267,12 +305,12 @@ export class ContentQualityAnalyzer {
 
   private async analyzeVisualInterest(videoPath: string): Promise<number> {
     // Analyze visual complexity, color variety, movement
-    return 0.70 + Math.random() * 0.25
+    return 0.7 + Math.random() * 0.25
   }
 
   private async analyzeAudioEngagement(videoPath: string): Promise<number> {
     // Analyze audio levels, music, speech clarity
-    return 0.80 + Math.random() * 0.15
+    return 0.8 + Math.random() * 0.15
   }
 
   private async analyzeContentStructure(videoPath: string): Promise<number> {
@@ -283,12 +321,12 @@ export class ContentQualityAnalyzer {
   private async analyzeThumbnailAppeal(thumbnails?: string[]): Promise<number> {
     if (!thumbnails || thumbnails.length === 0) return 0.3
     // Analyze thumbnail visual appeal, faces, contrast
-    return 0.70 + Math.random() * 0.25
+    return 0.7 + Math.random() * 0.25
   }
 
   private async analyzeTitleEffectiveness(title?: string): Promise<number> {
     if (!title) return 0.2
-    
+
     // Analyze title length, keywords, emotional appeal
     const length = title.length
     let score = 0.5
@@ -307,7 +345,7 @@ export class ContentQualityAnalyzer {
 
   private async analyzeTextReadability(videoPath: string): Promise<number> {
     // Analyze on-screen text readability
-    return 0.80 + Math.random() * 0.15
+    return 0.8 + Math.random() * 0.15
   }
 
   private analyzeTitleSEO(title?: string): number {
@@ -318,12 +356,13 @@ export class ContentQualityAnalyzer {
 
     // Optimal length for SEO
     if (length >= 40 && length <= 70) score += 0.2
-    
+
     // Contains keywords
     if (/\b(tutorial|guide|review|tips|how to)\b/i.test(title)) score += 0.15
-    
+
     // Emotional words
-    if (/\b(amazing|incredible|best|ultimate|perfect)\b/i.test(title)) score += 0.1
+    if (/\b(amazing|incredible|best|ultimate|perfect)\b/i.test(title))
+      score += 0.1
 
     return Math.min(score, 1.0)
   }
@@ -336,12 +375,14 @@ export class ContentQualityAnalyzer {
 
     // Good length for SEO
     if (length >= 100 && length <= 300) score += 0.3
-    
+
     // Contains relevant keywords
-    if (description.includes('subscribe') || description.includes('like')) score += 0.1
-    
+    if (description.includes('subscribe') || description.includes('like'))
+      score += 0.1
+
     // Has call to action
-    if (/\b(watch|subscribe|like|comment|share)\b/i.test(description)) score += 0.15
+    if (/\b(watch|subscribe|like|comment|share)\b/i.test(description))
+      score += 0.15
 
     return Math.min(score, 1.0)
   }
@@ -359,7 +400,8 @@ export class ContentQualityAnalyzer {
     if (uniqueTags.size === tags.length) score += 0.2
 
     // Relevant length
-    const avgLength = tags.reduce((sum, tag) => sum + tag.length, 0) / tags.length
+    const avgLength =
+      tags.reduce((sum, tag) => sum + tag.length, 0) / tags.length
     if (avgLength >= 5 && avgLength <= 20) score += 0.15
 
     return Math.min(score, 1.0)
@@ -367,7 +409,7 @@ export class ContentQualityAnalyzer {
 
   private analyzeThumbnailSEO(thumbnails?: string[]): number {
     if (!thumbnails || thumbnails.length === 0) return 0.2
-    
+
     // Assume good thumbnail SEO if thumbnails exist
     return 0.75 + Math.random() * 0.2
   }
@@ -383,10 +425,14 @@ export class ContentQualityAnalyzer {
       technical: 0.3,
       engagement: 0.4,
       accessibility: 0.15,
-      seo: 0.15
+      seo: 0.15,
     }
 
-    const technicalScore = (technical.video.score + technical.audio.score + technical.encoding.score) / 3
+    const technicalScore =
+      (technical.video.score +
+        technical.audio.score +
+        technical.encoding.score) /
+      3
 
     return (
       technicalScore * weights.technical +
@@ -412,7 +458,7 @@ export class ContentQualityAnalyzer {
         issue: 'Low video quality detected',
         suggestion: 'Increase video bitrate or resolution for better quality',
         impact: 0.8,
-        effort: 0.6
+        effort: 0.6,
       })
     }
 
@@ -423,7 +469,7 @@ export class ContentQualityAnalyzer {
         issue: 'Audio quality could be improved',
         suggestion: 'Use better microphone or increase audio bitrate',
         impact: 0.7,
-        effort: 0.5
+        effort: 0.5,
       })
     }
 
@@ -435,7 +481,7 @@ export class ContentQualityAnalyzer {
         issue: 'Content pacing could be improved',
         suggestion: 'Add more dynamic cuts and vary scene lengths',
         impact: 0.6,
-        effort: 0.7
+        effort: 0.7,
       })
     }
 
@@ -444,9 +490,10 @@ export class ContentQualityAnalyzer {
         category: 'engagement',
         priority: 'high',
         issue: 'Thumbnail needs improvement',
-        suggestion: 'Create more visually appealing thumbnail with faces or bright colors',
+        suggestion:
+          'Create more visually appealing thumbnail with faces or bright colors',
         impact: 0.9,
-        effort: 0.3
+        effort: 0.3,
       })
     }
 
@@ -458,7 +505,7 @@ export class ContentQualityAnalyzer {
         issue: 'No captions available',
         suggestion: 'Add closed captions for better accessibility',
         impact: 0.5,
-        effort: 0.4
+        effort: 0.4,
       })
     }
 
@@ -470,7 +517,7 @@ export class ContentQualityAnalyzer {
         issue: 'Title not optimized for search',
         suggestion: 'Include relevant keywords and make title 40-70 characters',
         impact: 0.7,
-        effort: 0.2
+        effort: 0.2,
       })
     }
 
@@ -479,9 +526,10 @@ export class ContentQualityAnalyzer {
         category: 'seo',
         priority: 'low',
         issue: 'Description needs improvement',
-        suggestion: 'Write detailed description with keywords and call-to-action',
+        suggestion:
+          'Write detailed description with keywords and call-to-action',
         impact: 0.4,
-        effort: 0.3
+        effort: 0.3,
       })
     }
 
@@ -502,7 +550,7 @@ export class ContentQualityAnalyzer {
     seo: SEOScore
   ): QualityScore {
     const percentage = Math.round(overall * 100)
-    
+
     let grade: QualityScore['grade']
     if (percentage >= 95) grade = 'A+'
     else if (percentage >= 90) grade = 'A'
@@ -513,7 +561,11 @@ export class ContentQualityAnalyzer {
     else if (percentage >= 60) grade = 'D'
     else grade = 'F'
 
-    const technicalScore = (technical.video.score + technical.audio.score + technical.encoding.score) / 3
+    const technicalScore =
+      (technical.video.score +
+        technical.audio.score +
+        technical.encoding.score) /
+      3
 
     return {
       grade,
@@ -522,8 +574,8 @@ export class ContentQualityAnalyzer {
         technical: Math.round(technicalScore * 100),
         engagement: Math.round(engagement.score * 100),
         accessibility: Math.round(accessibility.score * 100),
-        seo: Math.round(seo.score * 100)
-      }
+        seo: Math.round(seo.score * 100),
+      },
     }
   }
 }

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { apiAuthService } from '@/lib/api/auth-service'
-import { brandingService, CustomBrandingSchema } from '@/lib/white-label/branding-service'
+import {
+  brandingService,
+  CustomBrandingSchema,
+} from '@/lib/white-label/branding-service'
 
 // Create instance schema
 const CreateInstanceSchema = z.object({
@@ -39,20 +42,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -60,15 +66,17 @@ export async function GET(request: NextRequest) {
     // Get all instances
     const instances = await brandingService.getAllInstances()
 
-    return NextResponse.json({
-      data: instances,
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+    return NextResponse.json(
+      {
+        data: instances,
+      },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
@@ -107,20 +115,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Apply rate limiting
-    const rateLimitResult = await apiAuthService.checkRateLimit(client.id, client.rateLimit)
+    const rateLimitResult = await apiAuthService.checkRateLimit(
+      client.id,
+      client.rateLimit
+    )
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded', 
+        {
+          error: 'Rate limit exceeded',
           code: 'RATE_LIMIT_EXCEEDED',
-          resetTime: rateLimitResult.resetTime 
+          resetTime: rateLimitResult.resetTime,
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-          }
+          },
         }
       )
     }
@@ -137,38 +148,43 @@ export async function POST(request: NextRequest) {
 
     // Setup custom domain if provided
     if (instanceData.customDomain) {
-      await brandingService.setupCustomDomain(instanceId, instanceData.customDomain)
+      await brandingService.setupCustomDomain(
+        instanceId,
+        instanceData.customDomain
+      )
     }
 
     // Get the created instance configuration
     const instanceConfig = await brandingService.getBrandingConfig(instanceId)
 
-    return NextResponse.json({
-      data: {
-        instanceId,
-        name: instanceData.name,
-        config: instanceConfig,
-        defaultDomain: `${instanceId}.streamvault.app`,
-        customDomain: instanceData.customDomain,
+    return NextResponse.json(
+      {
+        data: {
+          instanceId,
+          name: instanceData.name,
+          config: instanceConfig,
+          defaultDomain: `${instanceId}.streamvault.app`,
+          customDomain: instanceData.customDomain,
+        },
+        message: 'White-label instance created successfully',
       },
-      message: 'White-label instance created successfully',
-    }, {
-      status: 201,
-      headers: {
-        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-        'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+      {
+        status: 201,
+        headers: {
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('API Error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request body', 
+        {
+          error: 'Invalid request body',
           code: 'VALIDATION_ERROR',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       )

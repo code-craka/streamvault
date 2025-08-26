@@ -11,68 +11,77 @@ import { auth } from '@clerk/nextjs/server'
 
 const WebVitalsSchema = z.object({
   sessionId: z.string(),
-  metrics: z.array(z.object({
-    name: z.string(),
-    value: z.number(),
-    rating: z.enum(['good', 'needs-improvement', 'poor']),
-    delta: z.number(),
-    id: z.string(),
-    navigationType: z.string(),
-    timestamp: z.number(),
-    url: z.string(),
-    userId: z.string().optional(),
-  })),
+  metrics: z.array(
+    z.object({
+      name: z.string(),
+      value: z.number(),
+      rating: z.enum(['good', 'needs-improvement', 'poor']),
+      delta: z.number(),
+      id: z.string(),
+      navigationType: z.string(),
+      timestamp: z.number(),
+      url: z.string(),
+      userId: z.string().optional(),
+    })
+  ),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     const body = await request.json()
-    
+
     // Validate request body
     const validatedData = WebVitalsSchema.parse(body)
-    
+
     // Store metrics in Firestore
     const metricsCollection = collection(db, 'performance_metrics')
-    
+
     const metricsDoc = {
       sessionId: validatedData.sessionId,
       userId: userId || null,
       metrics: validatedData.metrics,
       userAgent: request.headers.get('user-agent') || '',
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+      ip:
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        '',
       timestamp: serverTimestamp(),
       createdAt: new Date(),
     }
-    
+
     await addDoc(metricsCollection, metricsDoc)
-    
+
     // Log critical performance issues
-    const criticalMetrics = validatedData.metrics.filter(metric => metric.rating === 'poor')
+    const criticalMetrics = validatedData.metrics.filter(
+      metric => metric.rating === 'poor'
+    )
     if (criticalMetrics.length > 0) {
       console.warn('Critical performance metrics detected:', {
         sessionId: validatedData.sessionId,
         userId,
-        criticalMetrics: criticalMetrics.map(m => ({ name: m.name, value: m.value })),
+        criticalMetrics: criticalMetrics.map(m => ({
+          name: m.name,
+          value: m.value,
+        })),
       })
     }
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Metrics recorded successfully',
-      metricsCount: validatedData.metrics.length 
+      metricsCount: validatedData.metrics.length,
     })
-    
   } catch (error) {
     console.error('Failed to record performance metrics:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid metrics data', details: error.errors },
         { status: 400 }
       )
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to record metrics' },
       { status: 500 }
@@ -83,14 +92,14 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
-    
+
     // Return basic performance statistics
     // In a real implementation, this would query aggregated metrics
     const stats = {
@@ -111,9 +120,8 @@ export async function GET(request: NextRequest) {
         ttfb: 82,
       },
     }
-    
+
     return NextResponse.json(stats)
-    
   } catch (error) {
     console.error('Failed to get performance stats:', error)
     return NextResponse.json(

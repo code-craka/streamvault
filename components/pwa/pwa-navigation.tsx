@@ -4,16 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { usePWA } from '@/hooks/use-pwa'
-import { 
-  Home, 
-  Play, 
-  Download, 
-  User, 
-  Settings, 
-  ArrowLeft, 
+import {
+  Home,
+  Play,
+  Download,
+  User,
+  Settings,
+  ArrowLeft,
   MoreVertical,
   Wifi,
-  WifiOff
+  WifiOff,
 } from 'lucide-react'
 
 interface PWANavigationProps {
@@ -58,7 +58,9 @@ export function PWANavigation({ className }: PWANavigationProps) {
   return (
     <>
       {/* Top Navigation Bar (PWA only) */}
-      <div className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 ${className}`}>
+      <div
+        className={`fixed left-0 right-0 top-0 z-50 border-b border-gray-200 bg-white ${className}`}
+      >
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center space-x-3">
             {showBackButton && (
@@ -71,9 +73,9 @@ export function PWANavigation({ className }: PWANavigationProps) {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             )}
-            <h1 className="font-semibold text-lg">StreamVault</h1>
+            <h1 className="text-lg font-semibold">StreamVault</h1>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             {/* Network status indicator */}
             <div className="flex items-center">
@@ -83,7 +85,7 @@ export function PWANavigation({ className }: PWANavigationProps) {
                 <WifiOff className="h-4 w-4 text-red-600" />
               )}
             </div>
-            
+
             <Button variant="ghost" size="sm" className="p-2">
               <MoreVertical className="h-5 w-5" />
             </Button>
@@ -92,18 +94,18 @@ export function PWANavigation({ className }: PWANavigationProps) {
       </div>
 
       {/* Bottom Navigation Bar (PWA only) */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white">
         <div className="flex items-center justify-around py-2">
-          {navigationItems.map((item) => {
+          {navigationItems.map(item => {
             const isActive = pathname === item.path
             const Icon = item.icon
-            
+
             return (
               <Button
                 key={item.path}
                 onClick={() => handleNavigation(item.path)}
                 variant="ghost"
-                className={`flex flex-col items-center space-y-1 p-2 h-auto ${
+                className={`flex h-auto flex-col items-center space-y-1 p-2 ${
                   isActive ? 'text-blue-600' : 'text-gray-600'
                 }`}
               >
@@ -128,7 +130,7 @@ export function PWAGestureHandler({ children }: { children: React.ReactNode }) {
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!isInstalled) return
-    
+
     const touch = e.touches[0]
     touchStartX.current = touch.clientX
     touchStartY.current = touch.clientY
@@ -137,16 +139,19 @@ export function PWAGestureHandler({ children }: { children: React.ReactNode }) {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!isInstalled || !isGestureActive) return
-    
+
     const touch = e.changedTouches[0]
     const deltaX = touch.clientX - touchStartX.current
     const deltaY = touch.clientY - touchStartY.current
-    
+
     // Minimum swipe distance
     const minSwipeDistance = 100
-    
+
     // Check if it's a horizontal swipe (not vertical scroll)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+    if (
+      Math.abs(deltaX) > Math.abs(deltaY) &&
+      Math.abs(deltaX) > minSwipeDistance
+    ) {
       if (deltaX > 0 && touchStartX.current < 50) {
         // Swipe right from left edge - go back
         if (window.history.length > 1) {
@@ -157,17 +162,17 @@ export function PWAGestureHandler({ children }: { children: React.ReactNode }) {
         router.forward()
       }
     }
-    
+
     setIsGestureActive(false)
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isInstalled || !isGestureActive) return
-    
+
     const touch = e.touches[0]
     const deltaX = touch.clientX - touchStartX.current
     const deltaY = touch.clientY - touchStartY.current
-    
+
     // If it's more of a vertical scroll, disable gesture
     if (Math.abs(deltaY) > Math.abs(deltaX)) {
       setIsGestureActive(false)
@@ -187,12 +192,12 @@ export function PWAGestureHandler({ children }: { children: React.ReactNode }) {
 }
 
 // Pull-to-refresh component
-export function PullToRefresh({ 
-  onRefresh, 
-  children 
-}: { 
+export function PullToRefresh({
+  onRefresh,
+  children,
+}: {
   onRefresh: () => Promise<void>
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   const { isInstalled } = usePWA()
   const [isPulling, setIsPulling] = useState(false)
@@ -202,20 +207,20 @@ export function PullToRefresh({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!isInstalled || window.scrollY > 0) return
-    
+
     touchStartY.current = e.touches[0].clientY
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isInstalled || window.scrollY > 0 || isRefreshing.current) return
-    
+
     const currentY = e.touches[0].clientY
     const distance = currentY - touchStartY.current
-    
+
     if (distance > 0) {
       setIsPulling(true)
       setPullDistance(Math.min(distance, 100))
-      
+
       // Prevent default scrolling when pulling
       if (distance > 10) {
         e.preventDefault()
@@ -225,7 +230,7 @@ export function PullToRefresh({
 
   const handleTouchEnd = async () => {
     if (!isInstalled || !isPulling) return
-    
+
     if (pullDistance > 60) {
       isRefreshing.current = true
       try {
@@ -236,7 +241,7 @@ export function PullToRefresh({
         isRefreshing.current = false
       }
     }
-    
+
     setIsPulling(false)
     setPullDistance(0)
   }
@@ -250,21 +255,21 @@ export function PullToRefresh({
     >
       {/* Pull indicator */}
       {isPulling && (
-        <div 
-          className="fixed top-0 left-0 right-0 z-40 bg-blue-50 border-b border-blue-200 transition-all duration-200"
-          style={{ 
+        <div
+          className="fixed left-0 right-0 top-0 z-40 border-b border-blue-200 bg-blue-50 transition-all duration-200"
+          style={{
             height: `${pullDistance}px`,
-            opacity: pullDistance / 100 
+            opacity: pullDistance / 100,
           }}
         >
-          <div className="flex items-center justify-center h-full">
-            <div className="text-blue-600 text-sm font-medium">
+          <div className="flex h-full items-center justify-center">
+            <div className="text-sm font-medium text-blue-600">
               {pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}
             </div>
           </div>
         </div>
       )}
-      
+
       {children}
     </div>
   )

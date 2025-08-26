@@ -63,7 +63,7 @@ export interface ContentAppeal {
   aiRecommendation?: string
 }
 
-export type ViolationType = 
+export type ViolationType =
   | 'hate_speech'
   | 'harassment'
   | 'violence'
@@ -105,8 +105,13 @@ export class ContentModerationService {
       const categories: ModerationCategory[] = []
 
       // Check for various violation types
-      for (const [type, threshold] of Object.entries(this.moderationThresholds)) {
-        const score = await this.analyzeViolationType(text, type as ViolationType)
+      for (const [type, threshold] of Object.entries(
+        this.moderationThresholds
+      )) {
+        const score = await this.analyzeViolationType(
+          text,
+          type as ViolationType
+        )
         const violated = score > threshold
 
         categories.push({
@@ -128,8 +133,8 @@ export class ContentModerationService {
       }
 
       // Determine overall result
-      const highestViolation = violations.reduce((max, v) => 
-        v.confidence > max.confidence ? v : max, 
+      const highestViolation = violations.reduce(
+        (max, v) => (v.confidence > max.confidence ? v : max),
         { confidence: 0 } as Violation
       )
 
@@ -185,7 +190,10 @@ export class ContentModerationService {
     try {
       // Moderate metadata first
       const titleResult = await this.moderateText(metadata.title, 'title')
-      const descriptionResult = await this.moderateText(metadata.description, 'description')
+      const descriptionResult = await this.moderateText(
+        metadata.description,
+        'description'
+      )
 
       // Analyze video content
       const videoAnalysis = await this.analyzeVideoContent(videoPath)
@@ -201,7 +209,11 @@ export class ContentModerationService {
 
       const approved = allViolations.length === 0
       const highestSeverity = this.getHighestSeverity(allViolations)
-      const action = this.determineAction(allViolations, highestSeverity, 'upload')
+      const action = this.determineAction(
+        allViolations,
+        highestSeverity,
+        'upload'
+      )
 
       return {
         approved,
@@ -220,7 +232,9 @@ export class ContentModerationService {
         ],
         severity: highestSeverity,
         action,
-        reason: approved ? 'Video approved for upload' : this.generateReason(allViolations),
+        reason: approved
+          ? 'Video approved for upload'
+          : this.generateReason(allViolations),
       }
     } catch (error) {
       console.error('Video moderation failed:', error)
@@ -277,7 +291,8 @@ export class ContentModerationService {
         isActive: true,
         violations: [...existingModeration.violations, ...violations],
         warningCount,
-        lastViolation: violations.length > 0 ? new Date() : existingModeration.lastViolation,
+        lastViolation:
+          violations.length > 0 ? new Date() : existingModeration.lastViolation,
         moderationLevel: this.determineModerationLevel(warningCount),
         autoActions,
       }
@@ -308,11 +323,15 @@ export class ContentModerationService {
       const reanalysis = await this.moderateText(appeal.appealReason)
 
       // Analyze the appeal reasoning
-      const appealSentiment = await this.analyzeAppealSentiment(appeal.appealReason)
+      const appealSentiment = await this.analyzeAppealSentiment(
+        appeal.appealReason
+      )
 
       // Check if original violation was borderline
       const originalConfidence = appeal.originalViolation.confidence
-      const wasBorderline = originalConfidence < (this.moderationThresholds[appeal.originalViolation.type] + 0.1)
+      const wasBorderline =
+        originalConfidence <
+        this.moderationThresholds[appeal.originalViolation.type] + 0.1
 
       let recommendation: 'approve' | 'reject' | 'needs_human_review'
       let confidence: number
@@ -321,15 +340,18 @@ export class ContentModerationService {
       if (reanalysis.approved && wasBorderline && appealSentiment.isGenuine) {
         recommendation = 'approve'
         confidence = 0.85
-        reasoning = 'Re-analysis suggests content may have been incorrectly flagged. Appeal appears genuine.'
+        reasoning =
+          'Re-analysis suggests content may have been incorrectly flagged. Appeal appears genuine.'
       } else if (!reanalysis.approved && originalConfidence > 0.9) {
         recommendation = 'reject'
         confidence = 0.9
-        reasoning = 'Re-analysis confirms original violation. High confidence in moderation decision.'
+        reasoning =
+          'Re-analysis confirms original violation. High confidence in moderation decision.'
       } else {
         recommendation = 'needs_human_review'
         confidence = 0.6
-        reasoning = 'Case requires human judgment due to borderline violation or complex context.'
+        reasoning =
+          'Case requires human judgment due to borderline violation or complex context.'
       }
 
       return {
@@ -351,11 +373,14 @@ export class ContentModerationService {
   /**
    * Analyze specific violation type in text
    */
-  private async analyzeViolationType(text: string, type: ViolationType): Promise<number> {
+  private async analyzeViolationType(
+    text: string,
+    type: ViolationType
+  ): Promise<number> {
     // Mock implementation - in production would use specialized AI models
     const keywords = this.getViolationKeywords(type)
     const lowerText = text.toLowerCase()
-    
+
     let score = 0
     for (const keyword of keywords) {
       if (lowerText.includes(keyword)) {
@@ -475,7 +500,7 @@ export class ContentModerationService {
    */
   private generateReason(violations: Violation[]): string {
     if (violations.length === 0) return 'Content approved'
-    
+
     const primaryViolation = violations[0]
     return `Content blocked due to: ${primaryViolation.description}`
   }
@@ -533,7 +558,9 @@ export class ContentModerationService {
   /**
    * Get existing stream moderation state
    */
-  private async getStreamModeration(streamId: string): Promise<LiveStreamModeration> {
+  private async getStreamModeration(
+    streamId: string
+  ): Promise<LiveStreamModeration> {
     // Mock implementation - in production would query database
     return {
       streamId,
@@ -548,17 +575,26 @@ export class ContentModerationService {
   /**
    * Determine if auto action should be taken
    */
-  private shouldTakeAutoAction(violations: Violation[], warningCount: number): boolean {
+  private shouldTakeAutoAction(
+    violations: Violation[],
+    warningCount: number
+  ): boolean {
     const criticalViolations = violations.filter(v => v.severity === 'critical')
     const highViolations = violations.filter(v => v.severity === 'high')
 
-    return criticalViolations.length > 0 || highViolations.length > 2 || warningCount > 5
+    return (
+      criticalViolations.length > 0 ||
+      highViolations.length > 2 ||
+      warningCount > 5
+    )
   }
 
   /**
    * Determine moderation level based on warning count
    */
-  private determineModerationLevel(warningCount: number): 'strict' | 'moderate' | 'lenient' {
+  private determineModerationLevel(
+    warningCount: number
+  ): 'strict' | 'moderate' | 'lenient' {
     if (warningCount > 10) return 'strict'
     if (warningCount > 5) return 'moderate'
     return 'lenient'
@@ -567,7 +603,9 @@ export class ContentModerationService {
   /**
    * Get highest severity from violations
    */
-  private getHighestSeverity(violations: Violation[]): 'low' | 'medium' | 'high' | 'critical' {
+  private getHighestSeverity(
+    violations: Violation[]
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (violations.some(v => v.severity === 'critical')) return 'critical'
     if (violations.some(v => v.severity === 'high')) return 'high'
     if (violations.some(v => v.severity === 'medium')) return 'medium'
@@ -582,9 +620,15 @@ export class ContentModerationService {
     confidence: number
   }> {
     // Simple implementation - in production would use sentiment analysis
-    const genuineIndicators = ['mistake', 'misunderstood', 'context', 'explain', 'sorry']
+    const genuineIndicators = [
+      'mistake',
+      'misunderstood',
+      'context',
+      'explain',
+      'sorry',
+    ]
     const lowerText = appealText.toLowerCase()
-    
+
     const genuineScore = genuineIndicators.reduce((score, indicator) => {
       return lowerText.includes(indicator) ? score + 0.2 : score
     }, 0)

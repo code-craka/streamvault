@@ -5,19 +5,29 @@ import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { usePWA } from '@/hooks/use-pwa'
 import { OfflineManager } from '@/lib/pwa/offline-manager'
-import { formatCacheSize, clearPWACache, getCacheSize } from '@/lib/pwa/pwa-utils'
-import { 
-  Smartphone, 
-  Download, 
-  Bell, 
-  Trash2, 
-  Settings, 
+import {
+  formatCacheSize,
+  clearPWACache,
+  getCacheSize,
+} from '@/lib/pwa/pwa-utils'
+import {
+  Smartphone,
+  Download,
+  Bell,
+  Trash2,
+  Settings,
   HardDrive,
   Wifi,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react'
 
 interface PWASettingsProps {
@@ -26,36 +36,36 @@ interface PWASettingsProps {
 
 export function PWASettings({ className }: PWASettingsProps) {
   const { user } = useUser()
-  const { 
-    isInstalled, 
-    notificationPermission, 
-    requestNotifications, 
-    subscribeToPush 
+  const {
+    isInstalled,
+    notificationPermission,
+    requestNotifications,
+    subscribeToPush,
   } = usePWA()
-  
+
   const hasNotificationPermission = notificationPermission.granted
   const [offlineManager] = useState(() => new OfflineManager())
-  
+
   // Settings state
   const [settings, setSettings] = useState({
     notifications: {
       enabled: false,
       newVideos: true,
       liveStreams: true,
-      comments: false
+      comments: false,
     },
     offline: {
       autoDownload: false,
       downloadQuality: '720p' as const,
-      maxDownloads: 10
+      maxDownloads: 10,
     },
     sync: {
       autoSync: true,
       syncOnWifi: true,
-      backgroundSync: true
-    }
+      backgroundSync: true,
+    },
   })
-  
+
   const [cacheSize, setCacheSize] = useState(0)
   const [offlineVideos, setOfflineVideos] = useState(0)
   const [isClearing, setIsClearing] = useState(false)
@@ -71,15 +81,15 @@ export function PWASettings({ className }: PWASettingsProps) {
     if (stored) {
       setSettings(JSON.parse(stored))
     }
-    
+
     setSettings(prev => ({
       ...prev,
       notifications: {
         ...prev.notifications,
-        enabled: hasNotificationPermission
-      }
+        enabled: hasNotificationPermission,
+      },
     }))
-    
+
     setIsLoading(false)
   }
 
@@ -88,7 +98,7 @@ export function PWASettings({ className }: PWASettingsProps) {
       await offlineManager.initialize()
       const size = await getCacheSize()
       const videos = await offlineManager.getAllOfflineVideos()
-      
+
       setCacheSize(size)
       setOfflineVideos(videos.length)
     } catch (error) {
@@ -98,7 +108,10 @@ export function PWASettings({ className }: PWASettingsProps) {
 
   const saveSettings = (newSettings: typeof settings) => {
     setSettings(newSettings)
-    localStorage.setItem('streamvault-pwa-settings', JSON.stringify(newSettings))
+    localStorage.setItem(
+      'streamvault-pwa-settings',
+      JSON.stringify(newSettings)
+    )
   }
 
   const handleNotificationToggle = async (enabled: boolean) => {
@@ -107,20 +120,20 @@ export function PWASettings({ className }: PWASettingsProps) {
       if (!permission.granted) {
         return
       }
-      
+
       // Subscribe to push notifications
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
       if (vapidKey) {
         await subscribeToPush(vapidKey)
       }
     }
-    
+
     saveSettings({
       ...settings,
       notifications: {
         ...settings.notifications,
-        enabled
-      }
+        enabled,
+      },
     })
   }
 
@@ -129,8 +142,8 @@ export function PWASettings({ className }: PWASettingsProps) {
       ...settings,
       notifications: {
         ...settings.notifications,
-        [key]: value
-      }
+        [key]: value,
+      },
     })
   }
 
@@ -139,8 +152,8 @@ export function PWASettings({ className }: PWASettingsProps) {
       ...settings,
       offline: {
         ...settings.offline,
-        [key]: value
-      }
+        [key]: value,
+      },
     })
   }
 
@@ -149,8 +162,8 @@ export function PWASettings({ className }: PWASettingsProps) {
       ...settings,
       sync: {
         ...settings.sync,
-        [key]: value
-      }
+        [key]: value,
+      },
     })
   }
 
@@ -181,7 +194,7 @@ export function PWASettings({ className }: PWASettingsProps) {
   if (isLoading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
       </div>
     )
   }
@@ -207,7 +220,7 @@ export function PWASettings({ className }: PWASettingsProps) {
             </div>
           </div>
           {isInstalled && (
-            <div className="text-green-600 text-sm font-medium">
+            <div className="text-sm font-medium text-green-600">
               ✓ Installed
             </div>
           )}
@@ -236,24 +249,32 @@ export function PWASettings({ className }: PWASettingsProps) {
           {settings.notifications.enabled && (
             <div className="ml-8 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">New videos from followed creators</span>
+                <span className="text-sm">
+                  New videos from followed creators
+                </span>
                 <Switch
                   checked={settings.notifications.newVideos}
-                  onCheckedChange={(checked) => handleNotificationPreference('newVideos', checked)}
+                  onCheckedChange={checked =>
+                    handleNotificationPreference('newVideos', checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Live stream notifications</span>
                 <Switch
                   checked={settings.notifications.liveStreams}
-                  onCheckedChange={(checked) => handleNotificationPreference('liveStreams', checked)}
+                  onCheckedChange={checked =>
+                    handleNotificationPreference('liveStreams', checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Comments and replies</span>
                 <Switch
                   checked={settings.notifications.comments}
-                  onCheckedChange={(checked) => handleNotificationPreference('comments', checked)}
+                  onCheckedChange={checked =>
+                    handleNotificationPreference('comments', checked)
+                  }
                 />
               </div>
             </div>
@@ -279,7 +300,9 @@ export function PWASettings({ className }: PWASettingsProps) {
               <span className="text-sm">Default download quality</span>
               <Select
                 value={settings.offline.downloadQuality}
-                onValueChange={(value) => handleOfflineSetting('downloadQuality', value)}
+                onValueChange={value =>
+                  handleOfflineSetting('downloadQuality', value)
+                }
               >
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -299,7 +322,9 @@ export function PWASettings({ className }: PWASettingsProps) {
               <span className="text-sm">Download only on Wi-Fi</span>
               <Switch
                 checked={settings.sync.syncOnWifi}
-                onCheckedChange={(checked) => handleSyncSetting('syncOnWifi', checked)}
+                onCheckedChange={checked =>
+                  handleSyncSetting('syncOnWifi', checked)
+                }
               />
             </div>
           </div>
@@ -324,7 +349,9 @@ export function PWASettings({ className }: PWASettingsProps) {
               <span className="text-sm">Auto-sync when online</span>
               <Switch
                 checked={settings.sync.autoSync}
-                onCheckedChange={(checked) => handleSyncSetting('autoSync', checked)}
+                onCheckedChange={checked =>
+                  handleSyncSetting('autoSync', checked)
+                }
               />
             </div>
 
@@ -332,7 +359,9 @@ export function PWASettings({ className }: PWASettingsProps) {
               <span className="text-sm">Background sync</span>
               <Switch
                 checked={settings.sync.backgroundSync}
-                onCheckedChange={(checked) => handleSyncSetting('backgroundSync', checked)}
+                onCheckedChange={checked =>
+                  handleSyncSetting('backgroundSync', checked)
+                }
               />
             </div>
 
@@ -340,7 +369,9 @@ export function PWASettings({ className }: PWASettingsProps) {
               <span className="text-sm">Sync only on Wi-Fi</span>
               <Switch
                 checked={settings.sync.syncOnWifi}
-                onCheckedChange={(checked) => handleSyncSetting('syncOnWifi', checked)}
+                onCheckedChange={checked =>
+                  handleSyncSetting('syncOnWifi', checked)
+                }
               />
             </div>
           </div>
@@ -364,7 +395,9 @@ export function PWASettings({ className }: PWASettingsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Cache Size</p>
-                <p className="text-xs text-gray-600">{formatCacheSize(cacheSize)}</p>
+                <p className="text-xs text-gray-600">
+                  {formatCacheSize(cacheSize)}
+                </p>
               </div>
               <Button
                 onClick={clearCache}
@@ -381,7 +414,9 @@ export function PWASettings({ className }: PWASettingsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Offline Videos</p>
-                <p className="text-xs text-gray-600">{offlineVideos} videos downloaded</p>
+                <p className="text-xs text-gray-600">
+                  {offlineVideos} videos downloaded
+                </p>
               </div>
               <Button
                 onClick={clearOfflineVideos}
@@ -399,10 +434,12 @@ export function PWASettings({ className }: PWASettingsProps) {
       </Card>
 
       {/* PWA Info */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="border-blue-200 bg-blue-50 p-4">
         <div className="space-y-2">
-          <h3 className="font-medium text-blue-900">Progressive Web App Features</h3>
-          <div className="text-sm text-blue-800 space-y-1">
+          <h3 className="font-medium text-blue-900">
+            Progressive Web App Features
+          </h3>
+          <div className="space-y-1 text-sm text-blue-800">
             <p>• Works offline with downloaded content</p>
             <p>• Push notifications for real-time updates</p>
             <p>• Automatic data sync across devices</p>

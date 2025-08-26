@@ -2,28 +2,34 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PricingTiers } from './pricing-tiers'
 import { BillingPortal } from './billing-portal'
-import { 
-  CreditCard, 
-  TrendingUp, 
-  Calendar, 
-  AlertCircle, 
+import {
+  CreditCard,
+  TrendingUp,
+  Calendar,
+  AlertCircle,
   CheckCircle,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 import { type SubscriptionTier } from '@/lib/stripe/subscription-tiers'
-import { 
+import {
   formatSubscriptionStatus,
   getSubscriptionStatusColor,
   subscriptionNeedsAttention,
   getSubscriptionAttentionMessage,
   getDaysUntilSubscriptionEnds,
-  isSubscriptionExpiringSoon
+  isSubscriptionExpiringSoon,
 } from '@/lib/stripe/subscription-helpers'
 
 interface SubscriptionData {
@@ -36,7 +42,8 @@ interface SubscriptionData {
 
 export function SubscriptionDashboard() {
   const { user } = useUser()
-  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null)
+  const [subscriptionData, setSubscriptionData] =
+    useState<SubscriptionData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,7 +59,7 @@ export function SubscriptionDashboard() {
       setError(null)
 
       const response = await fetch('/api/subscriptions/status')
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch subscription status')
       }
@@ -89,8 +96,8 @@ export function SubscriptionDashboard() {
             <AlertCircle className="h-5 w-5" />
             <span>{error}</span>
           </div>
-          <Button 
-            onClick={fetchSubscriptionStatus} 
+          <Button
+            onClick={fetchSubscriptionStatus}
             className="mt-4"
             variant="outline"
           >
@@ -101,22 +108,26 @@ export function SubscriptionDashboard() {
     )
   }
 
-  const needsAttention = subscriptionData && subscriptionNeedsAttention(
-    subscriptionData.status,
-    subscriptionData.cancelAtPeriodEnd ?? false
-  )
+  const needsAttention =
+    subscriptionData &&
+    subscriptionNeedsAttention(
+      subscriptionData.status,
+      subscriptionData.cancelAtPeriodEnd ?? false
+    )
 
-  const attentionMessage = subscriptionData && getSubscriptionAttentionMessage(
-    subscriptionData.status,
-    subscriptionData.cancelAtPeriodEnd ?? false,
-    subscriptionData.currentPeriodEnd ?? null
-  )
+  const attentionMessage =
+    subscriptionData &&
+    getSubscriptionAttentionMessage(
+      subscriptionData.status,
+      subscriptionData.cancelAtPeriodEnd ?? false,
+      subscriptionData.currentPeriodEnd ?? null
+    )
 
-  const daysUntilEnd = subscriptionData?.currentPeriodEnd 
+  const daysUntilEnd = subscriptionData?.currentPeriodEnd
     ? getDaysUntilSubscriptionEnds(subscriptionData.currentPeriodEnd)
     : null
 
-  const isExpiringSoon = subscriptionData?.currentPeriodEnd 
+  const isExpiringSoon = subscriptionData?.currentPeriodEnd
     ? isSubscriptionExpiringSoon(subscriptionData.currentPeriodEnd)
     : false
 
@@ -135,44 +146,53 @@ export function SubscriptionDashboard() {
         </CardHeader>
         <CardContent className="space-y-4">
           {subscriptionData?.hasActiveSubscription ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Current Plan</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Current Plan
+                </p>
                 <div className="flex items-center space-x-2">
-                  <Badge 
+                  <Badge
                     className={`bg-${getSubscriptionStatusColor(subscriptionData.status)}-500`}
                   >
-                    {subscriptionData.tier ? 
-                      subscriptionData.tier.charAt(0).toUpperCase() + subscriptionData.tier.slice(1) : 
-                      'Unknown'
-                    }
+                    {subscriptionData.tier
+                      ? subscriptionData.tier.charAt(0).toUpperCase() +
+                        subscriptionData.tier.slice(1)
+                      : 'Unknown'}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-muted-foreground text-sm">
                     ({formatSubscriptionStatus(subscriptionData.status)})
                   </span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Next Billing</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Next Billing
+                </p>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm">
-                    {subscriptionData.currentPeriodEnd 
-                      ? new Date(subscriptionData.currentPeriodEnd * 1000).toLocaleDateString()
-                      : 'N/A'
-                    }
+                    {subscriptionData.currentPeriodEnd
+                      ? new Date(
+                          subscriptionData.currentPeriodEnd * 1000
+                        ).toLocaleDateString()
+                      : 'N/A'}
                   </span>
                 </div>
                 {daysUntilEnd !== null && (
-                  <p className="text-xs text-muted-foreground">
-                    {daysUntilEnd > 0 ? `${daysUntilEnd} days remaining` : 'Expired'}
+                  <p className="text-muted-foreground text-xs">
+                    {daysUntilEnd > 0
+                      ? `${daysUntilEnd} days remaining`
+                      : 'Expired'}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Status
+                </p>
                 <div className="flex items-center space-x-2">
                   {needsAttention ? (
                     <AlertCircle className="h-4 w-4 text-yellow-500" />
@@ -186,9 +206,11 @@ export function SubscriptionDashboard() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-6">
-              <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Active Subscription</h3>
+            <div className="py-6 text-center">
+              <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+              <h3 className="mb-2 text-lg font-semibold">
+                No Active Subscription
+              </h3>
               <p className="text-muted-foreground mb-4">
                 Subscribe to unlock premium features and support StreamVault
               </p>
@@ -197,32 +219,39 @@ export function SubscriptionDashboard() {
 
           {/* Attention Messages */}
           {needsAttention && attentionMessage && (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <div className="flex items-start space-x-2">
-                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <AlertCircle className="mt-0.5 h-5 w-5 text-yellow-600" />
                 <div>
-                  <p className="text-sm font-medium text-yellow-800">Action Required</p>
-                  <p className="text-sm text-yellow-700 mt-1">{attentionMessage}</p>
+                  <p className="text-sm font-medium text-yellow-800">
+                    Action Required
+                  </p>
+                  <p className="mt-1 text-sm text-yellow-700">
+                    {attentionMessage}
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Expiring Soon Warning */}
-          {isExpiringSoon && !(subscriptionData?.cancelAtPeriodEnd ?? false) && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start space-x-2">
-                <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-800">Renewal Reminder</p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Your subscription will renew in {daysUntilEnd} days. 
-                    Make sure your payment method is up to date.
-                  </p>
+          {isExpiringSoon &&
+            !(subscriptionData?.cancelAtPeriodEnd ?? false) && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <div className="flex items-start space-x-2">
+                  <Calendar className="mt-0.5 h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-800">
+                      Renewal Reminder
+                    </p>
+                    <p className="mt-1 text-sm text-blue-700">
+                      Your subscription will renew in {daysUntilEnd} days. Make
+                      sure your payment method is up to date.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </CardContent>
       </Card>
 

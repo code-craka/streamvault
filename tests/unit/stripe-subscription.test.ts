@@ -1,12 +1,16 @@
 import { describe, it, expect } from '@jest/globals'
-import { SUBSCRIPTION_TIERS, getSubscriptionTier, hasFeatureAccess } from '@/lib/stripe/subscription-tiers'
+import {
+  SUBSCRIPTION_TIERS,
+  getSubscriptionTier,
+  hasFeatureAccess,
+} from '@/lib/stripe/subscription-tiers'
 
 describe('Subscription Tiers', () => {
   describe('getSubscriptionTier', () => {
     it('should return correct tier for valid price ID', () => {
       // Mock environment variables
       process.env.STRIPE_PREMIUM_PRICE_ID = 'price_premium'
-      
+
       const tier = getSubscriptionTier('price_premium')
       expect(tier).toBe('premium')
     })

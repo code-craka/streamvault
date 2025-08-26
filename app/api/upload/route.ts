@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const formData = await request.formData()
@@ -28,10 +25,7 @@ export async function POST(request: NextRequest) {
     const type = formData.get('type') as string
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
     // Validate file size
@@ -54,7 +48,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now()
     const fileExtension = file.name.split('.').pop()
     const fileName = `${timestamp}_${Math.random().toString(36).substring(7)}.${fileExtension}`
-    
+
     let filePath: string
     if (type === 'video') {
       filePath = `videos/${userId}/${fileName}`
@@ -80,33 +74,30 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
 
     return new Promise((resolve, reject) => {
-      stream.on('error', (error) => {
+      stream.on('error', error => {
         console.error('Upload error:', error)
-        resolve(NextResponse.json(
-          { error: 'Failed to upload file' },
-          { status: 500 }
-        ))
+        resolve(
+          NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
+        )
       })
 
       stream.on('finish', () => {
-        resolve(NextResponse.json({
-          filePath,
-          fileName,
-          originalName: file.name,
-          size: file.size,
-          type: file.type,
-          message: 'File uploaded successfully',
-        }))
+        resolve(
+          NextResponse.json({
+            filePath,
+            fileName,
+            originalName: file.name,
+            size: file.size,
+            type: file.type,
+            message: 'File uploaded successfully',
+          })
+        )
       })
 
       stream.end(buffer)
     })
-
   } catch (error) {
     console.error('Upload failed:', error)
-    return NextResponse.json(
-      { error: 'Upload failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
 }

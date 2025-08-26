@@ -7,18 +7,15 @@ const recommendationsSchema = z.object({
   videoId: z.string().optional(),
   limit: z.coerce.number().min(1).max(50).default(10),
   category: z.string().optional(),
-  includeReason: z.coerce.boolean().default(false)
+  includeReason: z.coerce.boolean().default(false),
 })
 
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -26,7 +23,7 @@ export async function GET(request: NextRequest) {
       videoId: searchParams.get('videoId') || undefined,
       limit: searchParams.get('limit') || '10',
       category: searchParams.get('category') || undefined,
-      includeReason: searchParams.get('includeReason') || 'false'
+      includeReason: searchParams.get('includeReason') || 'false',
     }
 
     const validatedParams = recommendationsSchema.parse(params)
@@ -50,20 +47,19 @@ export async function GET(request: NextRequest) {
       category: video.category,
       tags: video.tags,
       confidence: video.aiGenerated.confidence,
-      reason: validatedParams.includeReason 
+      reason: validatedParams.includeReason
         ? generateRecommendationReason(video, validatedParams.videoId)
-        : ''
+        : '',
     }))
 
     return NextResponse.json({
       recommendations: transformedRecommendations,
       total: transformedRecommendations.length,
-      hasMore: transformedRecommendations.length >= validatedParams.limit
+      hasMore: transformedRecommendations.length >= validatedParams.limit,
     })
-
   } catch (error) {
     console.error('Recommendations API error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid parameters', details: error.errors },
@@ -78,13 +74,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateRecommendationReason(video: any, currentVideoId?: string): string {
+function generateRecommendationReason(
+  video: any,
+  currentVideoId?: string
+): string {
   const reasons = [
     `Similar to videos you've watched`,
     `Popular in ${video.category}`,
     `Based on your viewing history`,
     `Trending content you might like`,
-    `From creators you follow`
+    `From creators you follow`,
   ]
 
   if (currentVideoId) {

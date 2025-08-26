@@ -1,19 +1,19 @@
 // Advanced analytics and business intelligence service
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
   getDocs,
   Timestamp,
-  limit
+  limit,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import type { 
-  ViewerMetrics, 
-  StreamMetrics, 
+import type {
+  ViewerMetrics,
+  StreamMetrics,
   ChatMetrics,
-  CreatorAnalytics 
+  CreatorAnalytics,
 } from '@/types/analytics'
 
 export interface GeographicHeatmap {
@@ -116,7 +116,7 @@ export class BusinessIntelligenceService {
           coordinates: { lat: 34.0522, lng: -118.2437 },
           viewerCount: 1250,
           averageViewTime: 1800,
-          engagementScore: 85
+          engagementScore: 85,
         },
         {
           country: 'United Kingdom',
@@ -125,8 +125,8 @@ export class BusinessIntelligenceService {
           coordinates: { lat: 51.5074, lng: -0.1278 },
           viewerCount: 890,
           averageViewTime: 1650,
-          engagementScore: 78
-        }
+          engagementScore: 78,
+        },
       ]
     } catch (error) {
       console.error('Error generating geographic heatmap:', error)
@@ -135,17 +135,20 @@ export class BusinessIntelligenceService {
   }
 
   // Generate engagement heatmap for stream content analysis
-  async generateEngagementHeatmap(streamId: string): Promise<EngagementHeatmap[]> {
+  async generateEngagementHeatmap(
+    streamId: string
+  ): Promise<EngagementHeatmap[]> {
     try {
       // Mock engagement data
       const heatmap: EngagementHeatmap[] = []
-      for (let i = 0; i < 3600; i += 30) { // 1 hour in 30-second intervals
+      for (let i = 0; i < 3600; i += 30) {
+        // 1 hour in 30-second intervals
         heatmap.push({
           timepoint: i,
           engagementLevel: Math.floor(Math.random() * 100),
           viewerCount: Math.floor(Math.random() * 500) + 100,
           chatActivity: Math.floor(Math.random() * 50),
-          qualityChanges: Math.floor(Math.random() * 5)
+          qualityChanges: Math.floor(Math.random() * 5),
         })
       }
       return heatmap
@@ -170,23 +173,24 @@ export class BusinessIntelligenceService {
           recommendations: [
             {
               type: 'title',
-              suggestion: 'Add trending keywords like "LIVE" or game name to title',
+              suggestion:
+                'Add trending keywords like "LIVE" or game name to title',
               impact: 'high',
-              confidence: 0.85
+              confidence: 0.85,
             },
             {
               type: 'timing',
               suggestion: 'Stream between 7-9 PM for optimal viewer engagement',
               impact: 'medium',
-              confidence: 0.75
-            }
+              confidence: 0.75,
+            },
           ],
           predictedImprovement: {
             viewers: 150,
             engagement: 25,
-            revenue: 75
-          }
-        }
+            revenue: 75,
+          },
+        },
       ]
     } catch (error) {
       console.error('Error generating content optimization:', error)
@@ -202,11 +206,19 @@ export class BusinessIntelligenceService {
         {
           userId: 'user_123',
           churnProbability: 0.75,
-          riskFactors: ['Inactive for 2 weeks', 'Low engagement', 'No recent purchases'],
-          retentionStrategies: ['Send personalized content', 'Offer discount', 'Direct engagement'],
+          riskFactors: [
+            'Inactive for 2 weeks',
+            'Low engagement',
+            'No recent purchases',
+          ],
+          retentionStrategies: [
+            'Send personalized content',
+            'Offer discount',
+            'Direct engagement',
+          ],
           lifetimeValue: 240,
-          daysUntilChurn: 14
-        }
+          daysUntilChurn: 14,
+        },
       ]
     } catch (error) {
       console.error('Error predicting churn:', error)
@@ -238,7 +250,7 @@ export class BusinessIntelligenceService {
           participants: 1250,
           conversionRate: 0.12,
           revenue: 2400,
-          confidence: 0.95
+          confidence: 0.95,
         },
         {
           id: 'variant_a',
@@ -246,13 +258,13 @@ export class BusinessIntelligenceService {
           participants: 1180,
           conversionRate: 0.15,
           revenue: 2850,
-          confidence: 0.92
-        }
+          confidence: 0.92,
+        },
       ],
       winner: 'variant_a',
       status: 'completed',
       startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-01-15')
+      endDate: new Date('2024-01-15'),
     }
   }
 
@@ -277,8 +289,8 @@ export class BusinessIntelligenceService {
         { month: 9, multiplier: 1.1 },
         { month: 10, multiplier: 1.15 },
         { month: 11, multiplier: 1.4 },
-        { month: 12, multiplier: 1.5 }
-      ]
+        { month: 12, multiplier: 1.5 },
+      ],
     }
   }
 
@@ -296,7 +308,7 @@ export class BusinessIntelligenceService {
       predictedLTV: 540,
       monthlyValue: 19.99,
       churnRisk: 0.25,
-      retentionProbability: 0.75
+      retentionProbability: 0.75,
     }
   }
 }

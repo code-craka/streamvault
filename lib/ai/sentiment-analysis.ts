@@ -109,7 +109,9 @@ export class SentimentAnalysisService {
   /**
    * Analyze sentiment of content transcription
    */
-  async analyzeContentSentiment(transcription: string): Promise<SentimentResult> {
+  async analyzeContentSentiment(
+    transcription: string
+  ): Promise<SentimentResult> {
     try {
       const segments = this.segmentTranscription(transcription)
       const sentimentSegments: SentimentSegment[] = []
@@ -211,7 +213,7 @@ export class SentimentAnalysisService {
         sentiment: {
           polarity: 0.1,
           magnitude: 0.5,
-          confidence: 0.80,
+          confidence: 0.8,
           label: 'neutral',
         },
         volume: 120,
@@ -239,27 +241,37 @@ export class SentimentAnalysisService {
 
     // Content sentiment insights
     if (contentSentiment.overall.polarity > 0.5) {
-      insights.push('Content has very positive sentiment, likely to engage audience well')
+      insights.push(
+        'Content has very positive sentiment, likely to engage audience well'
+      )
     } else if (contentSentiment.overall.polarity < -0.3) {
-      insights.push('Content has negative sentiment, may impact audience engagement')
+      insights.push(
+        'Content has negative sentiment, may impact audience engagement'
+      )
       alerts.push('Negative content sentiment detected')
     }
 
     // Audience engagement insights
     if (audienceSentiment.engagementMetrics.positiveEngagementRate > 0.7) {
       insights.push('Audience is highly engaged with positive sentiment')
-    } else if (audienceSentiment.engagementMetrics.negativeEngagementRate > 0.4) {
+    } else if (
+      audienceSentiment.engagementMetrics.negativeEngagementRate > 0.4
+    ) {
       insights.push('High negative engagement detected in audience')
       alerts.push('Audience showing negative sentiment')
     }
 
     // Recommendations
     if (contentSentiment.overall.magnitude < 0.5) {
-      recommendations.push('Consider adding more emotional content to increase engagement')
+      recommendations.push(
+        'Consider adding more emotional content to increase engagement'
+      )
     }
 
     if (audienceSentiment.engagementMetrics.sentimentVolatility > 0.7) {
-      recommendations.push('Audience sentiment is volatile - consider moderating content tone')
+      recommendations.push(
+        'Audience sentiment is volatile - consider moderating content tone'
+      )
     }
 
     return { insights, recommendations, alerts }
@@ -290,16 +302,36 @@ export class SentimentAnalysisService {
   private async analyzeSentiment(text: string): Promise<SentimentScore> {
     // Mock implementation - in production would use Google Cloud Natural Language API
     const words = text.toLowerCase().split(' ')
-    
-    // Simple keyword-based sentiment analysis
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'love', 'like', 'awesome']
-    const negativeWords = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'horrible']
 
-    const positiveCount = words.filter(word => positiveWords.includes(word)).length
-    const negativeCount = words.filter(word => negativeWords.includes(word)).length
+    // Simple keyword-based sentiment analysis
+    const positiveWords = [
+      'good',
+      'great',
+      'excellent',
+      'amazing',
+      'love',
+      'like',
+      'awesome',
+    ]
+    const negativeWords = [
+      'bad',
+      'terrible',
+      'awful',
+      'hate',
+      'dislike',
+      'horrible',
+    ]
+
+    const positiveCount = words.filter(word =>
+      positiveWords.includes(word)
+    ).length
+    const negativeCount = words.filter(word =>
+      negativeWords.includes(word)
+    ).length
 
     const polarity = (positiveCount - negativeCount) / Math.max(words.length, 1)
-    const magnitude = (positiveCount + negativeCount) / Math.max(words.length, 1)
+    const magnitude =
+      (positiveCount + negativeCount) / Math.max(words.length, 1)
 
     let label: SentimentScore['label']
     if (polarity > 0.3) label = 'very_positive'
@@ -322,8 +354,23 @@ export class SentimentAnalysisService {
   private async extractKeyPhrases(text: string): Promise<string[]> {
     // Simple implementation - in production would use NLP libraries
     const words = text.toLowerCase().split(' ')
-    const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']
-    
+    const stopWords = [
+      'the',
+      'a',
+      'an',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'to',
+      'for',
+      'of',
+      'with',
+      'by',
+    ]
+
     return words
       .filter(word => word.length > 3 && !stopWords.includes(word))
       .slice(0, 5)
@@ -369,7 +416,9 @@ export class SentimentAnalysisService {
   /**
    * Calculate overall sentiment from segments
    */
-  private calculateOverallSentiment(segments: SentimentSegment[]): SentimentScore {
+  private calculateOverallSentiment(
+    segments: SentimentSegment[]
+  ): SentimentScore {
     if (segments.length === 0) {
       return {
         polarity: 0,
@@ -379,9 +428,15 @@ export class SentimentAnalysisService {
       }
     }
 
-    const avgPolarity = segments.reduce((sum, seg) => sum + seg.sentiment.polarity, 0) / segments.length
-    const avgMagnitude = segments.reduce((sum, seg) => sum + seg.sentiment.magnitude, 0) / segments.length
-    const avgConfidence = segments.reduce((sum, seg) => sum + seg.sentiment.confidence, 0) / segments.length
+    const avgPolarity =
+      segments.reduce((sum, seg) => sum + seg.sentiment.polarity, 0) /
+      segments.length
+    const avgMagnitude =
+      segments.reduce((sum, seg) => sum + seg.sentiment.magnitude, 0) /
+      segments.length
+    const avgConfidence =
+      segments.reduce((sum, seg) => sum + seg.sentiment.confidence, 0) /
+      segments.length
 
     let label: SentimentScore['label']
     if (avgPolarity > 0.3) label = 'very_positive'
@@ -401,7 +456,9 @@ export class SentimentAnalysisService {
   /**
    * Calculate sentiment trends over time
    */
-  private calculateSentimentTrends(segments: SentimentSegment[]): SentimentTrend[] {
+  private calculateSentimentTrends(
+    segments: SentimentSegment[]
+  ): SentimentTrend[] {
     // Group segments into time windows and calculate trends
     const windowSize = 60 // 1 minute windows
     const trends: SentimentTrend[] = []
@@ -424,7 +481,10 @@ export class SentimentAnalysisService {
   /**
    * Analyze reactions and comments sentiment
    */
-  private analyzeReactions(reactions: any[], comments: any[]): ReactionSentiment {
+  private analyzeReactions(
+    reactions: any[],
+    comments: any[]
+  ): ReactionSentiment {
     const commentSentiments: CommentSentiment[] = comments.map(comment => ({
       id: comment.id,
       text: comment.text,
@@ -455,10 +515,14 @@ export class SentimentAnalysisService {
     chatSentiment: SentimentResult,
     reactionSentiment: ReactionSentiment
   ): EngagementSentimentMetrics {
-    const positiveSegments = chatSentiment.segments.filter(s => s.sentiment.polarity > 0.1)
-    const negativeSegments = chatSentiment.segments.filter(s => s.sentiment.polarity < -0.1)
-    const neutralSegments = chatSentiment.segments.filter(s => 
-      s.sentiment.polarity >= -0.1 && s.sentiment.polarity <= 0.1
+    const positiveSegments = chatSentiment.segments.filter(
+      s => s.sentiment.polarity > 0.1
+    )
+    const negativeSegments = chatSentiment.segments.filter(
+      s => s.sentiment.polarity < -0.1
+    )
+    const neutralSegments = chatSentiment.segments.filter(
+      s => s.sentiment.polarity >= -0.1 && s.sentiment.polarity <= 0.1
     )
 
     const total = chatSentiment.segments.length
@@ -507,7 +571,11 @@ export class SentimentAnalysisService {
         timeframe: 'next 30 minutes',
         factors: ['increasing engagement', 'positive chat sentiment'],
       },
-      influencingFactors: ['chat activity', 'content quality', 'technical issues'],
+      influencingFactors: [
+        'chat activity',
+        'content quality',
+        'technical issues',
+      ],
     }
   }
 
@@ -519,7 +587,9 @@ export class SentimentAnalysisService {
 
     let volatility = 0
     for (let i = 1; i < segments.length; i++) {
-      const diff = Math.abs(segments[i].sentiment.polarity - segments[i - 1].sentiment.polarity)
+      const diff = Math.abs(
+        segments[i].sentiment.polarity - segments[i - 1].sentiment.polarity
+      )
       volatility += diff
     }
 

@@ -4,15 +4,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import type { SubscriptionTier, StreamVaultUser } from '@/types/auth'
 import type { FeatureAccess } from '@/types/subscription'
-import { 
-  validateFeatureAccess, 
+import {
+  validateFeatureAccess,
   validateUsageLimit,
   canAccessAPI,
   canAccessAdvancedAnalytics,
   canUseWhiteLabel,
   canStreamAtQuality,
   canCreateCustomEmote,
-  canDownloadVideo
+  canDownloadVideo,
 } from '@/lib/auth/subscription-validation'
 
 /**
@@ -26,12 +26,9 @@ export function withFeatureGate(
     return async function (request: NextRequest, ...args: any[]) {
       try {
         const { userId } = await auth()
-        
+
         if (!userId) {
-          return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-          )
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const user = await (await clerkClient()).users.getUser(userId)
@@ -43,22 +40,29 @@ export function withFeatureGate(
           lastName: user.lastName || null,
           avatar: user.imageUrl || undefined,
           role: (user.publicMetadata.role as any) || 'viewer',
-          subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-          subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-          subscriptionId: user.publicMetadata.subscriptionId as string || undefined,
+          subscriptionTier:
+            (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+          subscriptionStatus:
+            (user.publicMetadata.subscriptionStatus as any) || null,
+          subscriptionId:
+            (user.publicMetadata.subscriptionId as string) || undefined,
           createdAt: new Date(user.createdAt),
           lastLoginAt: user.lastSignInAt || user.createdAt,
         }
 
-        const access = validateFeatureAccess(streamVaultUser, requiredTier, feature)
-        
+        const access = validateFeatureAccess(
+          streamVaultUser,
+          requiredTier,
+          feature
+        )
+
         if (!access.hasAccess) {
           return NextResponse.json(
-            { 
+            {
               error: 'Feature access denied',
               reason: access.reason,
               upgradeRequired: access.upgradeRequired,
-              trialAvailable: access.trialAvailable
+              trialAvailable: access.trialAvailable,
             },
             { status: 403 }
           )
@@ -66,7 +70,7 @@ export function withFeatureGate(
 
         // Add user to request context
         ;(request as any).user = streamVaultUser
-        
+
         return handler(request, ...args)
       } catch (error) {
         console.error('Feature gate error:', error)
@@ -90,12 +94,9 @@ export function withUsageGate(
     return async function (request: NextRequest, ...args: any[]) {
       try {
         const { userId } = await auth()
-        
+
         if (!userId) {
-          return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-          )
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const user = await (await clerkClient()).users.getUser(userId)
@@ -107,24 +108,31 @@ export function withUsageGate(
           lastName: user.lastName || null,
           avatar: user.imageUrl || undefined,
           role: (user.publicMetadata.role as any) || 'viewer',
-          subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-          subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-          subscriptionId: user.publicMetadata.subscriptionId as string || undefined,
+          subscriptionTier:
+            (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+          subscriptionStatus:
+            (user.publicMetadata.subscriptionStatus as any) || null,
+          subscriptionId:
+            (user.publicMetadata.subscriptionId as string) || undefined,
           createdAt: new Date(user.createdAt),
           lastLoginAt: user.lastSignInAt || user.createdAt,
         }
 
         const currentUsage = await getCurrentUsage(streamVaultUser)
-        const access = validateUsageLimit(streamVaultUser, feature, currentUsage)
-        
+        const access = validateUsageLimit(
+          streamVaultUser,
+          feature,
+          currentUsage
+        )
+
         if (!access.hasAccess) {
           return NextResponse.json(
-            { 
+            {
               error: 'Usage limit exceeded',
               reason: access.reason,
               upgradeRequired: access.upgradeRequired,
               usageRemaining: access.usageRemaining,
-              resetDate: access.resetDate
+              resetDate: access.resetDate,
             },
             { status: 429 }
           )
@@ -134,7 +142,7 @@ export function withUsageGate(
         ;(request as any).user = streamVaultUser
         ;(request as any).currentUsage = currentUsage
         ;(request as any).usageRemaining = access.usageRemaining
-        
+
         return handler(request, ...args)
       } catch (error) {
         console.error('Usage gate error:', error)
@@ -160,13 +168,15 @@ export function withFeatureAndUsageGate(
     return async function (request: NextRequest, ...args: any[]) {
       // First check feature access
       const featureGate = withFeatureGate(requiredTier, featureName)
-      const featureGatedHandler = featureGate(async (req: NextRequest, ...handlerArgs: any[]) => {
-        // Then check usage limits
-        const usageGate = withUsageGate(feature, getCurrentUsage)
-        const usageGatedHandler = usageGate(handler)
-        return usageGatedHandler(req, ...handlerArgs)
-      })
-      
+      const featureGatedHandler = featureGate(
+        async (req: NextRequest, ...handlerArgs: any[]) => {
+          // Then check usage limits
+          const usageGate = withUsageGate(feature, getCurrentUsage)
+          const usageGatedHandler = usageGate(handler)
+          return usageGatedHandler(req, ...handlerArgs)
+        }
+      )
+
       return featureGatedHandler(request, ...args)
     }
   }
@@ -180,10 +190,12 @@ export function withFeatureAndUsageGate(
 export const withAPIAccess = () => withFeatureGate('pro', 'API access')
 
 // Advanced analytics gate
-export const withAdvancedAnalytics = () => withFeatureGate('premium', 'Advanced analytics')
+export const withAdvancedAnalytics = () =>
+  withFeatureGate('premium', 'Advanced analytics')
 
 // White-label features gate
-export const withWhiteLabelAccess = () => withFeatureGate('pro', 'White-label features')
+export const withWhiteLabelAccess = () =>
+  withFeatureGate('pro', 'White-label features')
 
 // Video quality gate
 export function withVideoQualityGate(quality: string) {
@@ -191,12 +203,9 @@ export function withVideoQualityGate(quality: string) {
     return async function (request: NextRequest, ...args: any[]) {
       try {
         const { userId } = await auth()
-        
+
         if (!userId) {
-          return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-          )
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const user = await (await clerkClient()).users.getUser(userId)
@@ -208,28 +217,31 @@ export function withVideoQualityGate(quality: string) {
           lastName: user.lastName || null,
           avatar: user.imageUrl || undefined,
           role: (user.publicMetadata.role as any) || 'viewer',
-          subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-          subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-          subscriptionId: user.publicMetadata.subscriptionId as string || undefined,
+          subscriptionTier:
+            (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+          subscriptionStatus:
+            (user.publicMetadata.subscriptionStatus as any) || null,
+          subscriptionId:
+            (user.publicMetadata.subscriptionId as string) || undefined,
           createdAt: new Date(user.createdAt),
           lastLoginAt: user.lastSignInAt || user.createdAt,
         }
 
         const access = canStreamAtQuality(streamVaultUser, quality)
-        
+
         if (!access.hasAccess) {
           return NextResponse.json(
-            { 
+            {
               error: 'Video quality not available',
               reason: access.reason,
-              upgradeRequired: access.upgradeRequired
+              upgradeRequired: access.upgradeRequired,
             },
             { status: 403 }
           )
         }
 
         ;(request as any).user = streamVaultUser
-        
+
         return handler(request, ...args)
       } catch (error) {
         console.error('Video quality gate error:', error)
@@ -243,17 +255,16 @@ export function withVideoQualityGate(quality: string) {
 }
 
 // Custom emote creation gate
-export function withCustomEmoteGate(getCurrentEmoteCount: (user: StreamVaultUser) => Promise<number>) {
+export function withCustomEmoteGate(
+  getCurrentEmoteCount: (user: StreamVaultUser) => Promise<number>
+) {
   return function (handler: Function) {
     return async function (request: NextRequest, ...args: any[]) {
       try {
         const { userId } = await auth()
-        
+
         if (!userId) {
-          return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-          )
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const user = await (await clerkClient()).users.getUser(userId)
@@ -265,23 +276,26 @@ export function withCustomEmoteGate(getCurrentEmoteCount: (user: StreamVaultUser
           lastName: user.lastName || null,
           avatar: user.imageUrl || undefined,
           role: (user.publicMetadata.role as any) || 'viewer',
-          subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-          subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-          subscriptionId: user.publicMetadata.subscriptionId as string || undefined,
+          subscriptionTier:
+            (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+          subscriptionStatus:
+            (user.publicMetadata.subscriptionStatus as any) || null,
+          subscriptionId:
+            (user.publicMetadata.subscriptionId as string) || undefined,
           createdAt: new Date(user.createdAt),
           lastLoginAt: user.lastSignInAt || user.createdAt,
         }
 
         const currentEmotes = await getCurrentEmoteCount(streamVaultUser)
         const access = canCreateCustomEmote(streamVaultUser, currentEmotes)
-        
+
         if (!access.hasAccess) {
           return NextResponse.json(
-            { 
+            {
               error: 'Custom emote limit reached',
               reason: access.reason,
               upgradeRequired: access.upgradeRequired,
-              usageRemaining: access.usageRemaining
+              usageRemaining: access.usageRemaining,
             },
             { status: 429 }
           )
@@ -290,7 +304,7 @@ export function withCustomEmoteGate(getCurrentEmoteCount: (user: StreamVaultUser
         ;(request as any).user = streamVaultUser
         ;(request as any).currentEmotes = currentEmotes
         ;(request as any).emotesRemaining = access.usageRemaining
-        
+
         return handler(request, ...args)
       } catch (error) {
         console.error('Custom emote gate error:', error)
@@ -304,17 +318,16 @@ export function withCustomEmoteGate(getCurrentEmoteCount: (user: StreamVaultUser
 }
 
 // Download gate
-export function withDownloadGate(getCurrentDownloads: (user: StreamVaultUser) => Promise<number>) {
+export function withDownloadGate(
+  getCurrentDownloads: (user: StreamVaultUser) => Promise<number>
+) {
   return function (handler: Function) {
     return async function (request: NextRequest, ...args: any[]) {
       try {
         const { userId } = await auth()
-        
+
         if (!userId) {
-          return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-          )
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const user = await (await clerkClient()).users.getUser(userId)
@@ -326,23 +339,26 @@ export function withDownloadGate(getCurrentDownloads: (user: StreamVaultUser) =>
           lastName: user.lastName || null,
           avatar: user.imageUrl || undefined,
           role: (user.publicMetadata.role as any) || 'viewer',
-          subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-          subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-          subscriptionId: user.publicMetadata.subscriptionId as string || undefined,
+          subscriptionTier:
+            (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+          subscriptionStatus:
+            (user.publicMetadata.subscriptionStatus as any) || null,
+          subscriptionId:
+            (user.publicMetadata.subscriptionId as string) || undefined,
           createdAt: new Date(user.createdAt),
           lastLoginAt: user.lastSignInAt || user.createdAt,
         }
 
         const currentDownloads = await getCurrentDownloads(streamVaultUser)
         const access = canDownloadVideo(streamVaultUser, currentDownloads)
-        
+
         if (!access.hasAccess) {
           return NextResponse.json(
-            { 
+            {
               error: 'Download limit reached',
               reason: access.reason,
               upgradeRequired: access.upgradeRequired,
-              usageRemaining: access.usageRemaining
+              usageRemaining: access.usageRemaining,
             },
             { status: 429 }
           )
@@ -351,7 +367,7 @@ export function withDownloadGate(getCurrentDownloads: (user: StreamVaultUser) =>
         ;(request as any).user = streamVaultUser
         ;(request as any).currentDownloads = currentDownloads
         ;(request as any).downloadsRemaining = access.usageRemaining
-        
+
         return handler(request, ...args)
       } catch (error) {
         console.error('Download gate error:', error)
@@ -367,7 +383,9 @@ export function withDownloadGate(getCurrentDownloads: (user: StreamVaultUser) =>
 /**
  * Helper function to get user from request (after middleware)
  */
-export function getUserFromRequest(request: NextRequest): StreamVaultUser | null {
+export function getUserFromRequest(
+  request: NextRequest
+): StreamVaultUser | null {
   return (request as any).user || null
 }
 
@@ -389,9 +407,12 @@ export async function checkFeatureAccess(
       lastName: user.lastName || null,
       avatar: user.imageUrl || undefined,
       role: (user.publicMetadata.role as any) || 'viewer',
-      subscriptionTier: (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
-      subscriptionStatus: (user.publicMetadata.subscriptionStatus as any) || null,
-      subscriptionId: (user.publicMetadata.subscriptionId as string) || undefined,
+      subscriptionTier:
+        (user.publicMetadata.subscriptionTier as SubscriptionTier) || null,
+      subscriptionStatus:
+        (user.publicMetadata.subscriptionStatus as any) || null,
+      subscriptionId:
+        (user.publicMetadata.subscriptionId as string) || undefined,
       createdAt: new Date(user.createdAt),
       lastLoginAt: user.lastSignInAt || user.createdAt,
     }

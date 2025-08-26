@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withFeatureAndUsageGate, getUserFromRequest } from '@/lib/middleware/feature-gate'
+import {
+  withFeatureAndUsageGate,
+  getUserFromRequest,
+} from '@/lib/middleware/feature-gate'
 import { db } from '@/lib/firebase'
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore'
 import { z } from 'zod'
@@ -45,9 +48,11 @@ const handler = withFeatureAndUsageGate(
     const validatedData = createStreamSchema.parse(body)
 
     // Additional validation: check if user can stream at requested quality
-    const { canStreamAtQuality } = await import('@/lib/auth/subscription-validation')
+    const { canStreamAtQuality } = await import(
+      '@/lib/auth/subscription-validation'
+    )
     const qualityAccess = canStreamAtQuality(user, validatedData.quality)
-    
+
     if (!qualityAccess.hasAccess) {
       return NextResponse.json(
         {

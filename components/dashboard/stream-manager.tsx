@@ -3,28 +3,40 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
-import { 
-  Play, 
-  Square, 
-  Settings, 
-  Copy, 
-  Eye, 
+import {
+  Play,
+  Square,
+  Settings,
+  Copy,
+  Eye,
   Clock,
   Users,
   MessageCircle,
   RefreshCw,
   ExternalLink,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 
 interface Stream {
@@ -71,7 +83,7 @@ export function StreamManager() {
       if (response.ok) {
         const data = await response.json()
         setStreams(data.streams || [])
-        
+
         // Find active stream
         const active = data.streams?.find((s: Stream) => s.status === 'active')
         setActiveStream(active || null)
@@ -95,8 +107,8 @@ export function StreamManager() {
           title: title.trim(),
           description: description.trim(),
           category,
-          isPrivate
-        })
+          isPrivate,
+        }),
       })
 
       if (response.ok) {
@@ -118,7 +130,7 @@ export function StreamManager() {
   const startStream = async (streamId: string) => {
     try {
       const response = await fetch(`/api/streams/${streamId}/start`, {
-        method: 'POST'
+        method: 'POST',
       })
 
       if (response.ok) {
@@ -132,7 +144,7 @@ export function StreamManager() {
   const endStream = async (streamId: string) => {
     try {
       const response = await fetch(`/api/streams/${streamId}/end`, {
-        method: 'POST'
+        method: 'POST',
       })
 
       if (response.ok) {
@@ -151,7 +163,7 @@ export function StreamManager() {
   const regenerateStreamKey = async (streamId: string) => {
     try {
       const response = await fetch(`/api/streams/${streamId}/regenerate-key`, {
-        method: 'POST'
+        method: 'POST',
       })
 
       if (response.ok) {
@@ -164,8 +176,8 @@ export function StreamManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
       </div>
     )
   }
@@ -179,41 +191,44 @@ export function StreamManager() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Badge variant="default" className="bg-green-600">
-                  <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse" />
+                  <div className="mr-1 h-2 w-2 animate-pulse rounded-full bg-white" />
                   LIVE
                 </Badge>
                 <CardTitle className="text-green-800 dark:text-green-200">
                   {activeStream.title}
                 </CardTitle>
               </div>
-              <Button 
+              <Button
                 onClick={() => endStream(activeStream.id)}
                 variant="destructive"
                 size="sm"
               >
-                <Square className="h-4 w-4 mr-1" />
+                <Square className="mr-1 h-4 w-4" />
                 End Stream
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className="text-muted-foreground h-4 w-4" />
                 <span className="text-sm">
                   {activeStream.currentViewers || 0} viewers
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                <MessageCircle className="text-muted-foreground h-4 w-4" />
                 <span className="text-sm">
                   {activeStream.chatMessages || 0} messages
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="text-muted-foreground h-4 w-4" />
                 <span className="text-sm">
-                  Started {activeStream.startedAt ? new Date(activeStream.startedAt).toLocaleTimeString() : 'Unknown'}
+                  Started{' '}
+                  {activeStream.startedAt
+                    ? new Date(activeStream.startedAt).toLocaleTimeString()
+                    : 'Unknown'}
                 </span>
               </div>
             </div>
@@ -227,9 +242,11 @@ export function StreamManager() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Stream Management</CardTitle>
-              <CardDescription>Create and manage your live streams</CardDescription>
+              <CardDescription>
+                Create and manage your live streams
+              </CardDescription>
             </div>
-            <Button 
+            <Button
               onClick={() => setShowCreateForm(!showCreateForm)}
               disabled={!!activeStream}
             >
@@ -240,13 +257,13 @@ export function StreamManager() {
 
         {showCreateForm && (
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="title">Stream Title</Label>
                 <Input
                   id="title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={e => setTitle(e.target.value)}
                   placeholder="Enter stream title..."
                 />
               </div>
@@ -274,7 +291,7 @@ export function StreamManager() {
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Describe your stream..."
                 rows={3}
               />
@@ -289,14 +306,14 @@ export function StreamManager() {
               <Label htmlFor="private">Private Stream</Label>
             </div>
 
-            <Button 
-              onClick={createStream} 
+            <Button
+              onClick={createStream}
               disabled={creating || !title.trim()}
               className="w-full"
             >
               {creating ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (
@@ -310,53 +327,62 @@ export function StreamManager() {
       {/* Stream List */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Your Streams</h3>
-        
+
         {streams.length === 0 ? (
           <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-muted-foreground">No streams found. Create your first stream to get started!</p>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">
+                No streams found. Create your first stream to get started!
+              </p>
             </CardContent>
           </Card>
         ) : (
-          streams.map((stream) => (
+          streams.map(stream => (
             <Card key={stream.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Badge 
+                    <Badge
                       variant={
-                        stream.status === 'active' ? 'default' :
-                        stream.status === 'inactive' ? 'secondary' : 'outline'
+                        stream.status === 'active'
+                          ? 'default'
+                          : stream.status === 'inactive'
+                            ? 'secondary'
+                            : 'outline'
                       }
                     >
-                      {stream.status === 'active' && <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse" />}
+                      {stream.status === 'active' && (
+                        <div className="mr-1 h-2 w-2 animate-pulse rounded-full bg-white" />
+                      )}
                       {stream.status.toUpperCase()}
                     </Badge>
                     <div>
-                      <CardTitle className="text-base">{stream.title}</CardTitle>
+                      <CardTitle className="text-base">
+                        {stream.title}
+                      </CardTitle>
                       <CardDescription>{stream.category}</CardDescription>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {stream.status === 'inactive' && (
-                      <Button 
+                      <Button
                         onClick={() => startStream(stream.id)}
                         size="sm"
                         disabled={!!activeStream}
                       >
-                        <Play className="h-4 w-4 mr-1" />
+                        <Play className="mr-1 h-4 w-4" />
                         Start
                       </Button>
                     )}
-                    
+
                     {stream.status === 'active' && (
-                      <Button 
+                      <Button
                         onClick={() => endStream(stream.id)}
                         variant="destructive"
                         size="sm"
                       >
-                        <Square className="h-4 w-4 mr-1" />
+                        <Square className="mr-1 h-4 w-4" />
                         End
                       </Button>
                     )}
@@ -366,26 +392,30 @@ export function StreamManager() {
 
               <CardContent className="space-y-4">
                 {stream.description && (
-                  <p className="text-sm text-muted-foreground">{stream.description}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {stream.description}
+                  </p>
                 )}
 
                 {/* Stream Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                   <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="text-muted-foreground h-4 w-4" />
                     <span>{stream.totalViewers || 0} total views</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Users className="text-muted-foreground h-4 w-4" />
                     <span>{stream.currentViewers || 0} current</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                    <MessageCircle className="text-muted-foreground h-4 w-4" />
                     <span>{stream.chatMessages || 0} messages</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{new Date(stream.createdAt).toLocaleDateString()}</span>
+                    <Clock className="text-muted-foreground h-4 w-4" />
+                    <span>
+                      {new Date(stream.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 
@@ -395,58 +425,64 @@ export function StreamManager() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">RTMP URL</Label>
-                    <Button 
+                    <Button
                       onClick={() => copyToClipboard(stream.rtmpUrl)}
-                      variant="ghost" 
+                      variant="ghost"
                       size="sm"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Input value={stream.rtmpUrl} readOnly className="font-mono text-xs" />
+                  <Input
+                    value={stream.rtmpUrl}
+                    readOnly
+                    className="font-mono text-xs"
+                  />
 
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Stream Key</Label>
                     <div className="flex gap-1">
-                      <Button 
+                      <Button
                         onClick={() => copyToClipboard(stream.streamKey)}
-                        variant="ghost" 
+                        variant="ghost"
                         size="sm"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => regenerateStreamKey(stream.id)}
-                        variant="ghost" 
+                        variant="ghost"
                         size="sm"
                       >
                         <RefreshCw className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                  <Input 
-                    value={stream.streamKey} 
-                    readOnly 
+                  <Input
+                    value={stream.streamKey}
+                    readOnly
                     type="password"
-                    className="font-mono text-xs" 
+                    className="font-mono text-xs"
                   />
 
                   {stream.status === 'active' && (
                     <>
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Watch URL</Label>
-                        <Button 
-                          onClick={() => window.open(`/stream/${stream.id}`, '_blank')}
-                          variant="ghost" 
+                        <Button
+                          onClick={() =>
+                            window.open(`/stream/${stream.id}`, '_blank')
+                          }
+                          variant="ghost"
                           size="sm"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
                       </div>
-                      <Input 
-                        value={`${window.location.origin}/stream/${stream.id}`} 
-                        readOnly 
-                        className="font-mono text-xs" 
+                      <Input
+                        value={`${window.location.origin}/stream/${stream.id}`}
+                        readOnly
+                        className="font-mono text-xs"
                       />
                     </>
                   )}

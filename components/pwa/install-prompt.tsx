@@ -46,7 +46,7 @@ export function InstallPrompt({ onDismiss, className }: InstallPromptProps) {
   const handleDismiss = () => {
     setShowPrompt(false)
     onDismiss?.()
-    
+
     // Don't show again for 24 hours
     localStorage.setItem('streamvault-install-dismissed', Date.now().toString())
   }
@@ -56,8 +56,9 @@ export function InstallPrompt({ onDismiss, className }: InstallPromptProps) {
     const dismissed = localStorage.getItem('streamvault-install-dismissed')
     if (dismissed) {
       const dismissedTime = parseInt(dismissed)
-      const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60)
-      
+      const hoursSinceDismissed =
+        (Date.now() - dismissedTime) / (1000 * 60 * 60)
+
       if (hoursSinceDismissed < 24) {
         setShowPrompt(false)
         return
@@ -70,10 +71,12 @@ export function InstallPrompt({ onDismiss, className }: InstallPromptProps) {
   }
 
   return (
-    <Card className={`fixed bottom-4 right-4 z-50 max-w-sm p-4 shadow-lg border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 ${className}`}>
-      <div className="flex items-start justify-between mb-3">
+    <Card
+      className={`fixed bottom-4 right-4 z-50 max-w-sm border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-lg ${className}`}
+    >
+      <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center space-x-2">
-          <div className="p-2 bg-blue-100 rounded-lg">
+          <div className="rounded-lg bg-blue-100 p-2">
             <Download className="h-5 w-5 text-blue-600" />
           </div>
           <div>
@@ -113,11 +116,7 @@ export function InstallPrompt({ onDismiss, className }: InstallPromptProps) {
           >
             {isInstalling ? 'Installing...' : 'Install App'}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleDismiss}
-            className="px-3"
-          >
+          <Button variant="outline" onClick={handleDismiss} className="px-3">
             Later
           </Button>
         </div>
@@ -152,7 +151,7 @@ export function InstallButton() {
       disabled={isInstalling}
       variant="outline"
       size="sm"
-      className="hidden sm:flex items-center space-x-2"
+      className="hidden items-center space-x-2 sm:flex"
     >
       <Download className="h-4 w-4" />
       <span>{isInstalling ? 'Installing...' : 'Install App'}</span>

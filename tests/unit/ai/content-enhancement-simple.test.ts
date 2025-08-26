@@ -14,15 +14,14 @@ describe('AI Content Enhancement - Simple Tests', () => {
         technical: 0.3,
         engagement: 0.4,
         accessibility: 0.15,
-        seo: 0.15
+        seo: 0.15,
       }
 
-      const overall = (
+      const overall =
         technical * weights.technical +
         engagement * weights.engagement +
         accessibility * weights.accessibility +
         seo * weights.seo
-      )
 
       expect(overall).toBeCloseTo(0.745, 2)
     })
@@ -60,20 +59,28 @@ describe('AI Content Enhancement - Simple Tests', () => {
 
         // Optimal length for SEO
         if (length >= 40 && length <= 70) score += 0.2
-        
+
         // Contains keywords
-        if (/\b(tutorial|guide|review|tips|how to)\b/i.test(title)) score += 0.15
-        
+        if (/\b(tutorial|guide|review|tips|how to)\b/i.test(title))
+          score += 0.15
+
         // Emotional words
-        if (/\b(amazing|incredible|best|ultimate|perfect)\b/i.test(title)) score += 0.1
+        if (/\b(amazing|incredible|best|ultimate|perfect)\b/i.test(title))
+          score += 0.1
 
         return Math.min(score, 1.0)
       }
 
       expect(analyzeTitleSEO()).toBe(0.1)
       expect(analyzeTitleSEO('Short')).toBe(0.5)
-      expect(analyzeTitleSEO('This is an amazing tutorial on how to build great apps')).toBeGreaterThan(0.8)
-      expect(analyzeTitleSEO('Ultimate guide to the best practices')).toBeGreaterThan(0.7)
+      expect(
+        analyzeTitleSEO(
+          'This is an amazing tutorial on how to build great apps'
+        )
+      ).toBeGreaterThan(0.8)
+      expect(
+        analyzeTitleSEO('Ultimate guide to the best practices')
+      ).toBeGreaterThan(0.7)
     })
 
     it('should analyze description SEO correctly', () => {
@@ -85,20 +92,23 @@ describe('AI Content Enhancement - Simple Tests', () => {
 
         // Good length for SEO
         if (length >= 100 && length <= 300) score += 0.3
-        
+
         // Contains relevant keywords
-        if (description.includes('subscribe') || description.includes('like')) score += 0.1
-        
+        if (description.includes('subscribe') || description.includes('like'))
+          score += 0.1
+
         // Has call to action
-        if (/\b(watch|subscribe|like|comment|share)\b/i.test(description)) score += 0.15
+        if (/\b(watch|subscribe|like|comment|share)\b/i.test(description))
+          score += 0.15
 
         return Math.min(score, 1.0)
       }
 
       expect(analyzeDescriptionSEO()).toBe(0.1)
       expect(analyzeDescriptionSEO('Short desc')).toBe(0.4)
-      
-      const longDesc = 'This is a comprehensive tutorial that covers everything you need to know. Please subscribe to our channel and like this video if you found it helpful. Don\'t forget to share with your friends!'
+
+      const longDesc =
+        "This is a comprehensive tutorial that covers everything you need to know. Please subscribe to our channel and like this video if you found it helpful. Don't forget to share with your friends!"
       expect(analyzeDescriptionSEO(longDesc)).toBeGreaterThan(0.8)
     })
   })
@@ -118,7 +128,8 @@ describe('AI Content Enhancement - Simple Tests', () => {
         if (uniqueTags.size === tags.length) score += 0.2
 
         // Relevant length
-        const avgLength = tags.reduce((sum, tag) => sum + tag.length, 0) / tags.length
+        const avgLength =
+          tags.reduce((sum, tag) => sum + tag.length, 0) / tags.length
         if (avgLength >= 5 && avgLength <= 20) score += 0.15
 
         return Math.min(score, 1.0)
@@ -127,10 +138,18 @@ describe('AI Content Enhancement - Simple Tests', () => {
       expect(analyzeTagRelevance()).toBe(0.1)
       expect(analyzeTagRelevance([])).toBe(0.1)
       expect(analyzeTagRelevance(['tag1', 'tag2'])).toBe(0.5) // 0.3 base + 0.2 for unique tags
-      
-      const goodTags = ['tutorial', 'javascript', 'programming', 'web development', 'coding', 'react', 'nextjs']
+
+      const goodTags = [
+        'tutorial',
+        'javascript',
+        'programming',
+        'web development',
+        'coding',
+        'react',
+        'nextjs',
+      ]
       expect(analyzeTagRelevance(goodTags)).toBeGreaterThan(0.8)
-      
+
       const duplicateTags = ['tutorial', 'tutorial', 'javascript']
       expect(analyzeTagRelevance(duplicateTags)).toBeLessThan(0.7)
     })
@@ -138,7 +157,10 @@ describe('AI Content Enhancement - Simple Tests', () => {
 
   describe('Thumbnail Analysis', () => {
     it('should calculate optimal timestamps for thumbnails', () => {
-      const calculateOptimalTimestamps = (duration: number, count: number): number[] => {
+      const calculateOptimalTimestamps = (
+        duration: number,
+        count: number
+      ): number[] => {
         const timestamps: number[] = []
         const interval = duration / (count + 1)
 
@@ -206,13 +228,15 @@ describe('AI Content Enhancement - Simple Tests', () => {
         { priority: 'high', impact: 0.8 },
         { priority: 'medium', impact: 0.6 },
         { priority: 'high', impact: 0.9 },
-        { priority: 'medium', impact: 0.7 }
+        { priority: 'medium', impact: 0.7 },
       ]
 
       const priorityOrder = { high: 3, medium: 2, low: 1 }
-      
+
       const sorted = suggestions.sort((a, b) => {
-        const priorityDiff = priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder]
+        const priorityDiff =
+          priorityOrder[b.priority as keyof typeof priorityOrder] -
+          priorityOrder[a.priority as keyof typeof priorityOrder]
         if (priorityDiff !== 0) return priorityDiff
         return b.impact - a.impact
       })
@@ -257,7 +281,7 @@ describe('AI Content Enhancement - Simple Tests', () => {
         description: 'AI generated description',
         tags: ['ai', 'content', 'video'],
         category: 'Technology',
-        confidence: 0.85
+        confidence: 0.85,
       }
 
       const invalidMetadata = {
@@ -265,7 +289,7 @@ describe('AI Content Enhancement - Simple Tests', () => {
         description: 'Description',
         tags: [],
         category: 'Tech',
-        confidence: 1.5
+        confidence: 1.5,
       }
 
       expect(validateMetadata(validMetadata)).toBe(true)

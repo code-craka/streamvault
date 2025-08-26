@@ -7,14 +7,14 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  BarChart3, 
-  Plus, 
-  X, 
+import {
+  BarChart3,
+  Plus,
+  X,
   Vote,
   Clock,
   Users,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 
 interface PollOption {
@@ -37,12 +37,21 @@ interface ChatPoll {
 
 interface ChatPollsProps {
   streamId: string
-  onCreatePoll?: (question: string, options: string[], duration: number) => Promise<void>
+  onCreatePoll?: (
+    question: string,
+    options: string[],
+    duration: number
+  ) => Promise<void>
   onVote?: (pollId: string, optionId: string) => Promise<void>
   className?: string
 }
 
-export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPollsProps) {
+export function ChatPolls({
+  streamId,
+  onCreatePoll,
+  onVote,
+  className,
+}: ChatPollsProps) {
   const { user } = useUser()
   const [polls, setPolls] = useState<ChatPoll[]>([])
   const [isCreating, setIsCreating] = useState(false)
@@ -89,7 +98,7 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
 
     try {
       await onCreatePoll?.(newPollQuestion.trim(), validOptions, pollDuration)
-      
+
       // Reset form
       setNewPollQuestion('')
       setNewPollOptions(['', ''])
@@ -114,8 +123,11 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
 
   const getTimeRemaining = (endsAt: Date) => {
     const now = new Date()
-    const remaining = Math.max(0, Math.floor((endsAt.getTime() - now.getTime()) / 1000))
-    
+    const remaining = Math.max(
+      0,
+      Math.floor((endsAt.getTime() - now.getTime()) / 1000)
+    )
+
     if (remaining >= 60) {
       return `${Math.floor(remaining / 60)}m ${remaining % 60}s`
     }
@@ -141,14 +153,14 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
           onClick={() => setIsCreating(true)}
           className="w-full"
         >
-          <BarChart3 className="h-4 w-4 mr-2" />
+          <BarChart3 className="mr-2 h-4 w-4" />
           Create Poll
         </Button>
       )}
 
       {/* Create Poll Form */}
       {isCreating && (
-        <Card className="p-4 space-y-4">
+        <Card className="space-y-4 p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Create Poll</h3>
             <Button
@@ -166,20 +178,20 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
             <Input
               placeholder="What's your poll question?"
               value={newPollQuestion}
-              onChange={(e) => setNewPollQuestion(e.target.value)}
+              onChange={e => setNewPollQuestion(e.target.value)}
               maxLength={200}
             />
           </div>
 
           <div>
             <label className="text-sm font-medium">Options</label>
-            <div className="space-y-2 mt-2">
+            <div className="mt-2 space-y-2">
               {newPollOptions.map((option, index) => (
                 <div key={index} className="flex space-x-2">
                   <Input
                     placeholder={`Option ${index + 1}`}
                     value={option}
-                    onChange={(e) => updatePollOption(index, e.target.value)}
+                    onChange={e => updatePollOption(index, e.target.value)}
                     maxLength={100}
                   />
                   {newPollOptions.length > 2 && (
@@ -201,7 +213,7 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
                   onClick={addPollOption}
                   className="w-full"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Option
                 </Button>
               )}
@@ -210,8 +222,8 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
 
           <div>
             <label className="text-sm font-medium">Duration</label>
-            <div className="flex space-x-2 mt-2">
-              {[30, 60, 120, 300].map((duration) => (
+            <div className="mt-2 flex space-x-2">
+              {[30, 60, 120, 300].map(duration => (
                 <Button
                   key={duration}
                   variant={pollDuration === duration ? 'default' : 'outline'}
@@ -232,10 +244,7 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleCreatePoll}
-              className="flex-1"
-            >
+            <Button onClick={handleCreatePoll} className="flex-1">
               Create Poll
             </Button>
           </div>
@@ -243,77 +252,88 @@ export function ChatPolls({ streamId, onCreatePoll, onVote, className }: ChatPol
       )}
 
       {/* Active Polls */}
-      {polls.filter(poll => poll.isActive).map((poll) => (
-        <Card key={poll.id} className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4 text-blue-500" />
-              <span className="font-medium text-sm">Poll</span>
-              <Badge variant="secondary" className="text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                {getTimeRemaining(poll.endsAt)}
-              </Badge>
+      {polls
+        .filter(poll => poll.isActive)
+        .map(poll => (
+          <Card key={poll.id} className="space-y-3 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium">Poll</span>
+                <Badge variant="secondary" className="text-xs">
+                  <Clock className="mr-1 h-3 w-3" />
+                  {getTimeRemaining(poll.endsAt)}
+                </Badge>
+              </div>
+              <div className="text-muted-foreground flex items-center space-x-1 text-xs">
+                <Users className="h-3 w-3" />
+                <span>{poll.totalVotes} votes</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-              <Users className="h-3 w-3" />
-              <span>{poll.totalVotes} votes</span>
-            </div>
-          </div>
 
-          <p className="font-medium">{poll.question}</p>
+            <p className="font-medium">{poll.question}</p>
 
-          <div className="space-y-2">
-            {poll.options.map((option) => {
-              const percentage = poll.totalVotes > 0 
-                ? Math.round((option.votes / poll.totalVotes) * 100) 
-                : 0
-              const userVoted = hasUserVoted(poll)
-              const isUserChoice = getUserVote(poll)?.id === option.id
+            <div className="space-y-2">
+              {poll.options.map(option => {
+                const percentage =
+                  poll.totalVotes > 0
+                    ? Math.round((option.votes / poll.totalVotes) * 100)
+                    : 0
+                const userVoted = hasUserVoted(poll)
+                const isUserChoice = getUserVote(poll)?.id === option.id
 
-              return (
-                <div key={option.id} className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Button
-                      variant={userVoted ? "ghost" : "outline"}
-                      size="sm"
-                      onClick={() => !userVoted && handleVote(poll.id, option.id)}
-                      disabled={userVoted}
-                      className={`flex-1 justify-start ${
-                        isUserChoice ? 'bg-blue-100 border-blue-300' : ''
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 w-full">
-                        {isUserChoice && <CheckCircle className="h-4 w-4 text-blue-500" />}
-                        <span className="flex-1 text-left">{option.text}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {percentage}% ({option.votes})
-                        </span>
-                      </div>
-                    </Button>
+                return (
+                  <div key={option.id} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant={userVoted ? 'ghost' : 'outline'}
+                        size="sm"
+                        onClick={() =>
+                          !userVoted && handleVote(poll.id, option.id)
+                        }
+                        disabled={userVoted}
+                        className={`flex-1 justify-start ${
+                          isUserChoice ? 'border-blue-300 bg-blue-100' : ''
+                        }`}
+                      >
+                        <div className="flex w-full items-center space-x-2">
+                          {isUserChoice && (
+                            <CheckCircle className="h-4 w-4 text-blue-500" />
+                          )}
+                          <span className="flex-1 text-left">
+                            {option.text}
+                          </span>
+                          <span className="text-muted-foreground text-xs">
+                            {percentage}% ({option.votes})
+                          </span>
+                        </div>
+                      </Button>
+                    </div>
+                    {userVoted && (
+                      <Progress value={percentage} className="h-2" />
+                    )}
                   </div>
-                  {userVoted && (
-                    <Progress value={percentage} className="h-2" />
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
 
-          {!hasUserVoted(poll) && (
-            <p className="text-xs text-muted-foreground text-center">
-              Click an option to vote
-            </p>
-          )}
-        </Card>
-      ))}
+            {!hasUserVoted(poll) && (
+              <p className="text-muted-foreground text-center text-xs">
+                Click an option to vote
+              </p>
+            )}
+          </Card>
+        ))}
 
       {/* No Active Polls */}
       {polls.filter(poll => poll.isActive).length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <div className="text-muted-foreground py-8 text-center">
+          <BarChart3 className="mx-auto mb-2 h-8 w-8 opacity-50" />
           <p>No active polls</p>
           {canCreatePolls() && (
-            <p className="text-sm">Create a poll to engage with your audience!</p>
+            <p className="text-sm">
+              Create a poll to engage with your audience!
+            </p>
           )}
         </div>
       )}

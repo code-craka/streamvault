@@ -6,22 +6,22 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
-  Gamepad2, 
-  GraduationCap, 
-  Music, 
-  Dumbbell, 
-  Utensils, 
-  Plane, 
-  Palette, 
-  Laptop, 
-  Trophy, 
+import {
+  Gamepad2,
+  GraduationCap,
+  Music,
+  Dumbbell,
+  Utensils,
+  Plane,
+  Palette,
+  Laptop,
+  Trophy,
   Newspaper,
   Laugh,
   Microscope,
   Briefcase,
   Heart,
-  Grid3X3
+  Grid3X3,
 } from 'lucide-react'
 
 interface Category {
@@ -40,20 +40,20 @@ interface CategoryBrowserProps {
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  Gaming: <Gamepad2 className="w-6 h-6" />,
-  Education: <GraduationCap className="w-6 h-6" />,
-  Music: <Music className="w-6 h-6" />,
-  Fitness: <Dumbbell className="w-6 h-6" />,
-  Cooking: <Utensils className="w-6 h-6" />,
-  Travel: <Plane className="w-6 h-6" />,
-  Art: <Palette className="w-6 h-6" />,
-  Technology: <Laptop className="w-6 h-6" />,
-  Sports: <Trophy className="w-6 h-6" />,
-  News: <Newspaper className="w-6 h-6" />,
-  Comedy: <Laugh className="w-6 h-6" />,
-  Science: <Microscope className="w-6 h-6" />,
-  Business: <Briefcase className="w-6 h-6" />,
-  Health: <Heart className="w-6 h-6" />,
+  Gaming: <Gamepad2 className="h-6 w-6" />,
+  Education: <GraduationCap className="h-6 w-6" />,
+  Music: <Music className="h-6 w-6" />,
+  Fitness: <Dumbbell className="h-6 w-6" />,
+  Cooking: <Utensils className="h-6 w-6" />,
+  Travel: <Plane className="h-6 w-6" />,
+  Art: <Palette className="h-6 w-6" />,
+  Technology: <Laptop className="h-6 w-6" />,
+  Sports: <Trophy className="h-6 w-6" />,
+  News: <Newspaper className="h-6 w-6" />,
+  Comedy: <Laugh className="h-6 w-6" />,
+  Science: <Microscope className="h-6 w-6" />,
+  Business: <Briefcase className="h-6 w-6" />,
+  Health: <Heart className="h-6 w-6" />,
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -73,7 +73,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   Health: 'from-rose-500 to-pink-500',
 }
 
-export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserProps) {
+export function CategoryBrowser({
+  showAll = false,
+  limit = 8,
+}: CategoryBrowserProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -95,15 +98,16 @@ export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserP
       const data = await response.json()
       const categoriesWithMetadata = data.categories.map((cat: any) => ({
         ...cat,
-        icon: CATEGORY_ICONS[cat.name] || <Grid3X3 className="w-6 h-6" />,
+        icon: CATEGORY_ICONS[cat.name] || <Grid3X3 className="h-6 w-6" />,
         color: CATEGORY_COLORS[cat.name] || 'from-gray-500 to-slate-500',
       }))
 
       setCategories(categoriesWithMetadata)
-
     } catch (error) {
       console.error('Failed to load categories:', error)
-      setError(error instanceof Error ? error.message : 'Failed to load categories')
+      setError(
+        error instanceof Error ? error.message : 'Failed to load categories'
+      )
     } finally {
       setLoading(false)
     }
@@ -118,7 +122,7 @@ export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserP
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-4 w-16" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
@@ -139,7 +143,7 @@ export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserP
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <p className="text-red-500 mb-4">{error}</p>
+          <p className="mb-4 text-red-500">{error}</p>
           <Button onClick={loadCategories} variant="outline" size="sm">
             Try Again
           </Button>
@@ -164,23 +168,30 @@ export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserP
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {displayedCategories.map((category) => (
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {displayedCategories.map(category => (
           <Link key={category.id} href={`/library?category=${category.name}`}>
-            <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer">
+            <Card className="group cursor-pointer transition-all duration-200 hover:shadow-lg">
               <CardContent className="p-0">
-                <div className={`bg-gradient-to-br ${category.color} p-6 text-white relative overflow-hidden`}>
+                <div
+                  className={`bg-gradient-to-br ${category.color} relative overflow-hidden p-6 text-white`}
+                >
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="mb-3 flex items-center justify-between">
                       {category.icon}
                       {category.trending && (
-                        <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30">
+                        <Badge
+                          variant="secondary"
+                          className="border-white/30 bg-white/20 text-xs text-white"
+                        >
                           Trending
                         </Badge>
                       )}
                     </div>
-                    <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
-                    <p className="text-sm text-white/80 mb-3 line-clamp-2">
+                    <h3 className="mb-1 text-lg font-semibold">
+                      {category.name}
+                    </h3>
+                    <p className="mb-3 line-clamp-2 text-sm text-white/80">
                       {category.description}
                     </p>
                     <div className="flex items-center justify-between">
@@ -189,10 +200,10 @@ export function CategoryBrowser({ showAll = false, limit = 8 }: CategoryBrowserP
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Background decoration */}
-                  <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full group-hover:scale-110 transition-transform duration-200" />
-                  <div className="absolute -right-8 -bottom-8 w-20 h-20 bg-white/5 rounded-full group-hover:scale-110 transition-transform duration-200" />
+                  <div className="absolute -bottom-4 -right-4 h-16 w-16 rounded-full bg-white/10 transition-transform duration-200 group-hover:scale-110" />
+                  <div className="absolute -bottom-8 -right-8 h-20 w-20 rounded-full bg-white/5 transition-transform duration-200 group-hover:scale-110" />
                 </div>
               </CardContent>
             </Card>

@@ -8,7 +8,7 @@ const vodService = new VODService()
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const querySchema = z.object({
       limit: z.string().transform(val => parseInt(val) || 20),
       timeframe: z.enum(['1d', '7d', '30d']).default('7d'),
@@ -28,17 +28,12 @@ export async function GET(request: NextRequest) {
     // Get recent VODs
     const result = await vodService.getPublicVODs({
       limit: 1000, // Get more to calculate trending
-      where: [
-        { field: 'createdAt', operator: '>=', value: cutoffDate },
-      ],
+      where: [{ field: 'createdAt', operator: '>=', value: cutoffDate }],
       orderBy: [{ field: 'viewCount', direction: 'desc' }],
     })
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     let vods = result.data || []
@@ -46,9 +41,12 @@ export async function GET(request: NextRequest) {
     // Calculate trending score based on views per day since creation
     const now = Date.now()
     vods = vods.map(vod => {
-      const ageInDays = Math.max(1, (now - vod.createdAt.getTime()) / (24 * 60 * 60 * 1000))
+      const ageInDays = Math.max(
+        1,
+        (now - vod.createdAt.getTime()) / (24 * 60 * 60 * 1000)
+      )
       const viewsPerDay = vod.viewCount / ageInDays
-      
+
       return {
         ...vod,
         trendingScore: viewsPerDay,
@@ -64,7 +62,6 @@ export async function GET(request: NextRequest) {
       total: trendingVods.length,
       timeframe: query.timeframe,
     })
-
   } catch (error) {
     console.error('Failed to get trending VODs:', error)
     return NextResponse.json(

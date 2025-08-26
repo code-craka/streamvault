@@ -2,7 +2,11 @@
  * Tests for Advanced Content Analysis Service
  */
 
-import { AdvancedContentAnalysis, Scene, Highlight } from '@/lib/ai/advanced-content-analysis'
+import {
+  AdvancedContentAnalysis,
+  Scene,
+  Highlight,
+} from '@/lib/ai/advanced-content-analysis'
 
 describe('AdvancedContentAnalysis', () => {
   let contentAnalysis: AdvancedContentAnalysis
@@ -14,13 +18,13 @@ describe('AdvancedContentAnalysis', () => {
   describe('detectScenes', () => {
     it('should detect scenes in video content', async () => {
       const videoPath = 'test-video.mp4'
-      
+
       const scenes = await contentAnalysis.detectScenes(videoPath)
-      
+
       expect(scenes).toBeDefined()
       expect(Array.isArray(scenes)).toBe(true)
       expect(scenes.length).toBeGreaterThan(0)
-      
+
       // Verify scene structure
       scenes.forEach(scene => {
         expect(scene).toHaveProperty('id')
@@ -35,10 +39,17 @@ describe('AdvancedContentAnalysis', () => {
 
     it('should classify scene types correctly', async () => {
       const videoPath = 'test-video.mp4'
-      
+
       const scenes = await contentAnalysis.detectScenes(videoPath)
-      
-      const validTypes = ['action', 'dialogue', 'transition', 'highlight', 'intro', 'outro']
+
+      const validTypes = [
+        'action',
+        'dialogue',
+        'transition',
+        'highlight',
+        'intro',
+        'outro',
+      ]
       scenes.forEach(scene => {
         expect(validTypes).toContain(scene.type)
       })
@@ -83,7 +94,7 @@ describe('AdvancedContentAnalysis', () => {
 
       expect(highlights).toBeDefined()
       expect(Array.isArray(highlights)).toBe(true)
-      
+
       if (highlights.length > 0) {
         highlights.forEach(highlight => {
           expect(highlight).toHaveProperty('id')
@@ -127,7 +138,8 @@ describe('AdvancedContentAnalysis', () => {
         },
       ]
 
-      const highlights = await contentAnalysis.createAutomaticHighlights(mockScenes)
+      const highlights =
+        await contentAnalysis.createAutomaticHighlights(mockScenes)
 
       // Should not create highlights for low confidence scenes
       expect(highlights.length).toBe(0)
@@ -201,8 +213,10 @@ describe('AdvancedContentAnalysis', () => {
         expect(recommendation).toHaveProperty('description')
         expect(recommendation).toHaveProperty('actionable')
         expect(recommendation).toHaveProperty('estimatedImprovement')
-        
-        expect(['audio', 'video', 'content', 'engagement', 'seo']).toContain(recommendation.type)
+
+        expect(['audio', 'video', 'content', 'engagement', 'seo']).toContain(
+          recommendation.type
+        )
         expect(['high', 'medium', 'low']).toContain(recommendation.priority)
         expect(typeof recommendation.actionable).toBe('boolean')
         expect(recommendation.estimatedImprovement).toBeGreaterThanOrEqual(0)
@@ -220,7 +234,7 @@ describe('AdvancedContentAnalysis', () => {
 
     it('should handle empty scenes array', async () => {
       const highlights = await contentAnalysis.createAutomaticHighlights([])
-      
+
       expect(highlights).toBeDefined()
       expect(Array.isArray(highlights)).toBe(true)
       expect(highlights.length).toBe(0)
@@ -231,12 +245,12 @@ describe('AdvancedContentAnalysis', () => {
     it('should complete scene detection within reasonable time', async () => {
       const startTime = Date.now()
       const videoPath = 'test-video.mp4'
-      
+
       await contentAnalysis.detectScenes(videoPath)
-      
+
       const endTime = Date.now()
       const duration = endTime - startTime
-      
+
       // Should complete within 5 seconds for mock implementation
       expect(duration).toBeLessThan(5000)
     })

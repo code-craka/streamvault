@@ -1,6 +1,15 @@
 import { z } from 'zod'
 import { db } from '@/lib/firebase'
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore'
 import { createHash, randomBytes } from 'crypto'
 
 // API Client schema
@@ -29,26 +38,26 @@ export const APIPermissions = {
   'stream:delete': 'Delete streams',
   'stream:start': 'Start streams',
   'stream:stop': 'Stop streams',
-  
+
   // VOD permissions
   'vod:read': 'Read VOD information',
   'vod:create': 'Create VODs',
   'vod:update': 'Update VOD metadata',
   'vod:delete': 'Delete VODs',
-  
+
   // Chat permissions
   'chat:read': 'Read chat messages',
   'chat:send': 'Send chat messages',
   'chat:moderate': 'Moderate chat messages',
-  
+
   // Analytics permissions
   'analytics:read': 'Read analytics data',
   'analytics:export': 'Export analytics data',
-  
+
   // User permissions
   'user:read': 'Read user information',
   'user:update': 'Update user information',
-  
+
   // Admin permissions
   'admin:all': 'Full administrative access',
 } as const
@@ -103,7 +112,11 @@ export class APIAuthService {
    */
   async validateAPIKey(apiKey: string): Promise<APIClient | null> {
     const clientsRef = collection(db, this.COLLECTION)
-    const q = query(clientsRef, where('apiKey', '==', apiKey), where('isActive', '==', true))
+    const q = query(
+      clientsRef,
+      where('apiKey', '==', apiKey),
+      where('isActive', '==', true)
+    )
     const querySnapshot = await getDocs(q)
 
     if (querySnapshot.empty) {
@@ -129,13 +142,19 @@ export class APIAuthService {
    * Check if client has specific permission
    */
   hasPermission(client: APIClient, permission: APIPermission): boolean {
-    return client.permissions.includes(permission) || client.permissions.includes('admin:all')
+    return (
+      client.permissions.includes(permission) ||
+      client.permissions.includes('admin:all')
+    )
   }
 
   /**
    * Apply rate limiting for API client
    */
-  async checkRateLimit(clientId: string, rateLimit: APIClient['rateLimit']): Promise<{
+  async checkRateLimit(
+    clientId: string,
+    rateLimit: APIClient['rateLimit']
+  ): Promise<{
     allowed: boolean
     remaining: number
     resetTime: Date
@@ -184,9 +203,12 @@ export class APIAuthService {
     }
 
     // Check rate limits
-    const minuteExceeded = rateLimitData.requestsThisMinute >= rateLimit.requestsPerMinute
-    const hourExceeded = rateLimitData.requestsThisHour >= rateLimit.requestsPerHour
-    const dayExceeded = rateLimitData.requestsThisDay >= rateLimit.requestsPerDay
+    const minuteExceeded =
+      rateLimitData.requestsThisMinute >= rateLimit.requestsPerMinute
+    const hourExceeded =
+      rateLimitData.requestsThisHour >= rateLimit.requestsPerHour
+    const dayExceeded =
+      rateLimitData.requestsThisDay >= rateLimit.requestsPerDay
 
     if (minuteExceeded || hourExceeded || dayExceeded) {
       return {

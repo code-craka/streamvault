@@ -7,7 +7,7 @@ import { z } from 'zod'
 const analyticsQuerySchema = z.object({
   period: z.enum(['day', 'week', 'month', 'year']).default('week'),
   startDate: z.string().optional(),
-  endDate: z.string().optional()
+  endDate: z.string().optional(),
 })
 
 export async function GET(
@@ -24,7 +24,7 @@ export async function GET(
     }
 
     const { creatorId } = params
-    
+
     // Verify user has access to this creator's analytics
     if (userId !== creatorId) {
       // TODO: Check if user is admin or has permission to view this creator's analytics
@@ -38,18 +38,18 @@ export async function GET(
     const queryParams = {
       period: searchParams.get('period') || 'week',
       startDate: searchParams.get('startDate'),
-      endDate: searchParams.get('endDate')
+      endDate: searchParams.get('endDate'),
     }
 
     const validatedParams = analyticsQuerySchema.parse(queryParams)
 
     // Calculate date range based on period
-    const endDate = validatedParams.endDate 
+    const endDate = validatedParams.endDate
       ? new Date(validatedParams.endDate)
       : new Date()
-    
+
     let startDate: Date
-    
+
     switch (validatedParams.period) {
       case 'day':
         startDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000)
@@ -79,10 +79,9 @@ export async function GET(
     )
 
     return NextResponse.json(analytics)
-
   } catch (error) {
     console.error('Error retrieving creator analytics:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: error.errors },
@@ -112,7 +111,7 @@ export async function POST(
     }
 
     const { creatorId } = params
-    
+
     // Verify user has access to update this creator's analytics
     if (userId !== creatorId) {
       return NextResponse.json(
@@ -122,15 +121,14 @@ export async function POST(
     }
 
     const body = await request.json()
-    
+
     // TODO: Implement analytics settings update
     // This could include preferences for data retention, privacy settings, etc.
-    
-    return NextResponse.json({ 
-      success: true,
-      message: 'Analytics settings updated'
-    })
 
+    return NextResponse.json({
+      success: true,
+      message: 'Analytics settings updated',
+    })
   } catch (error) {
     console.error('Error updating creator analytics settings:', error)
     return NextResponse.json(

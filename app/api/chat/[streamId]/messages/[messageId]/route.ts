@@ -13,14 +13,11 @@ export async function GET(
     const { streamId, messageId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const result = await chatService.getById(messageId)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Message not found' },
@@ -57,19 +54,16 @@ export async function PATCH(
     const { streamId, messageId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user details to check permissions
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     // Check if user has permission to moderate messages
     const canModerate = ['admin', 'streamer'].includes(userRole)
-    
+
     if (!canModerate) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -93,7 +87,7 @@ export async function PATCH(
           updateData.deletionReason = reason
         }
         break
-      
+
       case 'flag':
         // Add moderation flag
         const message = await chatService.getById(messageId)
@@ -123,14 +117,11 @@ export async function PATCH(
         break
 
       default:
-        return NextResponse.json(
-          { error: 'Invalid action' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
 
     const result = await chatService.update(messageId, updateData)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to update message' },
@@ -160,23 +151,17 @@ export async function DELETE(
     const { streamId, messageId } = await params
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get the message first to check ownership and permissions
     const messageResult = await chatService.getById(messageId)
     if (!messageResult.success || !messageResult.data) {
-      return NextResponse.json(
-        { error: 'Message not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 })
     }
 
     const message = messageResult.data
-    
+
     // Check if message belongs to the specified stream
     if (message.streamId !== streamId) {
       return NextResponse.json(
@@ -188,11 +173,11 @@ export async function DELETE(
     // Get user details to check permissions
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     // Check permissions: user can delete their own messages, or moderators can delete any
     const isMessageOwner = message.userId === userId
     const canModerate = ['admin', 'streamer'].includes(userRole)
-    
+
     if (!isMessageOwner && !canModerate) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -201,7 +186,7 @@ export async function DELETE(
     }
 
     const result = await chatService.deleteMessage(messageId, userId)
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to delete message' },

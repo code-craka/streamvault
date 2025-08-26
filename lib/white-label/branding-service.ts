@@ -118,17 +118,31 @@ export class BrandingService {
   /**
    * Generate CSS variables from branding configuration
    */
-  private generateCSSVariables(branding: CustomBranding): Record<string, string> {
+  private generateCSSVariables(
+    branding: CustomBranding
+  ): Record<string, string> {
     const variables: Record<string, string> = {
       '--primary-color': branding.primaryColor,
       '--secondary-color': branding.secondaryColor,
     }
 
     // Generate color variations
-    variables['--primary-hover'] = this.adjustColorBrightness(branding.primaryColor, -10)
-    variables['--primary-light'] = this.adjustColorBrightness(branding.primaryColor, 20)
-    variables['--secondary-hover'] = this.adjustColorBrightness(branding.secondaryColor, -10)
-    variables['--secondary-light'] = this.adjustColorBrightness(branding.secondaryColor, 20)
+    variables['--primary-hover'] = this.adjustColorBrightness(
+      branding.primaryColor,
+      -10
+    )
+    variables['--primary-light'] = this.adjustColorBrightness(
+      branding.primaryColor,
+      20
+    )
+    variables['--secondary-hover'] = this.adjustColorBrightness(
+      branding.secondaryColor,
+      -10
+    )
+    variables['--secondary-light'] = this.adjustColorBrightness(
+      branding.secondaryColor,
+      20
+    )
 
     return variables
   }
@@ -140,14 +154,20 @@ export class BrandingService {
     const num = parseInt(hex.replace('#', ''), 16)
     const amt = Math.round(2.55 * percent)
     const R = (num >> 16) + amt
-    const G = (num >> 8 & 0x00FF) + amt
-    const B = (num & 0x0000FF) + amt
+    const G = ((num >> 8) & 0x00ff) + amt
+    const B = (num & 0x0000ff) + amt
 
-    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-      (B < 255 ? B < 1 ? 0 : B : 255))
-      .toString(16)
-      .slice(1)
+    return (
+      '#' +
+      (
+        0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255)
+      )
+        .toString(16)
+        .slice(1)
+    )
   }
 
   /**
@@ -157,7 +177,7 @@ export class BrandingService {
     // In production, this would check for a specific TXT record
     // For now, we'll simulate the validation
     const validationToken = `streamvault-verification-${Date.now()}`
-    
+
     // Store validation token for later verification
     const validationRef = doc(db, 'domain_validations', domain)
     await setDoc(validationRef, {
@@ -195,7 +215,10 @@ export class BrandingService {
   /**
    * Update DNS configuration for custom domain
    */
-  private async updateDNSConfiguration(domain: string, instanceId: string): Promise<void> {
+  private async updateDNSConfiguration(
+    domain: string,
+    instanceId: string
+  ): Promise<void> {
     // In production, this would update DNS records via provider API
     const dnsRef = doc(db, 'dns_configurations', domain)
     await setDoc(dnsRef, {
@@ -207,13 +230,18 @@ export class BrandingService {
       createdAt: new Date(),
     })
 
-    console.log(`DNS configuration updated for ${domain} -> ${instanceId}.streamvault.app`)
+    console.log(
+      `DNS configuration updated for ${domain} -> ${instanceId}.streamvault.app`
+    )
   }
 
   /**
    * Update instance routing configuration
    */
-  private async updateInstanceRouting(instanceId: string, domain: string): Promise<void> {
+  private async updateInstanceRouting(
+    instanceId: string,
+    domain: string
+  ): Promise<void> {
     const routingRef = doc(db, 'instance_routing', instanceId)
     await setDoc(routingRef, {
       instanceId,
@@ -230,7 +258,7 @@ export class BrandingService {
   private async invalidateCDNCache(domain: string): Promise<void> {
     // In production, this would call Cloudflare API to purge cache
     console.log(`CDN cache invalidated for ${domain}`)
-    
+
     // Store cache invalidation record
     const cacheRef = doc(db, 'cache_invalidations', `${domain}-${Date.now()}`)
     await setDoc(cacheRef, {

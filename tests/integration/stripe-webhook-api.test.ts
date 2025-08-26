@@ -26,16 +26,16 @@ describe('Stripe Webhook API', () => {
       // Since we can't easily test the actual API route without a full Next.js setup,
       // we'll test the logic that would be in the route
       const hasSignature = mockRequest.headers.get('stripe-signature')
-      
+
       expect(hasSignature).toBeNull()
-      
+
       // This would result in a 400 error in the actual API
       expect(mockRequest.headers.get).toHaveBeenCalledWith('stripe-signature')
     })
 
     it('should process webhook with valid signature', async () => {
       const { stripeWebhookHandler } = require('@/lib/stripe/webhook-handler')
-      
+
       const mockEvent = {
         type: 'customer.subscription.created',
         data: { object: { id: 'sub_123' } },
@@ -45,7 +45,9 @@ describe('Stripe Webhook API', () => {
       stripeWebhookHandler.handleWebhook.mockResolvedValue(undefined)
 
       const mockRequest = {
-        text: jest.fn().mockResolvedValue('{"type": "customer.subscription.created"}'),
+        text: jest
+          .fn()
+          .mockResolvedValue('{"type": "customer.subscription.created"}'),
         headers: {
           get: jest.fn().mockReturnValue('valid_signature'),
         },
@@ -54,15 +56,18 @@ describe('Stripe Webhook API', () => {
       // Simulate the webhook processing logic
       const body = await mockRequest.text()
       const signature = mockRequest.headers.get('stripe-signature')
-      
+
       expect(signature).toBe('valid_signature')
       expect(body).toContain('customer.subscription.created')
-      
+
       // Verify the handler methods would be called
       const event = stripeWebhookHandler.constructEvent(body, signature)
       await stripeWebhookHandler.handleWebhook(event)
-      
-      expect(stripeWebhookHandler.constructEvent).toHaveBeenCalledWith(body, signature)
+
+      expect(stripeWebhookHandler.constructEvent).toHaveBeenCalledWith(
+        body,
+        signature
+      )
       expect(stripeWebhookHandler.handleWebhook).toHaveBeenCalledWith(mockEvent)
     })
   })
@@ -70,7 +75,7 @@ describe('Stripe Webhook API', () => {
   describe('Webhook Event Processing', () => {
     it('should handle subscription created event', async () => {
       const { stripeWebhookHandler } = require('@/lib/stripe/webhook-handler')
-      
+
       const subscriptionEvent = {
         type: 'customer.subscription.created',
         data: {
@@ -87,13 +92,15 @@ describe('Stripe Webhook API', () => {
       }
 
       await stripeWebhookHandler.handleWebhook(subscriptionEvent)
-      
-      expect(stripeWebhookHandler.handleWebhook).toHaveBeenCalledWith(subscriptionEvent)
+
+      expect(stripeWebhookHandler.handleWebhook).toHaveBeenCalledWith(
+        subscriptionEvent
+      )
     })
 
     it('should handle payment succeeded event', async () => {
       const { stripeWebhookHandler } = require('@/lib/stripe/webhook-handler')
-      
+
       const paymentEvent = {
         type: 'invoice.payment_succeeded',
         data: {
@@ -108,8 +115,10 @@ describe('Stripe Webhook API', () => {
       }
 
       await stripeWebhookHandler.handleWebhook(paymentEvent)
-      
-      expect(stripeWebhookHandler.handleWebhook).toHaveBeenCalledWith(paymentEvent)
+
+      expect(stripeWebhookHandler.handleWebhook).toHaveBeenCalledWith(
+        paymentEvent
+      )
     })
   })
 })

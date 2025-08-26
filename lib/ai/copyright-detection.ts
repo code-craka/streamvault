@@ -40,7 +40,13 @@ export interface OriginalWork {
 }
 
 export interface FairUseAnalysis {
-  purpose: 'commercial' | 'educational' | 'commentary' | 'parody' | 'news' | 'research'
+  purpose:
+    | 'commercial'
+    | 'educational'
+    | 'commentary'
+    | 'parody'
+    | 'news'
+    | 'research'
   nature: 'creative' | 'factual'
   amountUsed: number // percentage of original work
   marketImpact: 'positive' | 'neutral' | 'negative'
@@ -148,7 +154,10 @@ export class CopyrightDetectionService {
       const riskLevel = this.calculateRiskLevel(significantMatches)
 
       // Generate recommendation
-      const recommendation = this.generateRecommendation(significantMatches, riskLevel)
+      const recommendation = this.generateRecommendation(
+        significantMatches,
+        riskLevel
+      )
 
       const scanDuration = Date.now() - startTime
 
@@ -181,7 +190,9 @@ export class CopyrightDetectionService {
   /**
    * Process DMCA takedown request
    */
-  async processDMCATakedown(takedown: Omit<DMCATakedown, 'id' | 'submittedAt' | 'status'>): Promise<DMCATakedown> {
+  async processDMCATakedown(
+    takedown: Omit<DMCATakedown, 'id' | 'submittedAt' | 'status'>
+  ): Promise<DMCATakedown> {
     const dmcaTakedown: DMCATakedown = {
       id: this.generateId(),
       ...takedown,
@@ -195,17 +206,22 @@ export class CopyrightDetectionService {
 
       if (!isValid) {
         dmcaTakedown.status = 'rejected'
-        dmcaTakedown.response = 'Invalid DMCA takedown request - missing required information'
+        dmcaTakedown.response =
+          'Invalid DMCA takedown request - missing required information'
         dmcaTakedown.processedAt = new Date()
         return dmcaTakedown
       }
 
       // Automatically process if we have a clear match
-      const scanResult = await this.scanContent(dmcaTakedown.infringingContent, 'video')
+      const scanResult = await this.scanContent(
+        dmcaTakedown.infringingContent,
+        'video'
+      )
 
       if (scanResult.hasViolation && scanResult.confidence > 0.9) {
         dmcaTakedown.status = 'approved'
-        dmcaTakedown.response = 'Automatic approval - clear copyright match detected'
+        dmcaTakedown.response =
+          'Automatic approval - clear copyright match detected'
         dmcaTakedown.processedAt = new Date()
 
         // Take down the content
@@ -233,7 +249,10 @@ export class CopyrightDetectionService {
    */
   async processCounterClaim(
     takedownId: string,
-    counterClaim: Omit<CounterClaim, 'id' | 'takedownId' | 'submittedAt' | 'status'>
+    counterClaim: Omit<
+      CounterClaim,
+      'id' | 'takedownId' | 'submittedAt' | 'status'
+    >
   ): Promise<CounterClaim> {
     const claim: CounterClaim = {
       id: this.generateId(),
@@ -264,7 +283,10 @@ export class CopyrightDetectionService {
       }
 
       // Re-analyze content with fair use considerations
-      const scanResult = await this.scanContent(takedown.infringingContent, 'video')
+      const scanResult = await this.scanContent(
+        takedown.infringingContent,
+        'video'
+      )
       const fairUseAnalysis = await this.analyzeFairUse(
         takedown.infringingContent,
         claim.reason
@@ -299,7 +321,10 @@ export class CopyrightDetectionService {
   /**
    * Scan video content for copyright matches
    */
-  private async scanVideo(contentPath: string, metadata?: any): Promise<CopyrightMatch[]> {
+  private async scanVideo(
+    contentPath: string,
+    metadata?: any
+  ): Promise<CopyrightMatch[]> {
     const matches: CopyrightMatch[] = []
 
     // Extract audio fingerprint
@@ -325,7 +350,10 @@ export class CopyrightDetectionService {
   /**
    * Scan audio content for copyright matches
    */
-  private async scanAudio(contentPath: string, metadata?: any): Promise<CopyrightMatch[]> {
+  private async scanAudio(
+    contentPath: string,
+    metadata?: any
+  ): Promise<CopyrightMatch[]> {
     const audioFingerprint = await this.extractAudioFingerprint(contentPath)
     const matches = await this.matchAudioFingerprint(audioFingerprint)
 
@@ -341,7 +369,10 @@ export class CopyrightDetectionService {
   /**
    * Scan image content for copyright matches
    */
-  private async scanImage(contentPath: string, metadata?: any): Promise<CopyrightMatch[]> {
+  private async scanImage(
+    contentPath: string,
+    metadata?: any
+  ): Promise<CopyrightMatch[]> {
     const imageHash = await this.extractImageHash(contentPath)
     const matches = await this.matchImageHash(imageHash)
 
@@ -357,7 +388,10 @@ export class CopyrightDetectionService {
   /**
    * Scan text content for copyright matches
    */
-  private async scanText(contentPath: string, metadata?: any): Promise<CopyrightMatch[]> {
+  private async scanText(
+    contentPath: string,
+    metadata?: any
+  ): Promise<CopyrightMatch[]> {
     // Read text content
     const textContent = contentPath // Assuming contentPath is the text itself for this method
 
@@ -416,11 +450,14 @@ export class CopyrightDetectionService {
   /**
    * Match audio fingerprint against database
    */
-  private async matchAudioFingerprint(fingerprint: string): Promise<CopyrightMatch[]> {
+  private async matchAudioFingerprint(
+    fingerprint: string
+  ): Promise<CopyrightMatch[]> {
     const matches: CopyrightMatch[] = []
 
     // Mock matching - in production would use sophisticated matching algorithms
-    for (const [dbFingerprint, originalWork] of this.contentIDDatabase.audioFingerprints) {
+    for (const [dbFingerprint, originalWork] of this.contentIDDatabase
+      .audioFingerprints) {
       const similarity = this.calculateSimilarity(fingerprint, dbFingerprint)
 
       if (similarity > 0.8) {
@@ -454,10 +491,13 @@ export class CopyrightDetectionService {
   /**
    * Match video fingerprint against database
    */
-  private async matchVideoFingerprint(fingerprint: string): Promise<CopyrightMatch[]> {
+  private async matchVideoFingerprint(
+    fingerprint: string
+  ): Promise<CopyrightMatch[]> {
     const matches: CopyrightMatch[] = []
 
-    for (const [dbFingerprint, originalWork] of this.contentIDDatabase.videoFingerprints) {
+    for (const [dbFingerprint, originalWork] of this.contentIDDatabase
+      .videoFingerprints) {
       const similarity = this.calculateSimilarity(fingerprint, dbFingerprint)
 
       if (similarity > 0.8) {
@@ -479,7 +519,11 @@ export class CopyrightDetectionService {
             marketImpact: 'negative',
             transformative: false,
             fairUseScore: 0.1,
-            factors: ['full work used', 'commercial purpose', 'market substitution'],
+            factors: [
+              'full work used',
+              'commercial purpose',
+              'market substitution',
+            ],
           },
         })
       }
@@ -545,7 +589,11 @@ export class CopyrightDetectionService {
     let score = 0
 
     // Purpose factor
-    if (analysis.purpose === 'educational' || analysis.purpose === 'commentary' || analysis.purpose === 'parody') {
+    if (
+      analysis.purpose === 'educational' ||
+      analysis.purpose === 'commentary' ||
+      analysis.purpose === 'parody'
+    ) {
       score += 0.3
       analysis.factors.push('favorable purpose')
     }
@@ -566,7 +614,10 @@ export class CopyrightDetectionService {
     }
 
     // Market impact factor
-    if (analysis.marketImpact === 'positive' || analysis.marketImpact === 'neutral') {
+    if (
+      analysis.marketImpact === 'positive' ||
+      analysis.marketImpact === 'neutral'
+    ) {
       score += 0.2
       analysis.factors.push('no negative market impact')
     }
@@ -579,17 +630,25 @@ export class CopyrightDetectionService {
   /**
    * Calculate risk level based on matches
    */
-  private calculateRiskLevel(matches: CopyrightMatch[]): 'low' | 'medium' | 'high' | 'critical' {
+  private calculateRiskLevel(
+    matches: CopyrightMatch[]
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (matches.length === 0) return 'low'
 
     const highConfidenceMatches = matches.filter(m => m.confidence > 0.9)
-    const lowFairUseMatches = matches.filter(m => m.fairUseAnalysis.fairUseScore < 0.3)
+    const lowFairUseMatches = matches.filter(
+      m => m.fairUseAnalysis.fairUseScore < 0.3
+    )
 
     if (highConfidenceMatches.length > 0 && lowFairUseMatches.length > 0) {
       return 'critical'
     }
 
-    if (matches.some(m => m.confidence > 0.8 && m.fairUseAnalysis.fairUseScore < 0.5)) {
+    if (
+      matches.some(
+        m => m.confidence > 0.8 && m.fairUseAnalysis.fairUseScore < 0.5
+      )
+    ) {
       return 'high'
     }
 
@@ -603,7 +662,10 @@ export class CopyrightDetectionService {
   /**
    * Generate recommendation based on scan results
    */
-  private generateRecommendation(matches: CopyrightMatch[], riskLevel: string): CopyrightAction {
+  private generateRecommendation(
+    matches: CopyrightMatch[],
+    riskLevel: string
+  ): CopyrightAction {
     if (matches.length === 0) {
       return {
         type: 'approve',
@@ -624,8 +686,8 @@ export class CopyrightDetectionService {
     }
 
     if (riskLevel === 'high') {
-      const hasMonetizationClaim = matches.some(m => 
-        m.originalWork.label || m.originalWork.publisher
+      const hasMonetizationClaim = matches.some(
+        m => m.originalWork.label || m.originalWork.publisher
       )
 
       if (hasMonetizationClaim) {
@@ -669,7 +731,10 @@ export class CopyrightDetectionService {
       isrcCode: 'SAMPLE123456',
     }
 
-    this.contentIDDatabase.audioFingerprints.set('sample_fingerprint_1', sampleWork)
+    this.contentIDDatabase.audioFingerprints.set(
+      'sample_fingerprint_1',
+      sampleWork
+    )
     this.contentIDDatabase.videoFingerprints.set('sample_video_1', sampleWork)
     this.contentIDDatabase.imageHashes.set('sample_hash_1', sampleWork)
   }
@@ -685,9 +750,9 @@ export class CopyrightDetectionService {
     // Simple similarity calculation - in production would use more sophisticated algorithms
     const longer = str1.length > str2.length ? str1 : str2
     const shorter = str1.length > str2.length ? str2 : str1
-    
+
     if (longer.length === 0) return 1.0
-    
+
     const editDistance = this.levenshteinDistance(longer, shorter)
     return (longer.length - editDistance) / longer.length
   }
@@ -696,7 +761,7 @@ export class CopyrightDetectionService {
     // Simple text similarity - in production would use NLP techniques
     const words1 = text1.toLowerCase().split(' ')
     const words2 = text2.toLowerCase().split(' ')
-    
+
     const commonWords = words1.filter(word => words2.includes(word))
     return commonWords.length / Math.max(words1.length, words2.length)
   }
@@ -731,13 +796,18 @@ export class CopyrightDetectionService {
 
   private determinePurpose(context: string): FairUseAnalysis['purpose'] {
     const lowerContext = context.toLowerCase()
-    
-    if (lowerContext.includes('education') || lowerContext.includes('teach')) return 'educational'
-    if (lowerContext.includes('comment') || lowerContext.includes('review')) return 'commentary'
-    if (lowerContext.includes('parody') || lowerContext.includes('satire')) return 'parody'
-    if (lowerContext.includes('news') || lowerContext.includes('report')) return 'news'
-    if (lowerContext.includes('research') || lowerContext.includes('study')) return 'research'
-    
+
+    if (lowerContext.includes('education') || lowerContext.includes('teach'))
+      return 'educational'
+    if (lowerContext.includes('comment') || lowerContext.includes('review'))
+      return 'commentary'
+    if (lowerContext.includes('parody') || lowerContext.includes('satire'))
+      return 'parody'
+    if (lowerContext.includes('news') || lowerContext.includes('report'))
+      return 'news'
+    if (lowerContext.includes('research') || lowerContext.includes('study'))
+      return 'research'
+
     return 'commercial'
   }
 
@@ -751,17 +821,29 @@ export class CopyrightDetectionService {
 
   private isTransformative(context: string): boolean {
     const transformativeIndicators = [
-      'commentary', 'review', 'parody', 'education', 'criticism', 'remix', 'mashup'
+      'commentary',
+      'review',
+      'parody',
+      'education',
+      'criticism',
+      'remix',
+      'mashup',
     ]
-    
+
     const lowerContext = context.toLowerCase()
-    return transformativeIndicators.some(indicator => lowerContext.includes(indicator))
+    return transformativeIndicators.some(indicator =>
+      lowerContext.includes(indicator)
+    )
   }
 
   // Mock database operations - in production would use actual database
   private async validateDMCATakedown(takedown: DMCATakedown): Promise<boolean> {
-    return takedown.swornStatement && takedown.goodFaithBelief && 
-           takedown.claimantName && takedown.claimantEmail
+    return (
+      takedown.swornStatement &&
+      takedown.goodFaithBelief &&
+      takedown.claimantName &&
+      takedown.claimantEmail
+    )
   }
 
   private async validateCounterClaim(claim: CounterClaim): Promise<boolean> {

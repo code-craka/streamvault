@@ -11,7 +11,7 @@ import {
   registerBackgroundSync,
   type PWAInstallPrompt,
   type PWACapabilities,
-  type NotificationPermission
+  type NotificationPermission,
 } from '@/lib/pwa/pwa-utils'
 
 interface PWAState {
@@ -45,17 +45,17 @@ export function usePWA(): PWAState & PWAActions {
       isOnline: true,
       hasNotificationPermission: false,
       supportsBackgroundSync: false,
-      supportsServiceWorker: false
+      supportsServiceWorker: false,
     },
     installPrompt: null,
     serviceWorkerRegistration: null,
     notificationPermission: {
       granted: false,
       denied: false,
-      default: true
+      default: true,
     },
     isLoading: true,
-    error: null
+    error: null,
   })
 
   // Initialize PWA
@@ -66,13 +66,13 @@ export function usePWA(): PWAState & PWAActions {
       try {
         // Get initial capabilities
         const capabilities = getPWACapabilities()
-        
+
         // Register service worker
         const registration = await registerServiceWorker()
-        
+
         // Get notification permission status
         const notificationPermission = await requestNotificationPermission()
-        
+
         if (mounted) {
           setState(prev => ({
             ...prev,
@@ -82,7 +82,7 @@ export function usePWA(): PWAState & PWAActions {
             isInstalled: capabilities.isInstalled,
             isInstallable: capabilities.isInstallable,
             isOnline: capabilities.isOnline,
-            isLoading: false
+            isLoading: false,
           }))
         }
       } catch (error) {
@@ -90,8 +90,11 @@ export function usePWA(): PWAState & PWAActions {
         if (mounted) {
           setState(prev => ({
             ...prev,
-            error: error instanceof Error ? error.message : 'PWA initialization failed',
-            isLoading: false
+            error:
+              error instanceof Error
+                ? error.message
+                : 'PWA initialization failed',
+            isLoading: false,
           }))
         }
       }
@@ -111,7 +114,7 @@ export function usePWA(): PWAState & PWAActions {
       setState(prev => ({
         ...prev,
         installPrompt: e as any,
-        isInstallable: true
+        isInstallable: true,
       }))
     }
 
@@ -119,7 +122,7 @@ export function usePWA(): PWAState & PWAActions {
       setState(prev => ({
         ...prev,
         isInstalled: true,
-        installPrompt: null
+        installPrompt: null,
       }))
     }
 
@@ -127,7 +130,10 @@ export function usePWA(): PWAState & PWAActions {
     window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      )
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
@@ -138,7 +144,7 @@ export function usePWA(): PWAState & PWAActions {
       setState(prev => ({
         ...prev,
         isOnline: true,
-        capabilities: { ...prev.capabilities, isOnline: true }
+        capabilities: { ...prev.capabilities, isOnline: true },
       }))
     }
 
@@ -146,7 +152,7 @@ export function usePWA(): PWAState & PWAActions {
       setState(prev => ({
         ...prev,
         isOnline: false,
-        capabilities: { ...prev.capabilities, isOnline: false }
+        capabilities: { ...prev.capabilities, isOnline: false },
       }))
     }
 
@@ -163,93 +169,105 @@ export function usePWA(): PWAState & PWAActions {
 
     try {
       const success = await installPWA(state.installPrompt)
-      
+
       if (success) {
         setState(prev => ({
           ...prev,
           isInstalled: true,
-          installPrompt: null
+          installPrompt: null,
         }))
       }
-      
+
       return success
     } catch (error) {
       console.error('PWA installation failed:', error)
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Installation failed'
+        error: error instanceof Error ? error.message : 'Installation failed',
       }))
       return false
     }
   }, [state.installPrompt])
 
   // Request notification permission
-  const requestNotifications = useCallback(async (): Promise<NotificationPermission> => {
-    try {
-      const permission = await requestNotificationPermission()
-      
-      setState(prev => ({
-        ...prev,
-        notificationPermission: permission,
-        capabilities: {
-          ...prev.capabilities,
-          hasNotificationPermission: permission.granted
-        }
-      }))
-      
-      return permission
-    } catch (error) {
-      console.error('Notification permission request failed:', error)
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Notification permission failed'
-      }))
-      
-      return { granted: false, denied: true, default: false }
-    }
-  }, [])
+  const requestNotifications =
+    useCallback(async (): Promise<NotificationPermission> => {
+      try {
+        const permission = await requestNotificationPermission()
+
+        setState(prev => ({
+          ...prev,
+          notificationPermission: permission,
+          capabilities: {
+            ...prev.capabilities,
+            hasNotificationPermission: permission.granted,
+          },
+        }))
+
+        return permission
+      } catch (error) {
+        console.error('Notification permission request failed:', error)
+        setState(prev => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Notification permission failed',
+        }))
+
+        return { granted: false, denied: true, default: false }
+      }
+    }, [])
 
   // Subscribe to push notifications
-  const subscribeToPush = useCallback(async (vapidKey: string): Promise<PushSubscription | null> => {
-    if (!state.serviceWorkerRegistration) {
-      console.warn('Service worker not registered')
-      return null
-    }
+  const subscribeToPush = useCallback(
+    async (vapidKey: string): Promise<PushSubscription | null> => {
+      if (!state.serviceWorkerRegistration) {
+        console.warn('Service worker not registered')
+        return null
+      }
 
-    try {
-      const subscription = await subscribeToPushNotifications(
-        state.serviceWorkerRegistration,
-        vapidKey
-      )
-      
-      return subscription
-    } catch (error) {
-      console.error('Push subscription failed:', error)
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Push subscription failed'
-      }))
-      return null
-    }
-  }, [state.serviceWorkerRegistration])
+      try {
+        const subscription = await subscribeToPushNotifications(
+          state.serviceWorkerRegistration,
+          vapidKey
+        )
+
+        return subscription
+      } catch (error) {
+        console.error('Push subscription failed:', error)
+        setState(prev => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Push subscription failed',
+        }))
+        return null
+      }
+    },
+    [state.serviceWorkerRegistration]
+  )
 
   // Register background sync
-  const registerSync = useCallback(async (tag: string): Promise<void> => {
-    if (!state.serviceWorkerRegistration) {
-      console.warn('Service worker not registered')
-      return
-    }
+  const registerSync = useCallback(
+    async (tag: string): Promise<void> => {
+      if (!state.serviceWorkerRegistration) {
+        console.warn('Service worker not registered')
+        return
+      }
 
-    try {
-      await registerBackgroundSync(state.serviceWorkerRegistration, tag)
-    } catch (error) {
-      console.error('Background sync registration failed:', error)
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Background sync failed'
-      }))
-    }
-  }, [state.serviceWorkerRegistration])
+      try {
+        await registerBackgroundSync(state.serviceWorkerRegistration, tag)
+      } catch (error) {
+        console.error('Background sync registration failed:', error)
+        setState(prev => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Background sync failed',
+        }))
+      }
+    },
+    [state.serviceWorkerRegistration]
+  )
 
   // Refresh PWA state
   const refresh = useCallback(() => {
@@ -257,7 +275,7 @@ export function usePWA(): PWAState & PWAActions {
       ...prev,
       capabilities: getPWACapabilities(),
       isOnline: navigator.onLine,
-      error: null
+      error: null,
     }))
   }, [])
 
@@ -267,6 +285,6 @@ export function usePWA(): PWAState & PWAActions {
     requestNotifications,
     subscribeToPush,
     registerSync,
-    refresh
+    refresh,
   }
 }

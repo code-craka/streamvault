@@ -2,10 +2,13 @@ import { z } from 'zod'
 
 // Common validation schemas
 export const emailSchema = z.string().email('Invalid email format')
-export const passwordSchema = z.string()
+export const passwordSchema = z
+  .string()
   .min(8, 'Password must be at least 8 characters')
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-    'Password must contain uppercase, lowercase, number and special character')
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    'Password must contain uppercase, lowercase, number and special character'
+  )
 
 export const userIdSchema = z.string().min(1, 'User ID is required')
 export const streamIdSchema = z.string().min(1, 'Stream ID is required')
@@ -21,7 +24,11 @@ export const createStreamSchema = z.object({
 })
 
 export const updateStreamSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(100, 'Title too long').optional(),
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(100, 'Title too long')
+    .optional(),
   description: z.string().max(500, 'Description too long').optional(),
   category: z.string().min(1, 'Category is required').optional(),
   isPrivate: z.boolean().optional(),
@@ -29,7 +36,8 @@ export const updateStreamSchema = z.object({
 })
 
 export const chatMessageSchema = z.object({
-  message: z.string()
+  message: z
+    .string()
     .min(1, 'Message cannot be empty')
     .max(500, 'Message too long')
     .refine(msg => !msg.includes('<script'), 'Invalid content detected'),
@@ -38,7 +46,7 @@ export const chatMessageSchema = z.object({
 
 export const subscriptionSchema = z.object({
   tier: z.enum(['basic', 'premium', 'pro'], {
-    errorMap: () => ({ message: 'Invalid subscription tier' })
+    errorMap: () => ({ message: 'Invalid subscription tier' }),
   }),
   priceId: z.string().min(1, 'Price ID is required'),
 })
@@ -65,7 +73,7 @@ export const securityEventSchema = z.object({
     'rate_limit_exceeded',
     'unauthorized_access',
     'data_breach_attempt',
-    'malicious_content'
+    'malicious_content',
   ]),
   userId: z.string().optional(),
   ipAddress: ipAddressSchema,
@@ -109,7 +117,9 @@ export function validateRequest<T>(schema: z.ZodSchema<T>, data: unknown): T {
     return schema.parse(data)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(`Validation failed: ${error.errors.map(e => e.message).join(', ')}`)
+      throw new Error(
+        `Validation failed: ${error.errors.map(e => e.message).join(', ')}`
+      )
     }
     throw error
   }
@@ -123,9 +133,12 @@ export function sanitizeInput(input: string): string {
     .trim()
 }
 
-export function validateAndSanitize<T>(schema: z.ZodSchema<T>, data: unknown): T {
+export function validateAndSanitize<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): T {
   const validated = validateRequest(schema, data)
-  
+
   // Recursively sanitize string fields
   function sanitizeObject(obj: any): any {
     if (typeof obj === 'string') {
@@ -143,6 +156,6 @@ export function validateAndSanitize<T>(schema: z.ZodSchema<T>, data: unknown): T
     }
     return obj
   }
-  
+
   return sanitizeObject(validated)
 }

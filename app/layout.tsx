@@ -88,10 +88,18 @@ export const metadata: Metadata = {
       { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      {
+        url: '/icons/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
     ],
     other: [
-      { rel: 'mask-icon', url: '/icons/safari-pinned-tab.svg', color: '#3b82f6' },
+      {
+        rel: 'mask-icon',
+        url: '/icons/safari-pinned-tab.svg',
+        color: '#3b82f6',
+      },
     ],
   },
 }
@@ -111,13 +119,20 @@ export default function RootLayout({
         <head>
           <meta name="theme-color" content="#3b82f6" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="default"
+          />
           <meta name="apple-mobile-web-app-title" content="StreamVault" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="msapplication-TileColor" content="#3b82f6" />
           <meta name="msapplication-config" content="/browserconfig.xml" />
           <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-          <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3b82f6" />
+          <link
+            rel="mask-icon"
+            href="/icons/safari-pinned-tab.svg"
+            color="#3b82f6"
+          />
         </head>
         <body className={`${inter.className} font-sans antialiased`}>
           <div id="root">{children}</div>

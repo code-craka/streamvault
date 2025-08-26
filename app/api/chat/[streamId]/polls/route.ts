@@ -24,16 +24,13 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if user can create polls (streamer or admin)
     const user = await (await clerkClient()).users.getUser(userId)
     const userRole = user.publicMetadata?.role as string
-    
+
     if (!['admin', 'streamer'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -42,7 +39,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    
+
     // Validate poll data
     const validation = createPollSchema.safeParse(body)
     if (!validation.success) {
@@ -87,10 +84,13 @@ export async function POST(
       }
     }, duration * 1000)
 
-    return NextResponse.json({
-      poll,
-      success: true,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        poll,
+        success: true,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error creating poll:', error)
     return NextResponse.json(
@@ -108,10 +108,7 @@ export async function GET(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Filter polls for this stream

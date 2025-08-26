@@ -12,7 +12,14 @@ import { ModerationTools } from './moderation-tools'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Users, MessageCircle, Settings, Shield, Clock } from 'lucide-react'
+import {
+  Loader2,
+  Users,
+  MessageCircle,
+  Settings,
+  Shield,
+  Clock,
+} from 'lucide-react'
 
 interface LiveChatProps {
   streamId: string
@@ -20,7 +27,11 @@ interface LiveChatProps {
   className?: string
 }
 
-export function LiveChat({ streamId, showModerationTools = false, className }: LiveChatProps) {
+export function LiveChat({
+  streamId,
+  showModerationTools = false,
+  className,
+}: LiveChatProps) {
   const { user, isLoaded } = useUser()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -37,7 +48,7 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     remainingTime: 0,
     messagesPerSecond: 1,
   })
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatService = useRef(new ChatService())
   const unsubscribeRef = useRef<(() => void) | null>(null)
@@ -62,15 +73,15 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
   // Get user's rate limit based on subscription tier and role
   const getUserRateLimit = () => {
     if (!user) return { messagesPerSecond: 1, burstLimit: 1 }
-    
+
     const tier = user.publicMetadata?.subscriptionTier as string
     const role = user.publicMetadata?.role as string
-    
+
     // Streamers and admins have higher limits
     if (['streamer', 'admin'].includes(role)) {
       return { messagesPerSecond: 5, burstLimit: 10 }
     }
-    
+
     switch (tier) {
       case 'pro':
         return { messagesPerSecond: 5, burstLimit: 10 }
@@ -119,10 +130,10 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
       // Subscribe to real-time messages
       const unsubscribe = chatService.current.subscribeToMessages(
         streamId,
-        (newMessages) => {
+        newMessages => {
           setMessages(newMessages)
           setIsLoading(false)
-          
+
           // Calculate active users from recent messages
           const recentMessages = newMessages.filter(
             msg => Date.now() - msg.timestamp.getTime() < 5 * 60 * 1000 // 5 minutes
@@ -159,7 +170,9 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     // Check rate limiting
     const rateLimit = getUserRateLimit()
     if (rateLimitInfo.isLimited) {
-      throw new Error(`Rate limited. Please wait ${rateLimitInfo.remainingTime}s`)
+      throw new Error(
+        `Rate limited. Please wait ${rateLimitInfo.remainingTime}s`
+      )
     }
 
     // Apply rate limiting
@@ -175,7 +188,11 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     }
 
     rateLimitTimerRef.current = setTimeout(() => {
-      setRateLimitInfo(prev => ({ ...prev, isLimited: false, remainingTime: 0 }))
+      setRateLimitInfo(prev => ({
+        ...prev,
+        isLimited: false,
+        remainingTime: 0,
+      }))
     }, 1000 / rateLimit.messagesPerSecond)
 
     try {
@@ -203,9 +220,12 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     if (!user) return
 
     try {
-      const response = await fetch(`/api/chat/${streamId}/messages/${messageId}`, {
-        method: 'DELETE',
-      })
+      const response = await fetch(
+        `/api/chat/${streamId}/messages/${messageId}`,
+        {
+          method: 'DELETE',
+        }
+      )
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -223,16 +243,19 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     if (!user) return
 
     try {
-      const response = await fetch(`/api/chat/${streamId}/messages/${messageId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'flag',
-          reason,
-        }),
-      })
+      const response = await fetch(
+        `/api/chat/${streamId}/messages/${messageId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'flag',
+            reason,
+          }),
+        }
+      )
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -247,7 +270,11 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     }
   }
 
-  const handleBanUser = async (userId: string, duration?: number, reason?: string) => {
+  const handleBanUser = async (
+    userId: string,
+    duration?: number,
+    reason?: string
+  ) => {
     if (!canModerate()) return
 
     try {
@@ -278,7 +305,11 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     }
   }
 
-  const handleTimeoutUser = async (userId: string, duration: number, reason?: string) => {
+  const handleTimeoutUser = async (
+    userId: string,
+    duration: number,
+    reason?: string
+  ) => {
     if (!canModerate()) return
 
     try {
@@ -337,13 +368,15 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
       // You could show a success toast here
     } catch (err) {
       console.error('Error updating chat settings:', err)
-      setError(err instanceof Error ? err.message : 'Failed to update chat settings')
+      setError(
+        err instanceof Error ? err.message : 'Failed to update chat settings'
+      )
     }
   }
 
   if (!isLoaded) {
     return (
-      <Card className={`flex items-center justify-center h-96 ${className}`}>
+      <Card className={`flex h-96 items-center justify-center ${className}`}>
         <Loader2 className="h-6 w-6 animate-spin" />
       </Card>
     )
@@ -353,9 +386,9 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
     <div className={`space-y-4 ${className}`}>
       <Card className="flex flex-col">
         {/* Chat Header */}
-        <div className="p-4 border-b">
+        <div className="border-b p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold flex items-center space-x-2">
+            <h3 className="flex items-center space-x-2 font-semibold">
               <MessageCircle className="h-4 w-4" />
               <span>Live Chat</span>
             </h3>
@@ -365,7 +398,7 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
                 <div className="flex items-center space-x-1">
                   {chatRoom.settings.slowMode > 0 && (
                     <Badge variant="secondary" className="text-xs">
-                      <Clock className="h-3 w-3 mr-1" />
+                      <Clock className="mr-1 h-3 w-3" />
                       {chatRoom.settings.slowMode}s
                     </Badge>
                   )}
@@ -381,9 +414,9 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
                   )}
                 </div>
               )}
-              
+
               {/* User Stats */}
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center space-x-3 text-sm">
                 <div className="flex items-center space-x-1">
                   <Users className="h-3 w-3" />
                   <span>{activeUsers}</span>
@@ -402,7 +435,7 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
                   onClick={() => setShowModTools(!showModTools)}
                   className="ml-2"
                 >
-                  <Shield className="h-3 w-3 mr-1" />
+                  <Shield className="mr-1 h-3 w-3" />
                   {showModTools ? 'Hide' : 'Show'} Tools
                 </Button>
               )}
@@ -410,44 +443,48 @@ export function LiveChat({ streamId, showModerationTools = false, className }: L
           </div>
         </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full p-8">
-            <div className="text-center">
-              <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Connecting to chat...</p>
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center p-8">
+              <div className="text-center">
+                <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin" />
+                <p className="text-muted-foreground text-sm">
+                  Connecting to chat...
+                </p>
+              </div>
             </div>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full p-8">
-            <div className="text-center">
-              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-muted-foreground">No messages yet.</p>
-              <p className="text-sm text-muted-foreground">Be the first to chat!</p>
+          ) : messages.length === 0 ? (
+            <div className="flex h-full items-center justify-center p-8">
+              <div className="text-center">
+                <MessageCircle className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
+                <p className="text-muted-foreground">No messages yet.</p>
+                <p className="text-muted-foreground text-sm">
+                  Be the first to chat!
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-1 p-2">
-            {messages.map((message) => (
-              <ChatMessageComponent
-                key={message.id}
-                message={message}
-                onDelete={handleDeleteMessage}
-                onReport={handleReportMessage}
-              />
-            ))}
-            <div ref={messagesEndRef} />
+          ) : (
+            <div className="space-y-1 p-2">
+              {messages.map(message => (
+                <ChatMessageComponent
+                  key={message.id}
+                  message={message}
+                  onDelete={handleDeleteMessage}
+                  onReport={handleReportMessage}
+                />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-destructive/10 border-destructive/20 text-destructive mx-4 mb-2 rounded border p-2 text-sm">
+            {error}
           </div>
         )}
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="mx-4 mb-2 p-2 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
-          {error}
-        </div>
-      )}
 
         {/* Message Input */}
         <ChatInput

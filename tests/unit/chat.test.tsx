@@ -5,7 +5,7 @@ import { useUser } from '@clerk/nextjs'
 // Mock components since they don't exist yet
 const MockLiveChat = ({ streamId }: { streamId: string }) => {
   const { user, isSignedIn } = useUser()
-  
+
   if (!isSignedIn) {
     return <div>Please sign in to join the chat</div>
   }
@@ -94,7 +94,9 @@ const mockMessages = [
 
 describe('LiveChat', () => {
   const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
-  const mockChatService = MockChatService as jest.MockedClass<typeof MockChatService>
+  const mockChatService = MockChatService as jest.MockedClass<
+    typeof MockChatService
+  >
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -111,7 +113,9 @@ describe('LiveChat', () => {
         setTimeout(() => callback(mockMessages), 100)
         return jest.fn() // unsubscribe function
       }),
-      createMessage: jest.fn().mockResolvedValue({ success: true, data: mockMessages[0] }),
+      createMessage: jest
+        .fn()
+        .mockResolvedValue({ success: true, data: mockMessages[0] }),
       deleteMessage: jest.fn().mockResolvedValue({ success: true }),
     }
     mockChatService.mockImplementation(() => mockInstance as any)
@@ -139,7 +143,9 @@ describe('LiveChat', () => {
 
     render(<MockLiveChat streamId="stream-123" />)
 
-    expect(screen.getByText('Please sign in to join the chat')).toBeInTheDocument()
+    expect(
+      screen.getByText('Please sign in to join the chat')
+    ).toBeInTheDocument()
   })
 
   it('displays messages in real-time', async () => {
@@ -161,17 +167,20 @@ describe('LiveChat', () => {
     fireEvent.click(sendButton)
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/chat/stream-123/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          streamId: 'stream-123',
-          message: 'Test message',
-          messageType: 'text',
-        }),
-      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/chat/stream-123/messages',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            streamId: 'stream-123',
+            message: 'Test message',
+            messageType: 'text',
+          }),
+        }
+      )
     })
   })
 

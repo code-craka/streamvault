@@ -37,16 +37,24 @@ describe('Subscription Validation', () => {
   describe('validateFeatureAccess', () => {
     it('should allow access for users with sufficient tier', () => {
       const user = createMockUser('premium')
-      const access = validateFeatureAccess(user, 'premium', 'Advanced analytics')
-      
+      const access = validateFeatureAccess(
+        user,
+        'premium',
+        'Advanced analytics'
+      )
+
       expect(access.hasAccess).toBe(true)
       expect(access.reason).toBeUndefined()
     })
 
     it('should deny access for users with insufficient tier', () => {
       const user = createMockUser('basic')
-      const access = validateFeatureAccess(user, 'premium', 'Advanced analytics')
-      
+      const access = validateFeatureAccess(
+        user,
+        'premium',
+        'Advanced analytics'
+      )
+
       expect(access.hasAccess).toBe(false)
       expect(access.reason).toContain('Advanced analytics requires premium')
       expect(access.upgradeRequired).toBe('premium')
@@ -54,8 +62,12 @@ describe('Subscription Validation', () => {
 
     it('should allow trial for users without subscription', () => {
       const user = createMockUser(null)
-      const access = validateFeatureAccess(user, 'premium', 'Advanced analytics')
-      
+      const access = validateFeatureAccess(
+        user,
+        'premium',
+        'Advanced analytics'
+      )
+
       expect(access.hasAccess).toBe(false)
       expect(access.trialAvailable).toBe(true)
     })
@@ -65,7 +77,7 @@ describe('Subscription Validation', () => {
     it('should allow usage within limits', () => {
       const user = createMockUser('premium')
       const access = validateUsageLimit(user, 'concurrentStreams', 1)
-      
+
       expect(access.hasAccess).toBe(true)
       expect(access.usageRemaining).toBe(1) // Premium allows 2 concurrent streams
     })
@@ -73,7 +85,7 @@ describe('Subscription Validation', () => {
     it('should deny usage when limit exceeded', () => {
       const user = createMockUser('basic')
       const access = validateUsageLimit(user, 'concurrentStreams', 1)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.reason).toContain('concurrentStreams limit')
       expect(access.usageRemaining).toBe(0)
@@ -82,7 +94,7 @@ describe('Subscription Validation', () => {
     it('should handle unlimited usage (-1)', () => {
       const user = createMockUser('pro')
       const access = validateUsageLimit(user, 'customEmotes', 100)
-      
+
       expect(access.hasAccess).toBe(true)
       expect(access.usageRemaining).toBe(-1) // Unlimited
     })
@@ -92,14 +104,14 @@ describe('Subscription Validation', () => {
     it('should allow stream creation within limits', () => {
       const user = createMockUser('premium')
       const access = canCreateStream(user, 1)
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny stream creation when limit reached', () => {
       const user = createMockUser('basic')
       const access = canCreateStream(user, 1)
-      
+
       expect(access.hasAccess).toBe(false)
     })
   })
@@ -108,14 +120,14 @@ describe('Subscription Validation', () => {
     it('should allow video upload for streamers within storage limits', () => {
       const user = createMockUser('premium')
       const access = canUploadVideo(user, 10, 5) // 10GB used, 5GB video
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny video upload for viewers', () => {
       const user = { ...createMockUser('premium'), role: 'viewer' as const }
       const access = canUploadVideo(user, 10, 5)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.reason).toContain('streamer role')
     })
@@ -123,7 +135,7 @@ describe('Subscription Validation', () => {
     it('should deny video upload when storage limit exceeded', () => {
       const user = createMockUser('basic')
       const access = canUploadVideo(user, 4, 2) // 4GB + 2GB > 5GB limit
-      
+
       expect(access.hasAccess).toBe(false)
     })
   })
@@ -132,7 +144,7 @@ describe('Subscription Validation', () => {
     it('should allow chat messages within rate limit', () => {
       const user = createMockUser('premium')
       const access = canSendChatMessage(user, 2) // 2 messages in last second, limit is 3
-      
+
       expect(access.hasAccess).toBe(true)
       expect(access.usageRemaining).toBe(1)
     })
@@ -140,7 +152,7 @@ describe('Subscription Validation', () => {
     it('should deny chat messages when rate limit exceeded', () => {
       const user = createMockUser('basic')
       const access = canSendChatMessage(user, 1) // 1 message in last second, limit is 1
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.reason).toContain('Rate limit exceeded')
     })
@@ -150,7 +162,7 @@ describe('Subscription Validation', () => {
     it('should allow custom emote creation within limits', () => {
       const user = createMockUser('premium')
       const access = canCreateCustomEmote(user, 3) // 3 emotes, limit is 5
-      
+
       expect(access.hasAccess).toBe(true)
       expect(access.usageRemaining).toBe(2)
     })
@@ -158,7 +170,7 @@ describe('Subscription Validation', () => {
     it('should deny custom emote creation when limit reached', () => {
       const user = createMockUser('basic')
       const access = canCreateCustomEmote(user, 0) // Basic has 0 limit
-      
+
       expect(access.hasAccess).toBe(false)
     })
   })
@@ -167,7 +179,7 @@ describe('Subscription Validation', () => {
     it('should allow video downloads within limits', () => {
       const user = createMockUser('premium')
       const access = canDownloadVideo(user, 5) // 5 downloads, limit is 10
-      
+
       expect(access.hasAccess).toBe(true)
       expect(access.usageRemaining).toBe(5)
     })
@@ -175,7 +187,7 @@ describe('Subscription Validation', () => {
     it('should deny video downloads for basic users', () => {
       const user = createMockUser('basic')
       const access = canDownloadVideo(user, 0)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.reason).toContain('premium subscription')
     })
@@ -185,14 +197,14 @@ describe('Subscription Validation', () => {
     it('should allow API access for pro users', () => {
       const user = createMockUser('pro')
       const access = canAccessAPI(user)
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny API access for non-pro users', () => {
       const user = createMockUser('premium')
       const access = canAccessAPI(user)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.upgradeRequired).toBe('pro')
     })
@@ -202,14 +214,14 @@ describe('Subscription Validation', () => {
     it('should allow advanced analytics for premium+ users', () => {
       const user = createMockUser('premium')
       const access = canAccessAdvancedAnalytics(user)
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny advanced analytics for basic users', () => {
       const user = createMockUser('basic')
       const access = canAccessAdvancedAnalytics(user)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.upgradeRequired).toBe('premium')
     })
@@ -219,14 +231,14 @@ describe('Subscription Validation', () => {
     it('should allow white-label features for pro users', () => {
       const user = createMockUser('pro')
       const access = canUseWhiteLabel(user)
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny white-label features for non-pro users', () => {
       const user = createMockUser('premium')
       const access = canUseWhiteLabel(user)
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.upgradeRequired).toBe('pro')
     })
@@ -236,14 +248,14 @@ describe('Subscription Validation', () => {
     it('should allow 4K streaming for pro users', () => {
       const user = createMockUser('pro')
       const access = canStreamAtQuality(user, '4K')
-      
+
       expect(access.hasAccess).toBe(true)
     })
 
     it('should deny 4K streaming for non-pro users', () => {
       const user = createMockUser('premium')
       const access = canStreamAtQuality(user, '4K')
-      
+
       expect(access.hasAccess).toBe(false)
       expect(access.upgradeRequired).toBe('pro')
     })
@@ -251,7 +263,7 @@ describe('Subscription Validation', () => {
     it('should allow 720p streaming for all users', () => {
       const user = createMockUser('basic')
       const access = canStreamAtQuality(user, '720p')
-      
+
       expect(access.hasAccess).toBe(true)
     })
   })
@@ -266,9 +278,9 @@ describe('Subscription Validation', () => {
         customEmotes: 0,
         apiCalls: 0,
       }
-      
+
       const suggestions = getUpgradeSuggestions(user, usage)
-      
+
       expect(suggestions.suggestedTier).toBe('premium')
       expect(suggestions.reasons.length).toBeGreaterThan(0)
       expect(suggestions.benefits).toContain('HD streaming (1080p)')
@@ -283,9 +295,9 @@ describe('Subscription Validation', () => {
         customEmotes: 5, // At limit
         apiCalls: 0,
       }
-      
+
       const suggestions = getUpgradeSuggestions(user, usage)
-      
+
       expect(suggestions.suggestedTier).toBe('pro')
       expect(suggestions.benefits).toContain('API access')
     })
@@ -299,9 +311,9 @@ describe('Subscription Validation', () => {
         customEmotes: 2,
         apiCalls: 0,
       }
-      
+
       const suggestions = getUpgradeSuggestions(user, usage)
-      
+
       expect(suggestions.suggestedTier).toBeNull()
       expect(suggestions.reasons).toHaveLength(0)
     })
@@ -311,7 +323,7 @@ describe('Subscription Validation', () => {
     it('should validate active subscriptions', () => {
       const user = createMockUser('premium', 'active')
       const validation = validateSubscriptionStatus(user)
-      
+
       expect(validation.isValid).toBe(true)
       expect(validation.status).toBe('active')
       expect(validation.message).toBeUndefined()
@@ -320,7 +332,7 @@ describe('Subscription Validation', () => {
     it('should invalidate canceled subscriptions', () => {
       const user = createMockUser('premium', 'canceled')
       const validation = validateSubscriptionStatus(user)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.status).toBe('inactive')
       expect(validation.message).toContain('inactive')
@@ -329,7 +341,7 @@ describe('Subscription Validation', () => {
     it('should invalidate past due subscriptions', () => {
       const user = createMockUser('premium', 'past_due')
       const validation = validateSubscriptionStatus(user)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.status).toBe('past_due')
       expect(validation.message).toContain('past due')
@@ -338,7 +350,7 @@ describe('Subscription Validation', () => {
     it('should handle users without subscriptions', () => {
       const user = createMockUser(null, null)
       const validation = validateSubscriptionStatus(user)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.status).toBe('inactive')
     })

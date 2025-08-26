@@ -106,7 +106,7 @@ export class PerformanceMonitor {
   private async collectMetrics(): Promise<void> {
     try {
       const timestamp = Date.now()
-      
+
       const metrics: SystemMetrics = {
         timestamp,
         webVitals: await this.collectWebVitalsMetrics(),
@@ -125,7 +125,6 @@ export class PerformanceMonitor {
 
       // Check for alerts
       this.checkAlerts(metrics)
-
     } catch (error) {
       console.error('Failed to collect performance metrics:', error)
     }
@@ -156,7 +155,7 @@ export class PerformanceMonitor {
 
   private collectDatabaseMetrics(): SystemMetrics['database'] {
     const queryMetrics = queryOptimizer.getMetrics()
-    
+
     return {
       averageQueryTime: queryMetrics.averageExecutionTime,
       cacheHitRate: queryMetrics.cacheHitRate,
@@ -182,13 +181,13 @@ export class PerformanceMonitor {
   private checkAlerts(metrics: SystemMetrics): void {
     // Check Web Vitals alerts
     this.checkWebVitalsAlerts(metrics.webVitals)
-    
+
     // Check API alerts
     this.checkAPIAlerts(metrics.api)
-    
+
     // Check database alerts
     this.checkDatabaseAlerts(metrics.database)
-    
+
     // Check circuit breaker alerts
     this.checkCircuitBreakerAlerts(metrics.circuitBreakers)
   }
@@ -198,19 +197,38 @@ export class PerformanceMonitor {
     const thresholds = this.thresholds.webVitals
 
     if (lcp > thresholds.lcp.critical) {
-      this.createAlert('critical', 'web-vitals', `LCP is critically slow: ${lcp}ms`, { lcp })
+      this.createAlert(
+        'critical',
+        'web-vitals',
+        `LCP is critically slow: ${lcp}ms`,
+        { lcp }
+      )
     } else if (lcp > thresholds.lcp.warning) {
-      this.createAlert('warning', 'web-vitals', `LCP is slow: ${lcp}ms`, { lcp })
+      this.createAlert('warning', 'web-vitals', `LCP is slow: ${lcp}ms`, {
+        lcp,
+      })
     }
 
     if (fid > thresholds.fid.critical) {
-      this.createAlert('critical', 'web-vitals', `FID is critically slow: ${fid}ms`, { fid })
+      this.createAlert(
+        'critical',
+        'web-vitals',
+        `FID is critically slow: ${fid}ms`,
+        { fid }
+      )
     } else if (fid > thresholds.fid.warning) {
-      this.createAlert('warning', 'web-vitals', `FID is slow: ${fid}ms`, { fid })
+      this.createAlert('warning', 'web-vitals', `FID is slow: ${fid}ms`, {
+        fid,
+      })
     }
 
     if (cls > thresholds.cls.critical) {
-      this.createAlert('critical', 'web-vitals', `CLS is critically high: ${cls}`, { cls })
+      this.createAlert(
+        'critical',
+        'web-vitals',
+        `CLS is critically high: ${cls}`,
+        { cls }
+      )
     } else if (cls > thresholds.cls.warning) {
       this.createAlert('warning', 'web-vitals', `CLS is high: ${cls}`, { cls })
     }
@@ -221,15 +239,35 @@ export class PerformanceMonitor {
     const thresholds = this.thresholds.api
 
     if (averageResponseTime > thresholds.responseTime.critical) {
-      this.createAlert('critical', 'api', `API response time is critically slow: ${averageResponseTime}ms`, { averageResponseTime })
+      this.createAlert(
+        'critical',
+        'api',
+        `API response time is critically slow: ${averageResponseTime}ms`,
+        { averageResponseTime }
+      )
     } else if (averageResponseTime > thresholds.responseTime.warning) {
-      this.createAlert('warning', 'api', `API response time is slow: ${averageResponseTime}ms`, { averageResponseTime })
+      this.createAlert(
+        'warning',
+        'api',
+        `API response time is slow: ${averageResponseTime}ms`,
+        { averageResponseTime }
+      )
     }
 
     if (errorRate > thresholds.errorRate.critical) {
-      this.createAlert('critical', 'api', `API error rate is critically high: ${(errorRate * 100).toFixed(2)}%`, { errorRate })
+      this.createAlert(
+        'critical',
+        'api',
+        `API error rate is critically high: ${(errorRate * 100).toFixed(2)}%`,
+        { errorRate }
+      )
     } else if (errorRate > thresholds.errorRate.warning) {
-      this.createAlert('warning', 'api', `API error rate is high: ${(errorRate * 100).toFixed(2)}%`, { errorRate })
+      this.createAlert(
+        'warning',
+        'api',
+        `API error rate is high: ${(errorRate * 100).toFixed(2)}%`,
+        { errorRate }
+      )
     }
   }
 
@@ -238,24 +276,56 @@ export class PerformanceMonitor {
     const thresholds = this.thresholds.database
 
     if (averageQueryTime > thresholds.queryTime.critical) {
-      this.createAlert('critical', 'database', `Database queries are critically slow: ${averageQueryTime}ms`, { averageQueryTime })
+      this.createAlert(
+        'critical',
+        'database',
+        `Database queries are critically slow: ${averageQueryTime}ms`,
+        { averageQueryTime }
+      )
     } else if (averageQueryTime > thresholds.queryTime.warning) {
-      this.createAlert('warning', 'database', `Database queries are slow: ${averageQueryTime}ms`, { averageQueryTime })
+      this.createAlert(
+        'warning',
+        'database',
+        `Database queries are slow: ${averageQueryTime}ms`,
+        { averageQueryTime }
+      )
     }
 
     if (cacheHitRate < thresholds.cacheHitRate.critical) {
-      this.createAlert('critical', 'database', `Cache hit rate is critically low: ${(cacheHitRate * 100).toFixed(2)}%`, { cacheHitRate })
+      this.createAlert(
+        'critical',
+        'database',
+        `Cache hit rate is critically low: ${(cacheHitRate * 100).toFixed(2)}%`,
+        { cacheHitRate }
+      )
     } else if (cacheHitRate < thresholds.cacheHitRate.warning) {
-      this.createAlert('warning', 'database', `Cache hit rate is low: ${(cacheHitRate * 100).toFixed(2)}%`, { cacheHitRate })
+      this.createAlert(
+        'warning',
+        'database',
+        `Cache hit rate is low: ${(cacheHitRate * 100).toFixed(2)}%`,
+        { cacheHitRate }
+      )
     }
   }
 
-  private checkCircuitBreakerAlerts(circuitBreakers: Record<string, CircuitBreakerStats>): void {
+  private checkCircuitBreakerAlerts(
+    circuitBreakers: Record<string, CircuitBreakerStats>
+  ): void {
     for (const [name, stats] of Object.entries(circuitBreakers)) {
       if (stats.state === 'OPEN') {
-        this.createAlert('error', 'circuit-breaker', `Circuit breaker ${name} is OPEN`, stats)
+        this.createAlert(
+          'error',
+          'circuit-breaker',
+          `Circuit breaker ${name} is OPEN`,
+          stats
+        )
       } else if (stats.state === 'HALF_OPEN') {
-        this.createAlert('warning', 'circuit-breaker', `Circuit breaker ${name} is HALF_OPEN`, stats)
+        this.createAlert(
+          'warning',
+          'circuit-breaker',
+          `Circuit breaker ${name} is HALF_OPEN`,
+          stats
+        )
       }
     }
   }
@@ -301,24 +371,32 @@ export class PerformanceMonitor {
     return limit ? this.metrics.slice(-limit) : [...this.metrics]
   }
 
-  public getAlerts(options: {
-    resolved?: boolean
-    category?: PerformanceAlert['category']
-    type?: PerformanceAlert['type']
-    limit?: number
-  } = {}): PerformanceAlert[] {
+  public getAlerts(
+    options: {
+      resolved?: boolean
+      category?: PerformanceAlert['category']
+      type?: PerformanceAlert['type']
+      limit?: number
+    } = {}
+  ): PerformanceAlert[] {
     let filteredAlerts = [...this.alerts]
 
     if (options.resolved !== undefined) {
-      filteredAlerts = filteredAlerts.filter(alert => alert.resolved === options.resolved)
+      filteredAlerts = filteredAlerts.filter(
+        alert => alert.resolved === options.resolved
+      )
     }
 
     if (options.category) {
-      filteredAlerts = filteredAlerts.filter(alert => alert.category === options.category)
+      filteredAlerts = filteredAlerts.filter(
+        alert => alert.category === options.category
+      )
     }
 
     if (options.type) {
-      filteredAlerts = filteredAlerts.filter(alert => alert.type === options.type)
+      filteredAlerts = filteredAlerts.filter(
+        alert => alert.type === options.type
+      )
     }
 
     if (options.limit) {
@@ -359,9 +437,13 @@ export class PerformanceMonitor {
     const webVitalsScore = this.calculateWebVitalsScore(latestMetrics.webVitals)
     const apiScore = this.calculateAPIScore(latestMetrics.api)
     const databaseScore = this.calculateDatabaseScore(latestMetrics.database)
-    const circuitBreakerScore = this.calculateCircuitBreakerScore(latestMetrics.circuitBreakers)
+    const circuitBreakerScore = this.calculateCircuitBreakerScore(
+      latestMetrics.circuitBreakers
+    )
 
-    const overall = Math.round((webVitalsScore + apiScore + databaseScore + circuitBreakerScore) / 4)
+    const overall = Math.round(
+      (webVitalsScore + apiScore + databaseScore + circuitBreakerScore) / 4
+    )
 
     return {
       overall,
@@ -372,7 +454,9 @@ export class PerformanceMonitor {
     }
   }
 
-  private calculateWebVitalsScore(webVitals: SystemMetrics['webVitals']): number {
+  private calculateWebVitalsScore(
+    webVitals: SystemMetrics['webVitals']
+  ): number {
     // Simple scoring based on thresholds
     let score = 100
     const thresholds = this.thresholds.webVitals
@@ -394,7 +478,8 @@ export class PerformanceMonitor {
     const thresholds = this.thresholds.api
 
     if (api.averageResponseTime > thresholds.responseTime.critical) score -= 40
-    else if (api.averageResponseTime > thresholds.responseTime.warning) score -= 20
+    else if (api.averageResponseTime > thresholds.responseTime.warning)
+      score -= 20
 
     if (api.errorRate > thresholds.errorRate.critical) score -= 40
     else if (api.errorRate > thresholds.errorRate.warning) score -= 20
@@ -407,15 +492,19 @@ export class PerformanceMonitor {
     const thresholds = this.thresholds.database
 
     if (database.averageQueryTime > thresholds.queryTime.critical) score -= 40
-    else if (database.averageQueryTime > thresholds.queryTime.warning) score -= 20
+    else if (database.averageQueryTime > thresholds.queryTime.warning)
+      score -= 20
 
     if (database.cacheHitRate < thresholds.cacheHitRate.critical) score -= 40
-    else if (database.cacheHitRate < thresholds.cacheHitRate.warning) score -= 20
+    else if (database.cacheHitRate < thresholds.cacheHitRate.warning)
+      score -= 20
 
     return Math.max(0, score)
   }
 
-  private calculateCircuitBreakerScore(circuitBreakers: Record<string, CircuitBreakerStats>): number {
+  private calculateCircuitBreakerScore(
+    circuitBreakers: Record<string, CircuitBreakerStats>
+  ): number {
     const breakerCount = Object.keys(circuitBreakers).length
     if (breakerCount === 0) return 100
 

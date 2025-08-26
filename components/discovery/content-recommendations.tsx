@@ -24,9 +24,9 @@ interface ContentRecommendationsProps {
   showRefresh?: boolean
 }
 
-export function ContentRecommendations({ 
-  limit = 8, 
-  showRefresh = true 
+export function ContentRecommendations({
+  limit = 8,
+  showRefresh = true,
 }: ContentRecommendationsProps) {
   const { user } = useUser()
   const [sections, setSections] = useState<RecommendationSection[]>([])
@@ -37,7 +37,7 @@ export function ContentRecommendations({
       id: 'trending',
       title: 'Trending Now',
       description: 'Popular videos gaining momentum',
-      icon: <TrendingUp className="w-5 h-5" />,
+      icon: <TrendingUp className="h-5 w-5" />,
       vods: [],
       loading: true,
     },
@@ -45,7 +45,7 @@ export function ContentRecommendations({
       id: 'recommended',
       title: 'Recommended for You',
       description: 'Personalized picks based on your interests',
-      icon: <Sparkles className="w-5 h-5" />,
+      icon: <Sparkles className="h-5 w-5" />,
       vods: [],
       loading: true,
     },
@@ -53,7 +53,7 @@ export function ContentRecommendations({
       id: 'recent',
       title: 'Recently Added',
       description: 'Fresh content from creators',
-      icon: <Clock className="w-5 h-5" />,
+      icon: <Clock className="h-5 w-5" />,
       vods: [],
       loading: true,
     },
@@ -61,7 +61,7 @@ export function ContentRecommendations({
       id: 'popular',
       title: 'Most Watched',
       description: 'All-time favorites from the community',
-      icon: <Eye className="w-5 h-5" />,
+      icon: <Eye className="h-5 w-5" />,
       vods: [],
       loading: true,
     },
@@ -83,29 +83,39 @@ export function ContentRecommendations({
 
       const results = await Promise.allSettled(promises)
 
-      setSections(prev => prev.map((section, index) => ({
-        ...section,
-        loading: false,
-        vods: results[index].status === 'fulfilled' ? results[index].value : [],
-        error: results[index].status === 'rejected' ? 'Failed to load content' : undefined,
-      })))
-
+      setSections(prev =>
+        prev.map((section, index) => ({
+          ...section,
+          loading: false,
+          vods:
+            results[index].status === 'fulfilled' ? results[index].value : [],
+          error:
+            results[index].status === 'rejected'
+              ? 'Failed to load content'
+              : undefined,
+        }))
+      )
     } catch (error) {
       console.error('Failed to load recommendations:', error)
-      setSections(prev => prev.map(section => ({
-        ...section,
-        loading: false,
-        error: 'Failed to load content',
-      })))
+      setSections(prev =>
+        prev.map(section => ({
+          ...section,
+          loading: false,
+          error: 'Failed to load content',
+        }))
+      )
     }
   }
 
   const loadTrendingContent = async (): Promise<VOD[]> => {
     // Load trending content based on recent view growth
-    const response = await fetch('/api/vods/trending?' + new URLSearchParams({
-      limit: limit.toString(),
-      timeframe: '7d', // Last 7 days
-    }))
+    const response = await fetch(
+      '/api/vods/trending?' +
+        new URLSearchParams({
+          limit: limit.toString(),
+          timeframe: '7d', // Last 7 days
+        })
+    )
 
     if (!response.ok) {
       throw new Error('Failed to load trending content')
@@ -122,10 +132,13 @@ export function ContentRecommendations({
     }
 
     // Load personalized recommendations
-    const response = await fetch('/api/vods/recommendations?' + new URLSearchParams({
-      limit: limit.toString(),
-      userId: user.id,
-    }))
+    const response = await fetch(
+      '/api/vods/recommendations?' +
+        new URLSearchParams({
+          limit: limit.toString(),
+          userId: user.id,
+        })
+    )
 
     if (!response.ok) {
       // Fallback to popular content
@@ -137,11 +150,14 @@ export function ContentRecommendations({
   }
 
   const loadRecentContent = async (): Promise<VOD[]> => {
-    const response = await fetch('/api/vods/public?' + new URLSearchParams({
-      limit: limit.toString(),
-      orderBy: 'createdAt',
-      orderDirection: 'desc',
-    }))
+    const response = await fetch(
+      '/api/vods/public?' +
+        new URLSearchParams({
+          limit: limit.toString(),
+          orderBy: 'createdAt',
+          orderDirection: 'desc',
+        })
+    )
 
     if (!response.ok) {
       throw new Error('Failed to load recent content')
@@ -152,9 +168,12 @@ export function ContentRecommendations({
   }
 
   const loadPopularContent = async (): Promise<VOD[]> => {
-    const response = await fetch('/api/vods/popular?' + new URLSearchParams({
-      limit: limit.toString(),
-    }))
+    const response = await fetch(
+      '/api/vods/popular?' +
+        new URLSearchParams({
+          limit: limit.toString(),
+        })
+    )
 
     if (!response.ok) {
       throw new Error('Failed to load popular content')
@@ -166,7 +185,9 @@ export function ContentRecommendations({
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    setSections(prev => prev.map(section => ({ ...section, loading: true, error: undefined })))
+    setSections(prev =>
+      prev.map(section => ({ ...section, loading: true, error: undefined }))
+    )
     await loadRecommendations()
     setRefreshing(false)
   }
@@ -185,14 +206,16 @@ export function ContentRecommendations({
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
         )}
       </div>
 
       {/* Recommendation Sections */}
-      {sections.map((section) => (
+      {sections.map(section => (
         <div key={section.id} className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -210,12 +233,12 @@ export function ContentRecommendations({
           </div>
 
           {section.loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Card key={i}>
                   <CardContent className="p-0">
                     <Skeleton className="aspect-video w-full" />
-                    <div className="p-4 space-y-2">
+                    <div className="space-y-2 p-4">
                       <Skeleton className="h-4 w-3/4" />
                       <Skeleton className="h-3 w-1/2" />
                       <div className="flex justify-between">
@@ -230,15 +253,19 @@ export function ContentRecommendations({
           ) : section.error ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <p className="text-red-500 mb-4">{section.error}</p>
-                <Button onClick={loadRecommendations} variant="outline" size="sm">
+                <p className="mb-4 text-red-500">{section.error}</p>
+                <Button
+                  onClick={loadRecommendations}
+                  variant="outline"
+                  size="sm"
+                >
                   Try Again
                 </Button>
               </CardContent>
             </Card>
           ) : section.vods.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {section.vods.slice(0, 4).map((vod) => (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {section.vods.slice(0, 4).map(vod => (
                 <VODCard key={vod.id} vod={vod} />
               ))}
             </div>

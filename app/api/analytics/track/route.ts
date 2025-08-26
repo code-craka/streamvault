@@ -12,23 +12,27 @@ const trackViewerSchema = z.object({
   deviceInfo: z.object({
     deviceType: z.enum(['desktop', 'mobile', 'tablet']),
     browser: z.string(),
-    location: z.object({
-      country: z.string(),
-      region: z.string().optional(),
-      city: z.string().optional(),
-      coordinates: z.object({
-        lat: z.number(),
-        lng: z.number()
-      }).optional()
-    }).optional()
-  })
+    location: z
+      .object({
+        country: z.string(),
+        region: z.string().optional(),
+        city: z.string().optional(),
+        coordinates: z
+          .object({
+            lat: z.number(),
+            lng: z.number(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
 })
 
 const trackViewerLeaveSchema = z.object({
   action: z.literal('viewer_leave'),
   streamId: z.string(),
   sessionId: z.string(),
-  duration: z.number()
+  duration: z.number(),
 })
 
 const trackChatSchema = z.object({
@@ -39,8 +43,8 @@ const trackChatSchema = z.object({
     messageLength: z.number(),
     containsEmotes: z.boolean(),
     sentiment: z.enum(['positive', 'negative', 'neutral']).optional(),
-    engagementScore: z.number()
-  })
+    engagementScore: z.number(),
+  }),
 })
 
 const trackQualitySchema = z.object({
@@ -49,16 +53,24 @@ const trackQualitySchema = z.object({
   sessionId: z.string(),
   newQuality: z.string(),
   bufferingEvent: z.boolean().optional(),
-  bufferingDuration: z.number().optional()
+  bufferingDuration: z.number().optional(),
 })
 
 const trackEngagementSchema = z.object({
   action: z.literal('engagement'),
   streamId: z.string(),
   sessionId: z.string(),
-  eventType: z.enum(['view_start', 'view_end', 'chat_message', 'subscription', 'donation', 'share', 'like']),
+  eventType: z.enum([
+    'view_start',
+    'view_end',
+    'chat_message',
+    'subscription',
+    'donation',
+    'share',
+    'like',
+  ]),
   eventData: z.record(z.any()).optional(),
-  value: z.number().optional()
+  value: z.number().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -68,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request body based on action type
     let validatedData
-    
+
     switch (body.action) {
       case 'viewer_join':
         validatedData = trackViewerSchema.parse(body)
@@ -125,7 +137,7 @@ export async function POST(request: NextRequest) {
           eventType: validatedData.eventType,
           sessionId: validatedData.sessionId,
           eventData: validatedData.eventData || {},
-          value: validatedData.value
+          value: validatedData.value,
         })
         break
 
@@ -137,10 +149,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     console.error('Analytics tracking error:', error)
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
@@ -170,16 +181,13 @@ export async function GET(request: NextRequest) {
     const streamId = searchParams.get('streamId')
 
     if (!streamId) {
-      return NextResponse.json(
-        { error: 'Stream ID required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Stream ID required' }, { status: 400 })
     }
 
     // TODO: Verify user has access to this stream's analytics
-    
+
     const analytics = await analyticsService.getRealtimeAnalytics(streamId)
-    
+
     if (!analytics) {
       return NextResponse.json(
         { error: 'Analytics not found' },
@@ -188,7 +196,6 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(analytics)
-
   } catch (error) {
     console.error('Error retrieving analytics:', error)
     return NextResponse.json(

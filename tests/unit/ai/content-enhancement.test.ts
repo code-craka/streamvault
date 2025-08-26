@@ -8,7 +8,7 @@ jest.mock('@/lib/firebase', () => ({
   db: {},
   auth: {},
   storage: {},
-  app: {}
+  app: {},
 }))
 
 // Mock Firebase functions
@@ -45,11 +45,9 @@ jest.mock('@google-cloud/storage', () => ({
   })),
 }))
 
-
-
 describe('AIContentEnhancement', () => {
   let aiService: AIContentEnhancement
-  
+
   beforeEach(() => {
     aiService = new AIContentEnhancement()
     jest.clearAllMocks()
@@ -61,7 +59,11 @@ describe('AIContentEnhancement', () => {
       const videoPath = '/path/to/video.mp4'
       const userId = 'user-123'
 
-      const result = await aiService.processUploadedVideo(videoId, videoPath, userId)
+      const result = await aiService.processUploadedVideo(
+        videoId,
+        videoPath,
+        userId
+      )
 
       expect(result).toBeDefined()
       expect(result.videoId).toBe(videoId)
@@ -79,8 +81,9 @@ describe('AIContentEnhancement', () => {
       const videoPath = '/invalid/path.mp4'
       const userId = 'user-123'
 
-      await expect(aiService.processUploadedVideo(videoId, videoPath, userId))
-        .rejects.toThrow('AI processing failed')
+      await expect(
+        aiService.processUploadedVideo(videoId, videoPath, userId)
+      ).rejects.toThrow('AI processing failed')
     })
   })
 
@@ -89,7 +92,11 @@ describe('AIContentEnhancement', () => {
       const userId = 'user-123'
       const limit = 5
 
-      const recommendations = await aiService.generateRecommendations(userId, undefined, limit)
+      const recommendations = await aiService.generateRecommendations(
+        userId,
+        undefined,
+        limit
+      )
 
       expect(recommendations).toBeInstanceOf(Array)
       expect(recommendations.length).toBeLessThanOrEqual(limit)
@@ -100,7 +107,11 @@ describe('AIContentEnhancement', () => {
       const videoId = 'video-123'
       const limit = 3
 
-      const recommendations = await aiService.generateRecommendations(userId, videoId, limit)
+      const recommendations = await aiService.generateRecommendations(
+        userId,
+        videoId,
+        limit
+      )
 
       expect(recommendations).toBeInstanceOf(Array)
       expect(recommendations.length).toBeLessThanOrEqual(limit)
@@ -121,11 +132,14 @@ describe('ThumbnailGenerationService', () => {
       const videoId = 'test-video-123'
       const videoPath = '/path/to/video.mp4'
 
-      const thumbnails = await thumbnailService.generateThumbnails(videoId, videoPath)
+      const thumbnails = await thumbnailService.generateThumbnails(
+        videoId,
+        videoPath
+      )
 
       expect(thumbnails).toBeInstanceOf(Array)
       expect(thumbnails.length).toBeGreaterThan(0)
-      
+
       thumbnails.forEach(thumbnail => {
         expect(thumbnail.url).toBeDefined()
         expect(thumbnail.timestamp).toBeGreaterThanOrEqual(0)
@@ -142,8 +156,8 @@ describe('ThumbnailGenerationService', () => {
       const timestamp = 30
 
       const thumbnail = await thumbnailService.generateSingleThumbnail(
-        videoId, 
-        videoPath, 
+        videoId,
+        videoPath,
         timestamp
       )
 
@@ -157,7 +171,8 @@ describe('ThumbnailGenerationService', () => {
     it('should analyze thumbnail quality', async () => {
       const thumbnailUrl = 'https://example.com/thumbnail.jpg'
 
-      const analysis = await thumbnailService.analyzeThumbnailQuality(thumbnailUrl)
+      const analysis =
+        await thumbnailService.analyzeThumbnailQuality(thumbnailUrl)
 
       expect(analysis.score).toBeGreaterThanOrEqual(0)
       expect(analysis.score).toBeLessThanOrEqual(1)
@@ -187,14 +202,18 @@ describe('ContentQualityAnalyzer', () => {
         title: 'Test Video Title',
         description: 'Test video description',
         tags: ['test', 'video', 'content'],
-        thumbnails: ['https://example.com/thumb1.jpg']
+        thumbnails: ['https://example.com/thumb1.jpg'],
       }
 
-      const analysis = await qualityAnalyzer.analyzeContent(videoId, videoPath, metadata)
+      const analysis = await qualityAnalyzer.analyzeContent(
+        videoId,
+        videoPath,
+        metadata
+      )
 
       expect(analysis.overall).toBeGreaterThanOrEqual(0)
       expect(analysis.overall).toBeLessThanOrEqual(1)
-      
+
       expect(analysis.technical).toBeDefined()
       expect(analysis.technical.video.score).toBeGreaterThanOrEqual(0)
       expect(analysis.technical.audio.score).toBeGreaterThanOrEqual(0)
@@ -215,7 +234,9 @@ describe('ContentQualityAnalyzer', () => {
 
       expect(analysis.suggestions).toBeInstanceOf(Array)
       analysis.suggestions.forEach(suggestion => {
-        expect(['technical', 'engagement', 'accessibility', 'seo']).toContain(suggestion.category)
+        expect(['technical', 'engagement', 'accessibility', 'seo']).toContain(
+          suggestion.category
+        )
         expect(['high', 'medium', 'low']).toContain(suggestion.priority)
         expect(suggestion.issue).toBeDefined()
         expect(suggestion.suggestion).toBeDefined()
@@ -254,19 +275,31 @@ describe('AI Integration Tests', () => {
     const userId = 'user-123'
 
     // Process video with AI
-    const metadata = await aiService.processUploadedVideo(videoId, videoPath, userId)
-    
+    const metadata = await aiService.processUploadedVideo(
+      videoId,
+      videoPath,
+      userId
+    )
+
     // Generate additional thumbnails
-    const thumbnails = await thumbnailService.generateThumbnails(videoId, videoPath, { count: 3 })
-    
+    const thumbnails = await thumbnailService.generateThumbnails(
+      videoId,
+      videoPath,
+      { count: 3 }
+    )
+
     // Analyze quality
-    const qualityAnalysis = await qualityAnalyzer.analyzeContent(videoId, videoPath, metadata)
+    const qualityAnalysis = await qualityAnalyzer.analyzeContent(
+      videoId,
+      videoPath,
+      metadata
+    )
 
     // Verify integration
     expect(metadata.videoId).toBe(videoId)
     expect(thumbnails.length).toBe(3)
     expect(qualityAnalysis.overall).toBeGreaterThan(0)
-    
+
     // Verify data consistency
     expect(metadata.aiGenerated.thumbnails).toBeInstanceOf(Array)
     expect(qualityAnalysis.suggestions.length).toBeGreaterThan(0)

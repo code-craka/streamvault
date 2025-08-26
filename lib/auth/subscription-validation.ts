@@ -2,7 +2,11 @@
 
 import type { SubscriptionTier, StreamVaultUser } from '@/types/auth'
 import type { FeatureAccess, SubscriptionLimits } from '@/types/subscription'
-import { SUBSCRIPTION_TIERS, hasFeatureAccess, getUsageLimits } from '@/types/subscription'
+import {
+  SUBSCRIPTION_TIERS,
+  hasFeatureAccess,
+  getUsageLimits,
+} from '@/types/subscription'
 import { hasSubscriptionTier } from './permissions'
 
 /**
@@ -79,8 +83,10 @@ function getNextTierForFeature(
 
   for (let i = currentIndex + 1; i < tiers.length; i++) {
     const tierLimits = SUBSCRIPTION_TIERS[tiers[i]].limits
-    const currentLimits = currentTier ? SUBSCRIPTION_TIERS[currentTier].limits : SUBSCRIPTION_TIERS.basic.limits
-    
+    const currentLimits = currentTier
+      ? SUBSCRIPTION_TIERS[currentTier].limits
+      : SUBSCRIPTION_TIERS.basic.limits
+
     const tierLimit = tierLimits[feature] as number
     const currentLimit = currentLimits[feature] as number
 
@@ -110,8 +116,12 @@ export function canUploadVideo(
   currentStorageUsed: number, // in GB
   videoSize: number // in GB
 ): FeatureAccess {
-  const storageAccess = validateUsageLimit(user, 'storageQuota', currentStorageUsed + videoSize)
-  
+  const storageAccess = validateUsageLimit(
+    user,
+    'storageQuota',
+    currentStorageUsed + videoSize
+  )
+
   if (!storageAccess.hasAccess) {
     return storageAccess
   }
@@ -142,7 +152,10 @@ export function canSendChatMessage(
     return {
       hasAccess: false,
       reason: `Rate limit exceeded. You can send ${rateLimit} message(s) per second`,
-      upgradeRequired: getNextTierForFeature(user.subscriptionTier, 'chatRateLimit'),
+      upgradeRequired: getNextTierForFeature(
+        user.subscriptionTier,
+        'chatRateLimit'
+      ),
     }
   }
 
@@ -170,7 +183,7 @@ export function canDownloadVideo(
   currentDownloads: number
 ): FeatureAccess {
   const access = validateUsageLimit(user, 'offlineDownloads', currentDownloads)
-  
+
   if (!access.hasAccess && currentDownloads === 0) {
     // User has no downloads yet, might need upgrade
     return {
@@ -193,7 +206,9 @@ export function canAccessAPI(user: StreamVaultUser): FeatureAccess {
 /**
  * Check if user can access advanced analytics
  */
-export function canAccessAdvancedAnalytics(user: StreamVaultUser): FeatureAccess {
+export function canAccessAdvancedAnalytics(
+  user: StreamVaultUser
+): FeatureAccess {
   return validateFeatureAccess(user, 'premium', 'Advanced analytics')
 }
 
@@ -239,13 +254,13 @@ export function canStreamAtQuality(
   quality: string
 ): FeatureAccess {
   const availableQualities = getAvailableVideoQualities(user)
-  
+
   if (availableQualities.includes(quality)) {
     return { hasAccess: true }
   }
 
   const requiredTier = getRequiredTierForQuality(quality)
-  
+
   return {
     hasAccess: false,
     reason: `${quality} streaming requires ${requiredTier} subscription or higher`,
@@ -295,31 +310,56 @@ export function getUpgradeSuggestions(
 } {
   const currentTier = user.subscriptionTier || 'basic'
   const currentLimits = SUBSCRIPTION_TIERS[currentTier].limits
-  
+
   const reasons: string[] = []
   const benefits: string[] = []
   let suggestedTier: SubscriptionTier | null = null
 
   // Check if user is hitting limits
-  if (currentLimits.concurrentStreams !== -1 && usage.activeStreams >= currentLimits.concurrentStreams) {
-    reasons.push(`You're at your concurrent streams limit (${currentLimits.concurrentStreams})`)
+  if (
+    currentLimits.concurrentStreams !== -1 &&
+    usage.activeStreams >= currentLimits.concurrentStreams
+  ) {
+    reasons.push(
+      `You're at your concurrent streams limit (${currentLimits.concurrentStreams})`
+    )
   }
 
-  if (currentLimits.storageQuota !== -1 && usage.storageUsed >= currentLimits.storageQuota * 0.8) {
-    reasons.push(`You're using ${Math.round((usage.storageUsed / currentLimits.storageQuota) * 100)}% of your storage`)
+  if (
+    currentLimits.storageQuota !== -1 &&
+    usage.storageUsed >= currentLimits.storageQuota * 0.8
+  ) {
+    reasons.push(
+      `You're using ${Math.round((usage.storageUsed / currentLimits.storageQuota) * 100)}% of your storage`
+    )
   }
 
-  if (currentLimits.customEmotes !== -1 && usage.customEmotes >= currentLimits.customEmotes) {
-    reasons.push(`You've reached your custom emotes limit (${currentLimits.customEmotes})`)
+  if (
+    currentLimits.customEmotes !== -1 &&
+    usage.customEmotes >= currentLimits.customEmotes
+  ) {
+    reasons.push(
+      `You've reached your custom emotes limit (${currentLimits.customEmotes})`
+    )
   }
 
   // Suggest appropriate tier
   if (currentTier === 'basic') {
     suggestedTier = 'premium'
-    benefits.push('Unlimited VOD access', 'HD streaming (1080p)', '5 custom emotes', 'Offline downloads')
+    benefits.push(
+      'Unlimited VOD access',
+      'HD streaming (1080p)',
+      '5 custom emotes',
+      'Offline downloads'
+    )
   } else if (currentTier === 'premium') {
     suggestedTier = 'pro'
-    benefits.push('4K streaming', 'Unlimited downloads', 'API access', 'White-label features')
+    benefits.push(
+      '4K streaming',
+      'Unlimited downloads',
+      'API access',
+      'White-label features'
+    )
   }
 
   return {
@@ -343,7 +383,8 @@ export function validateSubscriptionStatus(user: StreamVaultUser): {
     return {
       isValid: false,
       status: 'inactive',
-      message: 'Your subscription is inactive. Please renew to access premium features.',
+      message:
+        'Your subscription is inactive. Please renew to access premium features.',
     }
   }
 
@@ -351,7 +392,8 @@ export function validateSubscriptionStatus(user: StreamVaultUser): {
     return {
       isValid: false,
       status: 'past_due',
-      message: 'Your subscription payment is past due. Please update your payment method.',
+      message:
+        'Your subscription payment is past due. Please update your payment method.',
     }
   }
 
@@ -365,6 +407,7 @@ export function validateSubscriptionStatus(user: StreamVaultUser): {
   return {
     isValid: false,
     status: status || 'unknown',
-    message: 'There is an issue with your subscription. Please contact support.',
+    message:
+      'There is an issue with your subscription. Please contact support.',
   }
 }

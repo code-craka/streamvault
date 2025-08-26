@@ -43,6 +43,7 @@ The v1 API provides enterprise-grade endpoints with API key authentication, rate
 **Authentication:** API Key (Header: `x-api-key`)
 
 **Features:**
+
 - API key-based authentication
 - Granular permission system
 - Advanced rate limiting
@@ -219,6 +220,7 @@ Stop streaming (Requires: owner)
 Get stream details with API key authentication
 
 **Headers:**
+
 ```http
 x-api-key: sk_live_your_api_key_here
 ```
@@ -226,6 +228,7 @@ x-api-key: sk_live_your_api_key_here
 **Required Permissions:** `stream:read`
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -267,6 +270,7 @@ x-api-key: sk_live_your_api_key_here
 Update stream metadata
 
 **Headers:**
+
 ```http
 x-api-key: sk_live_your_api_key_here
 Content-Type: application/json
@@ -275,6 +279,7 @@ Content-Type: application/json
 **Required Permissions:** `stream:update`
 
 **Request Body:**
+
 ```json
 {
   "title": "Updated Stream Title",
@@ -286,6 +291,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -306,6 +312,7 @@ Content-Type: application/json
 Delete a stream
 
 **Headers:**
+
 ```http
 x-api-key: sk_live_your_api_key_here
 ```
@@ -313,6 +320,7 @@ x-api-key: sk_live_your_api_key_here
 **Required Permissions:** `stream:delete`
 
 **Response:**
+
 ```json
 {
   "message": "Stream deleted successfully"

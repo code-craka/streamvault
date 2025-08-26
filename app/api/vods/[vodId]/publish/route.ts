@@ -12,10 +12,7 @@ export async function POST(
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { vodId } = params
@@ -23,10 +20,7 @@ export async function POST(
     // Verify ownership
     const vodResult = await vodService.getById(vodId)
     if (!vodResult.success || !vodResult.data) {
-      return NextResponse.json(
-        { error: 'VOD not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'VOD not found' }, { status: 404 })
     }
 
     if (vodResult.data.userId !== userId) {
@@ -46,17 +40,13 @@ export async function POST(
     const result = await vodService.publishVOD(vodId)
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({
       vod: result.data,
       message: 'VOD published successfully',
     })
-
   } catch (error) {
     console.error('Failed to publish VOD:', error)
     return NextResponse.json(
