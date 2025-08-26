@@ -567,6 +567,52 @@ We follow [Semantic Versioning](https://semver.org/):
 
 All changes are documented in [CHANGELOG.md](CHANGELOG.md) following [Keep a Changelog](https://keepachangelog.com/) format.
 
+## Repository Maintenance
+
+### Branch Cleanup
+
+To maintain a clean repository structure, we regularly clean up automated branches created by bots and temporary processes:
+
+#### Automated Cleanup
+
+Use the provided cleanup script:
+
+```bash
+# Preview what would be deleted
+./scripts/cleanup-branches.sh --dry-run
+
+# Execute the cleanup
+./scripts/cleanup-branches.sh --force
+```
+
+#### What Gets Cleaned Up
+
+- **Copilot fix branches**: `copilot/fix-*`
+- **Dependabot branches**: `dependabot/*`  
+- **Merge branches**: `merge/*`
+- **Other automated branches**
+
+#### What's Preserved
+
+- `main` - Production branch (protected)
+- `develop` - Development branch (protected)
+- `feature/*` - Feature branches following naming convention
+- Any branches with recent commits or open PRs
+
+For detailed information, see [Branch Cleanup Documentation](docs/BRANCH_CLEANUP.md).
+
+### Dependency Updates
+
+- Dependabot automatically creates PRs for dependency updates
+- Review and merge dependency updates promptly
+- Test thoroughly before merging major version updates
+
+### Code Quality
+
+- Run linting and formatting regularly: `pnpm lint && pnpm format`
+- Keep test coverage above 80%: `pnpm test`
+- Address security vulnerabilities promptly
+
 ## Questions?
 
 If you have questions about contributing, please:
