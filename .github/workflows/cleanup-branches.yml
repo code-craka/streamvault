@@ -1,0 +1,65 @@
+name: Clean Up Stale Branches
+
+on:
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (preview only)'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  cleanup-branches:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Fetch all branches
+        run: git fetch --all --prune
+        
+      - name: Run branch cleanup script
+        run: |
+          chmod +x ./scripts/cleanup-branches.sh
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]] || [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "Running in dry-run mode..."
+            ./scripts/cleanup-branches.sh --dry-run
+          else
+            echo "Running actual cleanup..."
+            ./scripts/cleanup-branches.sh --force
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create summary
+        run: |
+          echo "## Branch Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Remaining Branches" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          git branch -r | sort >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Branch Count" >> $GITHUB_STEP_SUMMARY
+          echo "Total remote branches: $(git branch -r | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]] || [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "⚠️ **Dry Run Mode**: No branches were actually deleted" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Cleanup Complete**: Automated branches have been removed" >> $GITHUB_STEP_SUMMARY
+          fi

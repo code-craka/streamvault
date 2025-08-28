@@ -236,6 +236,20 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 - `test:` Test additions/changes
 - `chore:` Maintenance tasks
 
+## 🧹 Repository Maintenance
+
+### Branch Cleanup
+
+The repository includes automated tools for cleaning up temporary branches created by bots and automated processes:
+
+```bash
+# Clean up automated branches (Copilot, Dependabot, etc.)
+./scripts/cleanup-branches.sh --dry-run  # Preview changes
+./scripts/cleanup-branches.sh --force    # Execute cleanup
+```
+
+See [Branch Cleanup Documentation](docs/BRANCH_CLEANUP.md) for detailed information.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
