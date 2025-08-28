@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+// import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 
 // Initialize configuration system on server-side
 import '@/lib/config/init'
 
-const inter = Inter({ subsets: ['latin'] })
+// const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'StreamVault - Professional Live Streaming Platform',
@@ -134,7 +134,7 @@ export default function RootLayout({
             color="#3b82f6"
           />
         </head>
-        <body className={`${inter.className} font-sans antialiased`}>
+        <body className="font-sans antialiased">
           <div id="root">{children}</div>
           <script
             dangerouslySetInnerHTML={{
