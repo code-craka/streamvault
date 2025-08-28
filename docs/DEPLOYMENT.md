@@ -431,6 +431,7 @@ export async function GET() {
 ### Pre-Deployment
 
 - [ ] All environment variables are set correctly
+- [ ] Environment variable names do not start with `GITHUB_` (reserved for GitHub Actions)
 - [ ] JWT secrets are cryptographically secure (32+ characters)
 - [ ] Database security rules are configured
 - [ ] API rate limiting is enabled

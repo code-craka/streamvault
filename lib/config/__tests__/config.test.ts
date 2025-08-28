@@ -105,6 +105,50 @@ describe('Configuration System', () => {
         result.warnings.some(warning => warning.includes('placeholder'))
       ).toBe(true)
     })
+
+    it('should fail validation with GITHUB_ prefixed environment variables', () => {
+      // Add a GITHUB_ prefixed environment variable
+      process.env.GITHUB_SECRET = 'test-secret'
+      process.env.GITHUB_TOKEN = 'test-token'
+
+      const result = validateConfiguration()
+      expect(result.success).toBe(false)
+      expect(
+        result.errors.some(error => 
+          error.includes("Environment variable 'GITHUB_SECRET'") && 
+          error.includes("starts with 'GITHUB_' prefix")
+        )
+      ).toBe(true)
+      expect(
+        result.errors.some(error => 
+          error.includes("Environment variable 'GITHUB_TOKEN'") && 
+          error.includes("starts with 'GITHUB_' prefix")
+        )
+      ).toBe(true)
+
+      // Clean up
+      delete process.env.GITHUB_SECRET
+      delete process.env.GITHUB_TOKEN
+    })
+
+    it('should allow non-GITHUB_ prefixed environment variables', () => {
+      // Add some custom environment variables that should be allowed
+      process.env.CUSTOM_SECRET = 'test-secret'
+      process.env.MY_TOKEN = 'test-token'
+
+      const result = validateConfiguration()
+      // Should not fail due to these custom variables
+      expect(
+        result.errors.some(error => error.includes("CUSTOM_SECRET"))
+      ).toBe(false)
+      expect(
+        result.errors.some(error => error.includes("MY_TOKEN"))
+      ).toBe(false)
+
+      // Clean up
+      delete process.env.CUSTOM_SECRET
+      delete process.env.MY_TOKEN
+    })
   })
 
   describe('Environment-Specific Configuration', () => {
