@@ -1,0 +1,82 @@
+---
+name: "Copilot Setup Steps"
+
+# Auto-run when changed (for validation) and allow manual runs via the
+# Actions tab.
+'on':
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # The job MUST be named exactly `copilot-setup-steps`.
+  copilot-setup-steps:
+    # Default runner. If you provision larger runners, change to the label
+    # (e.g., ubuntu-4-core).
+    runs-on: ubuntu-latest
+
+    # Minimal permissions. Copilot receives its own token at runtime.
+    permissions:
+      contents: read
+
+    # Keep under 59 minutes per Copilot constraints.
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository (with LFS)
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Cache-aware Node setup by lockfile (supports npm/pnpm/yarn)
+      - name: Set up Node.js (npm)
+        if: ${{ hashFiles('**/package-lock.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Set up Node.js (pnpm)
+        if: ${{ hashFiles('**/pnpm-lock.yaml') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Set up Node.js (yarn)
+        if: ${{ hashFiles('**/yarn.lock') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Enable Corepack (pnpm/yarn shims)
+        run: corepack enable
+
+      # Install dependencies by detected lockfile
+      - name: Install dependencies (npm)
+        if: ${{ hashFiles('**/package-lock.json') != '' }}
+        run: npm ci
+
+      - name: Install dependencies (pnpm)
+        if: ${{ hashFiles('**/pnpm-lock.yaml') != '' }}
+        run: |
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+
+      - name: Install dependencies (yarn)
+        if: ${{ hashFiles('**/yarn.lock') != '' }}
+        run: |
+          corepack prepare yarn@stable --activate
+          yarn install --frozen-lockfile
+
+      # Optional: useful for video/media processing in tests
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+        continue-on-error: true
