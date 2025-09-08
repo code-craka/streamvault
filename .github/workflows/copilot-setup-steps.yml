@@ -28,28 +28,28 @@ jobs:
 
     steps:
       - name: Checkout repository (with LFS)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
 
       # Cache-aware Node setup by lockfile (supports npm/pnpm/yarn)
       - name: Set up Node.js (npm)
         if: ${{ hashFiles('**/package-lock.json') != '' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Set up Node.js (pnpm)
         if: ${{ hashFiles('**/pnpm-lock.yaml') != '' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'pnpm'
 
       - name: Set up Node.js (yarn)
         if: ${{ hashFiles('**/yarn.lock') != '' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'yarn'
