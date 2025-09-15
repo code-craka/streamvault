@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.0.0",
-    "@google-cloud/storage": "^7.0.0",
+    "@google-cloud/storage": "^7.17.1",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",
@@ -55,7 +55,7 @@
     "firebase": "^10.14.1",
     "firebase-admin": "^13.4.0",
     "framer-motion": "^11.0.0",
-    "hls.js": "^1.4.0",
+    "hls.js": "^1.6.12",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.400.0",
     "next": "15.5.0",
