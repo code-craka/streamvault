@@ -1,13 +1,36 @@
 {
   "version": "1.0",
+  "repository": {
+    "name": "StreamVault",
+    "description": "Next.js streaming platform with AI-powered content enhancement",
+    "type": "web-application",
+    "primary_language": "typescript",
+    "framework": "nextjs"
+  },
   "copilot": {
+    "knowledge_base": {
+      "instructions_file": ".github/copilot_instructions.md",
+      "documentation_paths": [
+        "README.md",
+        "docs/",
+        "CONTRIBUTING.md", 
+        "lib/*/README.md"
+      ],
+      "examples_path": "examples/"
+    },
     "features": {
       "code_review": {
         "enabled": true,
         "auto_comment": true,
         "security_analysis": true,
         "performance_analysis": true,
-        "best_practices": true
+        "best_practices": true,
+        "focus_areas": [
+          "typescript_strict_mode",
+          "nextjs_app_router",
+          "security_best_practices",
+          "streaming_optimization"
+        ]
       },
       "pull_request_analysis": {
         "enabled": true,
@@ -16,15 +39,28 @@
         "auto_fix": {
           "security_vulnerabilities": true,
           "code_style": true,
-          "dependency_updates": true
-        }
+          "dependency_updates": true,
+          "typescript_errors": true
+        },
+        "review_checklist": [
+          "Authentication and authorization",
+          "Input validation with Zod",
+          "Error handling patterns",
+          "Performance impact",
+          "Security considerations"
+        ]
       },
       "security_scanning": {
         "enabled": true,
         "vulnerability_detection": true,
         "secret_scanning": true,
         "dependency_scanning": true,
-        "auto_remediation": true
+        "auto_remediation": true,
+        "custom_patterns": [
+          "hardcoded_api_keys",
+          "insecure_random_generation",
+          "unvalidated_redirects"
+        ]
       }
     },
     "rules": {
@@ -85,10 +121,38 @@
         "enforce_test_naming": true
       }
     },
+    "context": {
+      "project_patterns": {
+        "api_routes": "app/api/**/*.ts",
+        "components": "components/**/*.tsx",
+        "hooks": "hooks/**/*.ts",
+        "lib": "lib/**/*.ts",
+        "types": "types/**/*.ts",
+        "tests": "tests/**/*.{ts,tsx}"
+      },
+      "ignore_patterns": [
+        "node_modules/",
+        ".next/",
+        "dist/",
+        "build/",
+        "coverage/",
+        "*.log"
+      ]
+    },
+    "workflow": {
+      "setup_steps": ".github/workflows/copilot-setup-steps.yml",
+      "auto_fix": ".github/workflows/copilot-autofix.yml",
+      "required_checks": [
+        "type-check",
+        "lint", 
+        "test",
+        "build"
+      ]
+    },
     "allowlist": {
       "external_domains": [
         "fonts.googleapis.com",
-        "fonts.gstatic.com",
+        "fonts.gstatic.com", 
         "cdn.jsdelivr.net",
         "unpkg.com",
         "api.stripe.com",
@@ -97,17 +161,21 @@
         "clerk.com",
         "*.clerk.accounts.dev",
         "firebase.googleapis.com",
-        "*.googleapis.com",
-        "storage.googleapis.com",
+        "firestore.googleapis.com",
+        "storage.googleapis.com", 
         "cloudflare.com",
+        "api.cloudflare.com",
+        "videodelivery.net",
         "*.cloudflare.com"
       ],
       "npm_packages": [
         "@clerk/nextjs",
-        "@google-cloud/storage",
+        "@google-cloud/storage", 
         "@radix-ui/*",
         "@tanstack/react-query",
+        "@upstash/redis",
         "firebase",
+        "firebase-admin",
         "stripe",
         "next",
         "react",
@@ -117,7 +185,9 @@
         "hls.js",
         "lucide-react",
         "zod",
-        "zustand"
+        "zustand",
+        "dompurify",
+        "svix"
       ]
     },
     "notifications": {
@@ -137,18 +207,42 @@
       "github_actions": {
         "enabled": true,
         "workflow_triggers": ["pull_request", "push"],
-        "auto_fix_commits": true
+        "auto_fix_commits": true,
+        "required_workflows": [
+          "ci.yml",
+          "copilot-setup-steps.yml",
+          "copilot-autofix.yml"
+        ]
       },
       "codeql": {
         "enabled": true,
         "custom_queries": true,
-        "sarif_upload": true
+        "sarif_upload": true,
+        "languages": ["typescript", "javascript"]
       },
       "dependabot": {
         "enabled": true,
         "auto_merge_patches": true,
-        "security_updates_only": false
+        "security_updates_only": false,
+        "package_ecosystems": ["npm"]
       }
+    },
+    "development": {
+      "package_manager": "pnpm",
+      "node_version": "22",
+      "commands": {
+        "install": "pnpm install --frozen-lockfile",
+        "dev": "pnpm dev", 
+        "build": "pnpm build",
+        "test": "pnpm test",
+        "lint": "pnpm lint",
+        "type_check": "pnpm type-check"
+      },
+      "environment_files": [
+        ".env.example",
+        ".env.development.template",
+        ".env.production.template"
+      ]
     }
   }
 }
